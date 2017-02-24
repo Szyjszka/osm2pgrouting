@@ -15,7 +15,7 @@ private:
     double getWayCost(const Way& way) const;
     Endpoints getEntpoints(const Way& way) const;
 
-    EdgesTable m_EdgesTable;
+    EdgesTable edgesTable;
     Nodes nodes;
 };
 

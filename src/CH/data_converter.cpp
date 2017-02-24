@@ -12,11 +12,15 @@ DataConverter::DataConverter(const OSMDocument &document)
                    std::back_inserter(nodes),
                    [](std::pair<int64_t, Node> elem){ return elem.second;});
 
-//    //Generate Edge table
-//    for(const auto& n : nodes)
-//    {
-//        EdgesTable.push_back(Edges(size, INF));
-//    }
+    for(const std::pair<int64_t, Way>& way_elem : document.ways())
+    {
+        Endpoints endpoints = getEntpoints(way_elem.second);
+        Edge edge;
+        edge.end_id = endpoints.end.osm_id();
+        edge.way_id = way_elem.first;
+        edge.cost = getWayCost(way_elem.second);
+        edgesTable[endpoints.start.osm_id()].push_back(edge);
+    }
 }
 
 double DataConverter::getWayCost(const Way &way) const
