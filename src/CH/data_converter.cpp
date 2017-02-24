@@ -11,11 +11,7 @@ using namespace RouterCH;
 
 DataConverter::DataConverter(const OSMDocument &document)
 {
-    //Transform map to more accesible format
-    std::transform(document.nodes().begin(), document.nodes().end(),
-                   std::back_inserter(nodes),
-                   [](std::pair<int64_t, Node> elem){ return elem.second;});
-
+    std::map<int64_t, bool> pushed;
     for(const std::pair<int64_t, Way>& way_elem : document.ways())
     {
         Endpoints endpoints = getEntpoints(way_elem.second);
@@ -24,6 +20,16 @@ DataConverter::DataConverter(const OSMDocument &document)
         edge.cost = getWayCost(way_elem.second);
         edgesTable[endpoints.start.osm_id()][endpoints.end.osm_id()] = edge;
         edgesTable[endpoints.end.osm_id()][endpoints.start.osm_id()] = edge;
+        if(pushed.find(endpoints.start.osm_id()) == pushed.end())
+        {
+            nodes.push_back(document.nodes().at(endpoints.start.osm_id()));
+        }
+        pushed[endpoints.start.osm_id()] = true;
+        if(pushed.find(endpoints.end.osm_id()) == pushed.end())
+        {
+            nodes.push_back(document.nodes().at(endpoints.end.osm_id()));
+        }
+        pushed[endpoints.end.osm_id()] = true;
     }
 
     simple_order(&nodes);
