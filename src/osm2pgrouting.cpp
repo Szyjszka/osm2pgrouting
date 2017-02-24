@@ -38,7 +38,7 @@
 #include "./Export2DB.h"
 #include "./prog_options.h"
 
-#include "data_converter.hpp"
+#include "data_converter.h"
 
 
 int main(int argc, char* argv[]) {
