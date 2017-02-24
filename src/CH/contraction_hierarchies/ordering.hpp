@@ -6,6 +6,6 @@
 namespace RouterCH
 {
     void simple_order(Nodes* nodes);
-    void number_of_way_order(Nodes* nodes, const EdgesTable& edgesTable);
+    void number_of_way_order(Nodes* nodes, const EdgesTable& edgesTable, const unsigned int startingNode);
 }
 #endif // ORDERING_HPP

@@ -33,7 +33,7 @@ DataConverter::DataConverter(OSMDocument &document)
     }
 
     //TODO Dodanie orderu do bazy
-    number_of_way_order(&nodes, edgesTable);
+    number_of_way_order(&nodes, edgesTable, 0);
 
     std::cout << "Oryginalne drogi "  << document.ways().size() << std::endl;
 
