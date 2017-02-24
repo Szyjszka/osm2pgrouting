@@ -45,19 +45,19 @@ bool operator!=(Route a, Route b)
 }
 
 //TODO read const QSTable&
-unsigned int getIndexOfNextNode(CostTable& costTable, QSTable& qsTable)
+int64_t getIndexOfNextNode(CostTable& costTable, QSTable& qsTable)
 {
     double minDistance = std::numeric_limits<double>::max();
     unsigned int indexOfMinDistance = 0;
 
-    for(unsigned int i = 0; i < costTable.size(); ++i)
+    for(const std::pair<int64_t, double>& cost : costTable)
     {
-        if(qsTable[i])
+        if(qsTable[cost.first])
         {
-            if(minDistance > costTable[i])
+            if(minDistance > cost.second)
             {
-                minDistance = costTable[i];
-                indexOfMinDistance = i;
+                minDistance = cost.second;
+                indexOfMinDistance = cost.first;
             }
         }
     }

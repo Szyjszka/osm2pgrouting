@@ -30,20 +30,22 @@ Route dijkstra(EdgesTable &edgesTable, const int64_t start,
 
     while(nodesLeft && indexOfNextElem != end )
     {
-        indexOfNextElem = getIndexOfNextNode(costTable, qsTable);
-        if(costTable[indexOfNextElem] == INF)
+        indexOfNextElem =  getIndexOfNextNode(costTable, qsTable);
+        //TODO ADD MAX COST as ARGUMENT
+        if(costTable[indexOfNextElem] >= INF)
         {
             return invalidRoute;
         }
         qsTable[indexOfNextElem] = false;
-        for(unsigned int i = 0; i < nodes.size(); ++i)
+        for(unsigned int i = 0; i < edgesTable[indexOfNextElem].size(); ++i)
+        for(const std::pair<int64_t, Edge>& edge : edgesTable[indexOfNextElem])
         {
-            if(qsTable[i] && edgesTable[indexOfNextElem][i] < INF)
+           if(qsTable[edge.first] && edgesTable[indexOfNextElem][edge.first] < INF)
             {
-                if(costTable[i] > costTable[indexOfNextElem] + edgesTable[indexOfNextElem][i])
+                if(costTable[edge.first] > costTable[indexOfNextElem] + edgesTable[indexOfNextElem][i])
                 {
-                    costTable[i] = costTable[indexOfNextElem] + edgesTable[indexOfNextElem][i];
-                    pathTable[i] = indexOfNextElem;
+                    costTable[edge.first] = costTable[indexOfNextElem] + edgesTable[indexOfNextElem][i];
+                    pathTable[edge.first] = indexOfNextElem;
                 }
 
             }

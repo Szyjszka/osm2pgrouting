@@ -1,28 +1,29 @@
 #include <algorithm>
 #include <climits>
+#include <iostream>
 #include "contracting.hpp"
 #include "../shortest_path_algorithms/dijkstra.hpp"
 
 namespace RouterCH
 {
 
-bool chechIfShortcudNeeded(EdgesTable& edgesTable, const Node& u,
-                           const Node& v, const Node& w, const Nodes &nodes)
+bool chechIfShortcudNeeded(EdgesTable& edgesTable, const int64_t u,
+                           const int64_t v, const int64_t w, const Nodes &nodes)
 {
     EdgesTable edgesTableForLocalSearch(edgesTable);
 
     //wstawienie do tabeli duzych wartosci dla poszkiwanego skrótu żeby zobaczyć czy
     //dijkstra znajdzie inną trasę
     Route checkedShortctut;
-    checkedShortctut.nodes = Nodes({u, v, w});
-    checkedShortctut.cost = edgesTable[u.osm_id()][v.osm_id()] + edgesTable[v.osm_id()][w.osm_id()];
-    for(unsigned int i = 0; i < nodes.size(); ++i)
+    checkedShortctut.cost = edgesTable[u][v] + edgesTable[v][w];
+    for(const std::pair<int64_t, Edges>& ways : edgesTable)
+    for(const std::pair<int64_t, Edge>& edge : ways.second)
     {
-        edgesTableForLocalSearch[nodes[i].osm_id()][v.osm_id()] = INF;
-        edgesTableForLocalSearch[v.osm_id()][nodes[i].osm_id()] = INF;
+        edgesTableForLocalSearch[ways.first][edge.first] = INF;
+        edgesTableForLocalSearch[edge.first][ways.first] = INF;
     }
 
-    Route sh = dijkstra(edgesTableForLocalSearch, u.osm_id(), w.osm_id(), nodes);
+    Route sh = dijkstra(edgesTableForLocalSearch, u, w, nodes);
 
     return sh.cost > checkedShortctut.cost;
 }
@@ -30,28 +31,16 @@ bool chechIfShortcudNeeded(EdgesTable& edgesTable, const Node& u,
 void contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes)
 {
     // dla każdej pary (u, v) i (v,w) z krawędzi
-    for(unsigned int uID = 0; uID < (edgesTable)[v.osm_id()].size(); ++uID)
+    for(auto i = edgesTable[v.osm_id()].begin(); i != prev(edgesTable[v.osm_id()].end()); ++i)
+    for(auto j = next(i); j != edgesTable[v.osm_id()].end(); ++j)
     {
-        if(uID == v.osm_id())
+        int64_t uID = i->first;
+        int64_t wID = j->first;
+        if(chechIfShortcudNeeded(edgesTable, uID, v.osm_id(), wID, nodes))
         {
-            continue;
-        }
-        for(unsigned int wID = uID+1; wID < (edgesTable)[v.osm_id()].size(); ++wID)
-        {
-            if(wID == v.osm_id())
-            {
-                continue;
-            }
-            if(((edgesTable)[uID][v.osm_id()] < INF) && (edgesTable)[v.osm_id()][wID] < INF)
-            {
-                //jeśli (u,v,w) jest unikalną najkrótszą ścieżką
-                if(chechIfShortcudNeeded(edgesTable, nodes[uID], v, nodes[wID], nodes))
-                {
-                //dodaj skrót (u,v,w)
-                    (edgesTable)[uID][wID] = (edgesTable)[uID][v.osm_id()] + (edgesTable)[v.osm_id()][wID];
-                    (edgesTable)[wID][uID] = (edgesTable)[uID][v.osm_id()] + (edgesTable)[v.osm_id()][wID];
-                }
-            }
+        //dodaj skrót (u,v,w)
+            (edgesTable)[uID][wID] = (edgesTable)[uID][v.osm_id()] + (edgesTable)[v.osm_id()][wID];
+            (edgesTable)[wID][uID] = (edgesTable)[uID][v.osm_id()] + (edgesTable)[v.osm_id()][wID];
         }
     }
 
@@ -62,6 +51,7 @@ void contract(EdgesTable& edgesTable, const Nodes& nodes)
     //zakłada że nodes są w rosnącej kolejności po order
     for(unsigned int i = 0; i < nodes.size(); ++i)
     {
+        std::cout << "Jeszcze " << nodes.size() - i << std::endl;
         contractNode(edgesTable,nodes[i], nodes);
     }
 }

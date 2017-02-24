@@ -23,6 +23,7 @@ DataConverter::DataConverter(const OSMDocument &document)
         edge.way_id = way_elem.first;
         edge.cost = getWayCost(way_elem.second);
         edgesTable[endpoints.start.osm_id()][endpoints.end.osm_id()] = edge;
+        edgesTable[endpoints.end.osm_id()][endpoints.start.osm_id()] = edge;
     }
 
     simple_order(&nodes);

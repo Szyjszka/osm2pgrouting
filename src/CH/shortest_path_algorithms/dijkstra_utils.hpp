@@ -9,7 +9,7 @@ typedef std::map<int64_t, bool> QSTable; //true jeśli w Q (nie został policzon
 typedef std::map<int64_t, double> CostTable;
 typedef std::map<int64_t, int64_t> PathTable;
 
-unsigned int getIndexOfNextNode(CostTable& costTable, QSTable& qsTable);
+int64_t getIndexOfNextNode(CostTable& costTable, QSTable& qsTable);
 Route createShortestPath(EdgesTable &edgesTable, PathTable& pathTable, const int64_t start,
                          const int64_t end, const Nodes& nodes,const ShorctutsTable* shortcutsTable = nullptr);
 bool operator==(Route a, Route b);
