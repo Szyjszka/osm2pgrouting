@@ -1,8 +1,9 @@
-#include "data_converter.hpp"
+#include "data_converter.h"
 
 #include <algorithm>
 
 using namespace osm2pgr;
+using namespace RouterCH;
 
 
 DataConverter::DataConverter(const OSMDocument &document)
@@ -16,10 +17,9 @@ DataConverter::DataConverter(const OSMDocument &document)
     {
         Endpoints endpoints = getEntpoints(way_elem.second);
         Edge edge;
-        edge.end_id = endpoints.end.osm_id();
         edge.way_id = way_elem.first;
         edge.cost = getWayCost(way_elem.second);
-        edgesTable[endpoints.start.osm_id()].push_back(edge);
+        edgesTable[endpoints.start.osm_id()][endpoints.end.osm_id()] = edge;
     }
 }
 

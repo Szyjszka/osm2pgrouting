@@ -38,7 +38,7 @@
 #include "./Export2DB.h"
 #include "./prog_options.h"
 
-#include "data_converter.h"
+#include "CH/data_converter.h"
 
 
 int main(int argc, char* argv[]) {
@@ -136,7 +136,7 @@ int main(int argc, char* argv[]) {
         // CH PART
 
         //1) Create edges table
-        osm2pgr::DataConverter dataForCH(document);
+        RouterCH::DataConverter dataForCH(document);
 
         // END OF CH PART
 

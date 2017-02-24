@@ -5,18 +5,18 @@
 #include "Way.h"
 #include "OSMDocument.h"
 
-namespace osm2pgr {
+namespace RouterCH {
 
 class DataConverter
 {
 public:
-    DataConverter(const OSMDocument& document);
+    DataConverter(const osm2pgr::OSMDocument& document);
 private:
-    double getWayCost(const Way& way) const;
-    Endpoints getEntpoints(const Way& way) const;
+    double getWayCost(const osm2pgr::Way& way) const;
+    Endpoints getEntpoints(const osm2pgr::Way& way) const;
 
-    EdgesTable edgesTable;
-    Nodes nodes;
+    RouterCH::EdgesTable edgesTable;
+    RouterCH::Nodes nodes;
 };
 
 }
