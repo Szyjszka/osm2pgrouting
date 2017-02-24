@@ -9,7 +9,7 @@ using namespace osm2pgr;
 using namespace RouterCH;
 
 
-DataConverter::DataConverter(const OSMDocument &document)
+DataConverter::DataConverter(OSMDocument &document)
 {
     std::map<int64_t, bool> pushed;
     for(const std::pair<int64_t, Way>& way_elem : document.ways())
@@ -33,7 +33,6 @@ DataConverter::DataConverter(const OSMDocument &document)
     }
 
     //TODO Dodanie orderu do bazy
-    //TODO Dodanie utworzonych drog do bazy
     simple_order(&nodes);
 
     std::cout << "Oryginalne drogi "  << document.ways().size() << std::endl;
@@ -41,6 +40,10 @@ DataConverter::DataConverter(const OSMDocument &document)
     int64_t firstAvailableID = (document.ways().rbegin()->first)+1;
     contract(edgesTable, nodes, document.ways(), newWays, firstAvailableID);
 
+    for(auto& way : newWays)
+    {
+        document.AddWay(way.second);
+    }
     std::cout << "Dodane drogi "  <<  newWays.size() << std::endl;
 }
 

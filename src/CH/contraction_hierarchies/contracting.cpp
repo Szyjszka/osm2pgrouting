@@ -68,8 +68,8 @@ void contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
             edgesTable[*j][*i].way_id = checkWayID;
             newWay.maxspeed_forward(oldWays.at(checkWayID).maxspeed_forward());
             newWay.maxspeed_backward(oldWays.at(checkWayID).maxspeed_backward());
-
-            newWays[firstID++] = newWay;
+            newWay.setID(firstID++);
+            newWays[firstID] = newWay;
         }
     }
     //Restore connections
@@ -93,7 +93,7 @@ void contract(EdgesTable& edgesTable, const Nodes& nodes,
     //zakłada że nodes są w rosnącej kolejności po order
     for(unsigned int i = 0; i < nodes.size(); ++i)
     {
-        std::cout << "Jeszcze " << nodes.size() - i << std::endl;
+//        std::cout << "Jeszcze " << nodes.size() - i << std::endl;
         contractNode(edgesTable,nodes[i], nodes, oldWays, newWays, firstID);
     }
 }

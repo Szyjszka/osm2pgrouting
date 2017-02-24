@@ -10,7 +10,7 @@ namespace RouterCH {
 class DataConverter
 {
 public:
-    DataConverter(const osm2pgr::OSMDocument& document);
+    DataConverter(osm2pgr::OSMDocument& document);
 private:
     double getWayCost(const osm2pgr::Way& way) const;
     Endpoints getEntpoints(const osm2pgr::Way& way) const;

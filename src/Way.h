@@ -84,7 +84,7 @@ class Way : public Element {
      std::string geometry_str() const;
      std::string length_str() const;
      double length() const;
-
+     void setID(const int64_t newID) { m_osm_id = newID;}
 
      inline std::string maxspeed_forward_str() const {
          return boost::lexical_cast<std::string>(
