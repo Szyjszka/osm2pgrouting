@@ -6,7 +6,7 @@
 namespace RouterCH
 {
 
-void contract(EdgesTable& edgesTable, const Nodes& nodes, ShorctutsTable& shortcutsTable);
+void contract(EdgesTable& edgesTable, const Nodes& nodes);
 
 }
 #endif // CONTRACTING_HPP

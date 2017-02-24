@@ -27,16 +27,16 @@ bool chechIfShortcudNeeded(EdgesTable& edgesTable, const Node& u,
     return sh.cost > checkedShortctut.cost;
 }
 
-void contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes, ShorctutsTable& shorctcutsTable)
+void contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes)
 {
     // dla każdej pary (u, v) i (v,w) z krawędzi
-    for(unsigned int uID = 0; uID < (edgesTable)[0].size(); ++uID)
+    for(unsigned int uID = 0; uID < (edgesTable)[v.osm_id()].size(); ++uID)
     {
         if(uID == v.osm_id())
         {
             continue;
         }
-        for(unsigned int wID = uID+1; wID < (edgesTable)[0].size(); ++wID)
+        for(unsigned int wID = uID+1; wID < (edgesTable)[v.osm_id()].size(); ++wID)
         {
             if(wID == v.osm_id())
             {
@@ -50,21 +50,6 @@ void contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes, Sho
                 //dodaj skrót (u,v,w)
                     (edgesTable)[uID][wID] = (edgesTable)[uID][v.osm_id()] + (edgesTable)[v.osm_id()][wID];
                     (edgesTable)[wID][uID] = (edgesTable)[uID][v.osm_id()] + (edgesTable)[v.osm_id()][wID];
-                    //Jeśli skrót już był to go usuwamy
-                    (shorctcutsTable)[uID][wID].clear();
-                    (shorctcutsTable)[wID][uID].clear();
-                    for(auto nodeID : shorctcutsTable[uID][v.osm_id()])
-                    {
-                        (shorctcutsTable)[uID][wID].push_back({nodeID});
-                        (shorctcutsTable)[wID][uID].push_back({nodeID});
-                    }
-                    (shorctcutsTable)[uID][wID].push_back({v.osm_id()});
-                    (shorctcutsTable)[wID][uID].push_back({v.osm_id()});
-                    for(auto nodeID : (shorctcutsTable)[v.osm_id()][wID])
-                    {
-                        (shorctcutsTable)[uID][wID].push_back({nodeID});
-                        (shorctcutsTable)[wID][uID].push_back({nodeID});
-                    }
                 }
             }
         }
@@ -72,12 +57,12 @@ void contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes, Sho
 
 }
 
-void contract(EdgesTable& edgesTable, const Nodes& nodes, ShorctutsTable& shortcutsTable)
+void contract(EdgesTable& edgesTable, const Nodes& nodes)
 {
     //zakłada że nodes są w rosnącej kolejności po order
     for(unsigned int i = 0; i < nodes.size(); ++i)
     {
-        contractNode(edgesTable,nodes[i], nodes, shortcutsTable);
+        contractNode(edgesTable,nodes[i], nodes);
     }
 }
 

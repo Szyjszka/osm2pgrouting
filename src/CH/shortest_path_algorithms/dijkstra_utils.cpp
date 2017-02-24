@@ -44,7 +44,8 @@ bool operator!=(Route a, Route b)
     return !(a==b);
 }
 
-unsigned int getIndexOfNextNode(CostTable& costTable, const QSTable& qsTable)
+//TODO read const QSTable&
+unsigned int getIndexOfNextNode(CostTable& costTable, QSTable& qsTable)
 {
     double minDistance = std::numeric_limits<double>::max();
     unsigned int indexOfMinDistance = 0;
@@ -63,7 +64,7 @@ unsigned int getIndexOfNextNode(CostTable& costTable, const QSTable& qsTable)
     return indexOfMinDistance;
 }
 //Todo readd const edgedTable&
-Route createShortestPath(EdgesTable &edgesTable, const PathTable& pathTable, const int64_t start,
+Route createShortestPath(EdgesTable &edgesTable, PathTable& pathTable, const int64_t start,
                          const int64_t end, const Nodes& nodes, const ShorctutsTable* shortcutsTable)
 {
     Route shortestPath;

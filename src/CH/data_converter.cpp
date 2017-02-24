@@ -1,6 +1,9 @@
 #include "data_converter.h"
 
 #include <algorithm>
+#include <iostream>
+#include "contraction_hierarchies/contracting.hpp"
+#include "contraction_hierarchies/ordering.hpp"
 
 using namespace osm2pgr;
 using namespace RouterCH;
@@ -21,6 +24,11 @@ DataConverter::DataConverter(const OSMDocument &document)
         edge.cost = getWayCost(way_elem.second);
         edgesTable[endpoints.start.osm_id()][endpoints.end.osm_id()] = edge;
     }
+
+    simple_order(&nodes);
+    std::cout << "Przed dodaniem skrótów: "  << edgesTable.size() << std::endl;
+    contract(edgesTable, nodes);
+    std::cout << "Po: "  <<  edgesTable.size() << std::endl;
 }
 
 double DataConverter::getWayCost(const Way &way) const

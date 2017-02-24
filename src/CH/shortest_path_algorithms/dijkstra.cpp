@@ -12,11 +12,16 @@ namespace RouterCH
 Route dijkstra(EdgesTable &edgesTable, const int64_t start,
                const int64_t end, const Nodes& nodes)
 {
-
-    QSTable qsTable(nodes.size(),true);
-    CostTable costTable(nodes.size(), INF);
+    QSTable qsTable;
+    CostTable costTable;
+    PathTable pathTable;
+    for(const Node& n : nodes)
+    {
+        qsTable[n.osm_id()] = true;
+        costTable[n.osm_id()] = INF;
+        pathTable[n.osm_id()] = NO_PRECCESSOR;
+    }
     costTable[start] = 0;
-    PathTable pathTable(nodes.size(), NO_PRECCESSOR);
     Route invalidRoute;
     invalidRoute.cost = INF;
     invalidRoute.id = 0;
