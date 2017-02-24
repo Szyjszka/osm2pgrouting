@@ -35,19 +35,13 @@ DataConverter::DataConverter(const OSMDocument &document)
     //TODO Dodanie orderu do bazy
     //TODO Dodanie utworzonych drog do bazy
     simple_order(&nodes);
-    size_t ways_size = 0;
-    for(const std::pair<int64_t, Edges>& ways : edgesTable)
-    {
-        ways_size += ways.second.size();
-    }
-    std::cout << "Przed dodaniem skrótów: "  << ways_size << std::endl;
-    contract(edgesTable, nodes, newWays);
-    ways_size = 0;
-    for(const std::pair<int64_t, Edges>& ways : edgesTable)
-    {
-        ways_size += ways.second.size();
-    }
-    std::cout << "Po: "  <<  ways_size << std::endl;
+
+    std::cout << "Oryginalne drogi "  << document.ways().size() << std::endl;
+
+    int64_t firstAvailableID = (document.ways().rbegin()->first)+1;
+    contract(edgesTable, nodes, document.ways(), newWays, firstAvailableID);
+
+    std::cout << "Dodane drogi "  <<  newWays.size() << std::endl;
 }
 
 double DataConverter::getWayCost(const Way &way) const
