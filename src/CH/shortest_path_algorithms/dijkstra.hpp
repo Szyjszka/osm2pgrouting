@@ -7,8 +7,8 @@ namespace RouterCH
 {
 
 //Todo Readd const edgesTable&
-Route dijkstra(EdgesTable& edgesTable, const unsigned int start,
-              const unsigned int end, const Nodes& nodes);
+Route dijkstra(EdgesTable& edgesTable, const int64_t start,
+               const int64_t end, const Nodes& nodes);
 
 EdgesTable makeEdgesTable(const Graph& graph, const unsigned int size);
 }

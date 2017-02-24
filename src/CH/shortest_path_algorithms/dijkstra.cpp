@@ -9,8 +9,8 @@ namespace RouterCH
 {
 
 //TODO readd const& to edgesTable
-Route dijkstra(EdgesTable &edgesTable, const unsigned int start,
-               const unsigned int end, const Nodes& nodes)
+Route dijkstra(EdgesTable &edgesTable, const int64_t start,
+               const int64_t end, const Nodes& nodes)
 {
 
     QSTable qsTable(nodes.size(),true);
@@ -20,8 +20,8 @@ Route dijkstra(EdgesTable &edgesTable, const unsigned int start,
     Route invalidRoute;
     invalidRoute.cost = INF;
     invalidRoute.id = 0;
-    unsigned int nodesLeft = nodes.size();
-    unsigned int indexOfNextElem = start;
+    int64_t nodesLeft = nodes.size();
+    int64_t indexOfNextElem = start;
 
     while(nodesLeft && indexOfNextElem != end )
     {

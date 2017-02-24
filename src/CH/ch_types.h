@@ -21,9 +21,9 @@ struct Edge{
 typedef osm2pgr::Node Node;
 typedef std::map<int64_t, Edge> Edges;
 typedef std::map<int64_t, Edges> EdgesTable;
-typedef std::vector<std::vector<std::vector<unsigned int> > > ShorctutsTable;
+typedef std::vector<std::vector<std::vector<double> > > ShorctutsTable;
 typedef std::vector<osm2pgr::Node> Nodes;
-typedef struct { Nodes nodes; unsigned int cost; unsigned int id;} Route;
+typedef struct { Nodes nodes; double cost; int64_t id;} Route;
 typedef std::vector<Route> Graph;
 
 static const unsigned int INF = UINT_MAX;
