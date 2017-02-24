@@ -44,11 +44,11 @@ bool operator!=(Route a, Route b)
     return !(a==b);
 }
 
-//TODO read const QSTable&
+//TODO readd const QSTable&
 int64_t getIndexOfNextNode(CostTable& costTable, QSTable& qsTable)
 {
     double minDistance = std::numeric_limits<double>::max();
-    unsigned int indexOfMinDistance = 0;
+    int64_t indexOfMinDistance = 0;
 
     for(const std::pair<int64_t, double>& cost : costTable)
     {
@@ -87,7 +87,7 @@ Route createShortestPath(EdgesTable &edgesTable, PathTable& pathTable, const int
         shortestPath.nodes.push_back(nodes[indexOfNext]);
         if(shortcutsTable)
         {
-            unsigned int shortcutSize = (*shortcutsTable)[indexOfNext][pathTable[indexOfNext]].size();
+            size_t shortcutSize = (*shortcutsTable)[indexOfNext][pathTable[indexOfNext]].size();
             if(shortcutSize)
             {
                 for(unsigned int j = 0; j < shortcutSize; ++j)

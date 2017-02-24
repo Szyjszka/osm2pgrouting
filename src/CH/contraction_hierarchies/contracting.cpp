@@ -18,7 +18,7 @@ bool chechIfShortcudNeeded(EdgesTable& edgesTable, const int64_t u,
     return sh.cost > checkedShortctut.cost;
 }
 
-void contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes)
+void contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes, std::map<int64_t, osm2pgr::Way>& newWays)
 {
     // dla każdej pary (u, v) i (v,w) z krawędzi
     if(edgesTable.find(v.osm_id()) == edgesTable.end())
@@ -46,6 +46,8 @@ void contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes)
         //dodaj skrót (u,v,w)
             (edgesTable)[*i][*j] = (edgesTable)[*i][v.osm_id()] + (edgesTable)[v.osm_id()][*j];
             (edgesTable)[*j][*i] = (edgesTable)[*i][v.osm_id()] + (edgesTable)[v.osm_id()][*j];
+            //TODO dodac droge do bazy
+//            newWays[]
         }
     }
     //Restore connections
@@ -59,13 +61,13 @@ void contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes)
 
 }
 
-void contract(EdgesTable& edgesTable, const Nodes& nodes)
+void contract(EdgesTable& edgesTable, const Nodes& nodes, std::map<int64_t, osm2pgr::Way>& newWays)
 {
     //zakłada że nodes są w rosnącej kolejności po order
     for(unsigned int i = 0; i < nodes.size(); ++i)
     {
 //        std::cout << "Jeszcze " << nodes.size() - i << std::endl;
-        contractNode(edgesTable,nodes[i], nodes);
+        contractNode(edgesTable,nodes[i], nodes, newWays);
     }
 }
 

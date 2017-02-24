@@ -17,6 +17,8 @@ private:
 
     RouterCH::EdgesTable edgesTable;
     RouterCH::Nodes nodes;
+    std::map<int64_t, osm2pgr::Way> newWays;
+    int64_t firstAvailableID;
 };
 
 }

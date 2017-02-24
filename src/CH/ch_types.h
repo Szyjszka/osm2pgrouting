@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include "Node.h"
+#include "Way.h"
 
 namespace RouterCH {
 struct Endpoints{

@@ -32,6 +32,8 @@ DataConverter::DataConverter(const OSMDocument &document)
         pushed[endpoints.end.osm_id()] = true;
     }
 
+    //TODO Dodanie orderu do bazy
+    //TODO Dodanie utworzonych drog do bazy
     simple_order(&nodes);
     size_t ways_size = 0;
     for(const std::pair<int64_t, Edges>& ways : edgesTable)
@@ -39,7 +41,7 @@ DataConverter::DataConverter(const OSMDocument &document)
         ways_size += ways.second.size();
     }
     std::cout << "Przed dodaniem skrótów: "  << ways_size << std::endl;
-    contract(edgesTable, nodes);
+    contract(edgesTable, nodes, newWays);
     ways_size = 0;
     for(const std::pair<int64_t, Edges>& ways : edgesTable)
     {
