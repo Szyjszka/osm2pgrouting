@@ -93,7 +93,8 @@ void contract(EdgesTable& edgesTable, const Nodes& nodes,
     //zakłada że nodes są w rosnącej kolejności po order
     for(unsigned int i = 0; i < nodes.size(); ++i)
     {
-//        std::cout << "Jeszcze " << nodes.size() - i << std::endl;
+        std::cout << "Jeszcze " << nodes.size() - i << std::endl;
+        std::cout << "Dodano juz tyle drog: " << newWays.size()<<std::endl;
         contractNode(edgesTable,nodes[i], nodes, oldWays, newWays, firstID);
     }
 }
