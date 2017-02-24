@@ -10,7 +10,7 @@ namespace RouterCH
 
 //TODO readd const& to edgesTable
 Route dijkstra(EdgesTable &edgesTable, const int64_t start,
-               const int64_t end, const Nodes& nodes)
+               const int64_t end, const Nodes& nodes, double max_cost)
 {
     QSTable qsTable;
     CostTable costTable;
@@ -31,8 +31,7 @@ Route dijkstra(EdgesTable &edgesTable, const int64_t start,
     while(nodesLeft && indexOfNextElem != end )
     {
         indexOfNextElem =  getIndexOfNextNode(costTable, qsTable);
-        //TODO ADD MAX COST as ARGUMENT
-        if(costTable[indexOfNextElem] >= INF)
+        if(costTable[indexOfNextElem] >= max_cost)
         {
             return invalidRoute;
         }

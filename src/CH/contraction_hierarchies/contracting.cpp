@@ -16,6 +16,7 @@ bool chechIfShortcudNeeded(EdgesTable& edgesTable, const int64_t u,
     //dijkstra znajdzie inną trasę
     Route checkedShortctut;
     checkedShortctut.cost = edgesTable[u][v] + edgesTable[v][w];
+    //PRZENIESC TO WYZEJ, PO CO ZA KAZDYM RAZEM TO USTAWIAC
     for(const std::pair<int64_t, Edges>& ways : edgesTable)
     for(const std::pair<int64_t, Edge>& edge : ways.second)
     {
@@ -23,7 +24,7 @@ bool chechIfShortcudNeeded(EdgesTable& edgesTable, const int64_t u,
         edgesTableForLocalSearch[edge.first][ways.first] = INF;
     }
 
-    Route sh = dijkstra(edgesTableForLocalSearch, u, w, nodes);
+    Route sh = dijkstra(edgesTableForLocalSearch, u, w, nodes, checkedShortctut.cost);
 
     return sh.cost > checkedShortctut.cost;
 }
