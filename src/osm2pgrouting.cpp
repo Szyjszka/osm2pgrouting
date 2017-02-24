@@ -38,6 +38,8 @@
 #include "./Export2DB.h"
 #include "./prog_options.h"
 
+#include "data_converter.hpp"
+
 
 int main(int argc, char* argv[]) {
 #ifdef WITH_TIME
@@ -130,6 +132,13 @@ int main(int argc, char* argv[]) {
         if (document.nodesErrs()) {
             std::cerr << "******\nNOTICE:  Found " << document.nodesErrs() << " node references with no <node ... >\n*****";
         }
+
+        // CH PART
+
+        //1) Create edges table
+        osm2pgr::DataConverter dataForCH(document);
+
+        // END OF CH PART
 
         //############# Export2DB
         {

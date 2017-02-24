@@ -83,6 +83,7 @@ class Way : public Element {
 
      std::string geometry_str() const;
      std::string length_str() const;
+     double length() const;
 
 
      inline std::string maxspeed_forward_str() const {
@@ -99,6 +100,7 @@ class Way : public Element {
      std::vector<std::vector<Node*>> split_me();
      std::string geometry_str(const std::vector<Node*> &) const;
      std::string length_str(const std::vector<Node*> &) const;
+     double length(const std::vector<Node*> &) const;
 
      /**
       * to insert the relations tags

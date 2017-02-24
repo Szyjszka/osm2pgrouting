@@ -71,6 +71,12 @@ Way::length_str() const {
     return length_str(m_NodeRefs);
 }
 
+double
+Way::length() const {
+    return length(m_NodeRefs);
+}
+
+
 
 std::string
 Way::geometry_str(const std::vector<Node*> &nodeRefs) const {
@@ -91,6 +97,11 @@ Way::geometry_str(const std::vector<Node*> &nodeRefs) const {
 
 std::string
 Way::length_str(const std::vector<Node*> &nodeRefs) const {
+    return boost::lexical_cast<std::string>(length(nodeRefs));
+}
+
+double Way::length(const std::vector<Node *> &nodeRefs) const
+{
     double length = 0;
     auto prev_node_ptr = nodeRefs.front();
 
@@ -102,8 +113,7 @@ Way::length_str(const std::vector<Node*> &nodeRefs) const {
         length  += node_ptr->getLength(*prev_node_ptr);
         prev_node_ptr = node_ptr;
     }
-
-    return boost::lexical_cast<std::string>(length);
+    return length;
 }
 
 
