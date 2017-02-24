@@ -33,9 +33,19 @@ DataConverter::DataConverter(const OSMDocument &document)
     }
 
     simple_order(&nodes);
-    std::cout << "Przed dodaniem skrótów: "  << edgesTable.size() << std::endl;
+    size_t ways_size = 0;
+    for(const std::pair<int64_t, Edges>& ways : edgesTable)
+    {
+        ways_size += ways.second.size();
+    }
+    std::cout << "Przed dodaniem skrótów: "  << ways_size << std::endl;
     contract(edgesTable, nodes);
-    std::cout << "Po: "  <<  edgesTable.size() << std::endl;
+    ways_size = 0;
+    for(const std::pair<int64_t, Edges>& ways : edgesTable)
+    {
+        ways_size += ways.second.size();
+    }
+    std::cout << "Po: "  <<  ways_size << std::endl;
 }
 
 double DataConverter::getWayCost(const Way &way) const
