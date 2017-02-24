@@ -15,6 +15,7 @@ struct Edge{
     double cost;
 
     operator double() const {return cost;}
+    double operator =(double d) {cost = d; return cost;}
 };
 
 typedef osm2pgr::Node Node;

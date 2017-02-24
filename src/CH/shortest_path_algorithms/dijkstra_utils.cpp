@@ -4,44 +4,25 @@
 
 namespace RouterCH
 {
-
-EdgesTable makeEdgesTable(const Graph& graph, const unsigned int size)
+bool operator==(Node a, Node b)
 {
-    EdgesTable edgesTable(size, std::vector<unsigned int>(size, INF));
-
-    for(unsigned int i = 0; i < edgesTable.size(); ++i)
-    {
-        edgesTable[i][i] = 0;
-    }
-
-    for(const auto& route : graph)
-    {
-        edgesTable[route.nodes[0].id][route.nodes.back().id] = route.cost;
-        edgesTable[route.nodes.back().id][route.nodes[0].id] = route.cost;
-    }
-
-    return edgesTable;
-}
-
-bool operator==(const Node& a, const Node& b)
-{
-    if(a.coord != b.coord)
+    if(a.point_geometry() != b.point_geometry())
     {
         return false;
     }
-    if(a.id != b.id)
+    if(a.osm_id() != b.osm_id())
     {
         return false;
     }
     return true;
 }
 
-bool operator !=(const Node& a, const Node& b)
+bool operator !=(Node a, Node b)
 {
     return !(a==b);
 }
 
-bool operator==(const Route& a, const Route& b)
+bool operator==(Route a, Route b)
 {
     if(a.cost != b.cost)
     {
@@ -58,7 +39,7 @@ bool operator==(const Route& a, const Route& b)
     return true;
 }
 
-bool operator!=(const Route& a, const Route& b)
+bool operator!=(Route a, Route b)
 {
     return !(a==b);
 }
@@ -81,8 +62,8 @@ unsigned int getIndexOfNextNode(CostTable& costTable, const QSTable& qsTable)
     }
     return indexOfMinDistance;
 }
-
-Route createShortestPath(const EdgesTable &edgesTable, const PathTable& pathTable, const unsigned int start,
+//Todo readd const edgedTable&
+Route createShortestPath(EdgesTable &edgesTable, const PathTable& pathTable, const unsigned int start,
                          const unsigned int end, const Nodes& nodes, const ShorctutsTable* shortcutsTable)
 {
     Route shortestPath;

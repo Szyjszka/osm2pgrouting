@@ -86,6 +86,7 @@ class Node : public Element {
      inline uint16_t numsOfUse() const {return m_numsOfUse;}
      inline void numsOfUse(uint16_t val)  {m_numsOfUse = val;}
 
+     uint16_t order;
  private:
      /**
       *    counts the rate, how much this node is used in different ways

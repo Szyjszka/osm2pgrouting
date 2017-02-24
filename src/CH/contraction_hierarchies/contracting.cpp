@@ -6,31 +6,7 @@
 namespace RouterCH
 {
 
-bool operator ==(Route a, Route b)
-{
-    if(a.nodes.size() != b.nodes.size())
-    {
-        return false;
-    }
-    if(a.cost != b.cost)
-    {
-        return false;
-    }
-    for(unsigned int i = 0; i < a.nodes.size(); ++i)
-    {
-        if(a.nodes[i].osm_id() != b.nodes[i].id.osm_id())
-        {
-            return false;
-        }
-        if(a.nodes[i].coord != b.nodes[i].coord)
-        {
-            return false;
-        }
-    }
-    return true;
-}
-
-bool chechIfShortcudNeeded(const EdgesTable& edgesTable, const Node& u,
+bool chechIfShortcudNeeded(EdgesTable& edgesTable, const Node& u,
                            const Node& v, const Node& w, const Nodes &nodes)
 {
     EdgesTable edgesTableForLocalSearch(edgesTable);
@@ -39,14 +15,14 @@ bool chechIfShortcudNeeded(const EdgesTable& edgesTable, const Node& u,
     //dijkstra znajdzie inną trasę
     Route checkedShortctut;
     checkedShortctut.nodes = Nodes({u, v, w});
-    checkedShortctut.cost = edgesTable[u.osm_id()][v.osm_id()] + edgesTable[v.id][w.id];
+    checkedShortctut.cost = edgesTable[u.osm_id()][v.osm_id()] + edgesTable[v.osm_id()][w.osm_id()];
     for(unsigned int i = 0; i < nodes.size(); ++i)
     {
-        edgesTableForLocalSearch[nodes[i].id][v.id] = INF;
-        edgesTableForLocalSearch[v.id][nodes[i].id] = INF;
+        edgesTableForLocalSearch[nodes[i].osm_id()][v.osm_id()] = INF;
+        edgesTableForLocalSearch[v.osm_id()][nodes[i].osm_id()] = INF;
     }
 
-    Route sh = dijkstra(edgesTableForLocalSearch, u.id, w.id, nodes);
+    Route sh = dijkstra(edgesTableForLocalSearch, u.osm_id(), w.osm_id(), nodes);
 
     return sh.cost > checkedShortctut.cost;
 }
@@ -56,35 +32,35 @@ void contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes, Sho
     // dla każdej pary (u, v) i (v,w) z krawędzi
     for(unsigned int uID = 0; uID < (edgesTable)[0].size(); ++uID)
     {
-        if(uID == v.id)
+        if(uID == v.osm_id())
         {
             continue;
         }
         for(unsigned int wID = uID+1; wID < (edgesTable)[0].size(); ++wID)
         {
-            if(wID == v.id)
+            if(wID == v.osm_id())
             {
                 continue;
             }
-            if(((edgesTable)[uID][v.id] < UINT_MAX) && (edgesTable)[v.id][wID] < UINT_MAX)
+            if(((edgesTable)[uID][v.osm_id()] < INF) && (edgesTable)[v.osm_id()][wID] < INF)
             {
                 //jeśli (u,v,w) jest unikalną najkrótszą ścieżką
                 if(chechIfShortcudNeeded(edgesTable, nodes[uID], v, nodes[wID], nodes))
                 {
                 //dodaj skrót (u,v,w)
-                    (edgesTable)[uID][wID] = (edgesTable)[uID][v.id] + (edgesTable)[v.id][wID];
-                    (edgesTable)[wID][uID] = (edgesTable)[uID][v.id] + (edgesTable)[v.id][wID];
+                    (edgesTable)[uID][wID] = (edgesTable)[uID][v.osm_id()] + (edgesTable)[v.osm_id()][wID];
+                    (edgesTable)[wID][uID] = (edgesTable)[uID][v.osm_id()] + (edgesTable)[v.osm_id()][wID];
                     //Jeśli skrót już był to go usuwamy
                     (shorctcutsTable)[uID][wID].clear();
                     (shorctcutsTable)[wID][uID].clear();
-                    for(auto nodeID : shorctcutsTable[uID][v.id])
+                    for(auto nodeID : shorctcutsTable[uID][v.osm_id()])
                     {
                         (shorctcutsTable)[uID][wID].push_back({nodeID});
                         (shorctcutsTable)[wID][uID].push_back({nodeID});
                     }
-                    (shorctcutsTable)[uID][wID].push_back({v.id});
-                    (shorctcutsTable)[wID][uID].push_back({v.id});
-                    for(auto nodeID : (shorctcutsTable)[v.id][wID])
+                    (shorctcutsTable)[uID][wID].push_back({v.osm_id()});
+                    (shorctcutsTable)[wID][uID].push_back({v.osm_id()});
+                    for(auto nodeID : (shorctcutsTable)[v.osm_id()][wID])
                     {
                         (shorctcutsTable)[uID][wID].push_back({nodeID});
                         (shorctcutsTable)[wID][uID].push_back({nodeID});

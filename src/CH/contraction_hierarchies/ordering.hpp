@@ -1,7 +1,7 @@
 #ifndef ORDERING_HPP
 #define ORDERING_HPP
 
-#include "common/routerch_types.hpp"
+#include "../ch_types.h"
 
 namespace RouterCH
 {
