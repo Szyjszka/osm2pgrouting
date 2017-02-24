@@ -31,6 +31,10 @@ bool chechIfShortcudNeeded(EdgesTable& edgesTable, const int64_t u,
 void contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes)
 {
     // dla każdej pary (u, v) i (v,w) z krawędzi
+    if(edgesTable.find(v.osm_id()) == edgesTable.end())
+    {
+        return;
+    }
     for(auto i = edgesTable[v.osm_id()].begin(); i != prev(edgesTable[v.osm_id()].end()); ++i)
     for(auto j = next(i); j != edgesTable[v.osm_id()].end(); ++j)
     {
