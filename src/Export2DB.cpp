@@ -69,7 +69,8 @@ Export2DB::Export2DB(const  po::variables_map &vm) :
                 " osm_id bigint,"
                 " lon decimal(11,8),"
                 " lat decimal(11,8),"
-                " numOfUse int");
+                " numOfUse int,"
+                " order int");
 
         create_vertices = std::string(
                 " id bigserial PRIMARY KEY,"
@@ -351,7 +352,7 @@ void  Export2DB::prepareExportNodes(const std::string nodes_columns) const {
 
 void Export2DB::exportNodes(const std::map<int64_t, Node> &nodes) const {
     std::cout << "    Processing " <<  nodes.size() <<  " nodes"  << ":\n";
-    std::string nodes_columns(" osm_id, lon, lat, numofuse, the_geom ");
+    std::string nodes_columns(" osm_id, lon, lat, numofuse, order, the_geom ");
 
     prepareExportNodes(nodes_columns);
     uint32_t chunck_size = 20000;
@@ -379,6 +380,8 @@ void Export2DB::exportNodes(const std::map<int64_t, Node> &nodes) const {
         row_data += node.geom_str("\t");
         row_data += "\t";
         row_data += TO_STR(node.numsOfUse());
+        row_data += "\t";
+        row_data += TO_STR(node.order);
         row_data += "\t";
         row_data += node.point_geometry();
         row_data += "\n";

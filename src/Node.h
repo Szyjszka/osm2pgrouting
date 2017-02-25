@@ -86,7 +86,11 @@ class Node : public Element {
      inline uint16_t numsOfUse() const {return m_numsOfUse;}
      inline void numsOfUse(uint16_t val)  {m_numsOfUse = val;}
 
-     uint16_t order;
+     /**
+      *    TODO: Change to set/get
+      *    order for contraction hierarchies
+      */
+     uint32_t order;
  private:
      /**
       *    counts the rate, how much this node is used in different ways

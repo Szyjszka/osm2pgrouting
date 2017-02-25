@@ -32,7 +32,6 @@ DataConverter::DataConverter(OSMDocument &document)
         pushed[endpoints.end.osm_id()] = true;
     }
 
-    //TODO Dodanie orderu do bazy
     number_of_way_order(&nodes, edgesTable, 0);
 
     std::cout << "Oryginalne drogi "  << document.ways().size() << std::endl;
@@ -43,6 +42,11 @@ DataConverter::DataConverter(OSMDocument &document)
     for(auto& way : newWays)
     {
         document.AddWay(way.second);
+    }
+    //Zmienienie aktualnych nodow (order)
+    for(auto& node : nodes)
+    {
+        document.AddNode(node);
     }
     std::cout << "Dodane drogi "  <<  newWays.size() << std::endl;
 }
