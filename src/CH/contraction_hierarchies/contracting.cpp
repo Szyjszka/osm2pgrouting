@@ -10,25 +10,18 @@ namespace RouterCH
 {
 
 bool chechIfShortcudNeeded(EdgesTable& edgesTable, const int64_t u,
-                           const int64_t v, const int64_t w, const Nodes &nodes, osm2pgr::Way& newWay)
+                           const int64_t v, const int64_t w, const Nodes &nodes)
 {
     Route checkedShortctut;
     checkedShortctut.cost = edgesTable[u][v] + edgesTable[v][w];
 
     Route sh = dijkstra(edgesTable, u, w, nodes, checkedShortctut.cost);
 
-    //!TODO: Koszt takiej drogi wcale nie musi byc rowny sumie ich - zalezy na co pozniej bedziemy patrzec
-    if( sh.cost > checkedShortctut.cost)
-    {
-        for(Node& node : sh.nodes)
-        {
-            newWay.add_node(&node);
-        }
-    }
     return ( sh.cost > checkedShortctut.cost);
 }
 
-void contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
+//TODO readd const to v
+void contractNode(EdgesTable& edgesTable, Node& v, const Nodes &nodes,
                   const std::map<int64_t, osm2pgr::Way>& oldWays, std::map<int64_t, osm2pgr::Way>& newWays,
                   int64_t& firstID)
 {
@@ -57,19 +50,33 @@ void contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
     {
 
         osm2pgr::Way newWay;
-        if(chechIfShortcudNeeded(edgesTable, *i , v.osm_id(), *j, nodes, newWay))
+        if(chechIfShortcudNeeded(edgesTable, *i , v.osm_id(), *j, nodes))
         {
         //dodaj skrót (u,v,w)
             (edgesTable)[*i][*j] = (savedEdges)[*i] + (savedEdges)[*j];
             (edgesTable)[*j][*i] = (savedEdges)[*i] + (savedEdges)[*j];
 //            std::cout <<"Dodano droge o koszcie " << (edgesTable)[*i][*j]  << std::endl;
-            //TODO Czy nie powinnismy brac obu way_id ??
-            int64_t checkWayID = (savedEdges)[*i].way_id;
-            edgesTable[*i][*j].way_id = checkWayID;
-            edgesTable[*j][*i].way_id = checkWayID;
-            newWay.maxspeed_forward(oldWays.at(checkWayID).maxspeed_forward());
-            newWay.maxspeed_backward(oldWays.at(checkWayID).maxspeed_backward());
             newWay.setID(firstID++);
+            edgesTable[*i][*j].way_id = firstID;
+            edgesTable[*j][*i].way_id = firstID;
+            const std::map<int64_t, osm2pgr::Way>& ways =
+                    (oldWays.find((savedEdges)[*i].way_id) == oldWays.end())
+                    ? newWays : oldWays;
+            for(Node* node : ways.at((savedEdges)[*i].way_id).nodeRefs())
+            {
+                newWay.add_node(node);
+            }
+            newWay.add_node(&v);
+            const std::map<int64_t, osm2pgr::Way>& ways2 =
+                    (oldWays.find((savedEdges)[*j].way_id) == oldWays.end())
+                    ? newWays : oldWays;
+            for(Node* node : ways2.at((savedEdges)[*j].way_id).nodeRefs())
+            {
+                newWay.add_node(node);
+            }
+            newWay.maxspeed_forward(ways.at((savedEdges)[*i].way_id).maxspeed_forward());
+            newWay.maxspeed_backward(ways.at((savedEdges)[*i].way_id).maxspeed_backward());
+
             newWays[firstID] = newWay;
         }
     }

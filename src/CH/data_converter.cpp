@@ -1,6 +1,7 @@
 #include "data_converter.h"
 
 #include <algorithm>
+#include <cassert>
 #include <iostream>
 #include "contraction_hierarchies/contracting.hpp"
 #include "contraction_hierarchies/ordering.hpp"
@@ -48,6 +49,18 @@ DataConverter::DataConverter(OSMDocument &document)
     {
         document.AddNode(node);
     }
+
+    //Dodanie informacji o malejącym/rosnącym orderze dla drogi
+    for(const std::pair<int64_t, Way>& way_elem : document.ways())
+    {
+        Endpoints endpoints = getEntpoints(way_elem.second);
+        Way way = way_elem.second;
+        //TODO Czemu tworzą się drogi z jednego noda ??
+//        assert(endpoints.start.order != endpoints.end.order);
+        way.increasingOrder = (endpoints.start.order > endpoints.end.order);
+        document.AddWay(way);
+    }
+
     std::cout << "Dodane drogi "  <<  newWays.size() << std::endl;
 }
 
