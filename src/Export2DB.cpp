@@ -100,6 +100,7 @@ Export2DB::Export2DB(const  po::variables_map &vm) :
                 " cost_s double precision, "
                 " reverse_cost_s double precision,"
                 " rule text,"
+                " incOrder boolean,"
                 " one_way int, "  //  0 unknown, 1 yes(normal direction), 2 (2 way),
                 //  -1 reversed (1 way but geometry is reversed)
                 //  3 - reversible (one way street but direction chnges on time)
@@ -649,6 +650,7 @@ void Export2DB::exportWays(const std::map<int64_t, Way> &ways, const Configurati
             " class_id, "
             " osm_id, "
             " maxspeed_forward, maxspeed_backward, "
+            " incOrder,"
             " one_way, "
             " priority, "
 
@@ -695,6 +697,8 @@ void Export2DB::exportWays(const std::map<int64_t, Way> &ways, const Configurati
             // maxspeed
             + way.maxspeed_forward_str() + "\t"
             + way.maxspeed_backward_str() + "\t"
+            // CH increasing order bool
+            + TO_STR(way.increasingOrder) + "\t"
             // one_way
             + way.oneWayType_str() + "\t"
             // priority
