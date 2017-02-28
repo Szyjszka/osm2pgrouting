@@ -16,6 +16,7 @@ DataConverter::DataConverter(OSMDocument &document)
     for(const std::pair<int64_t, Way>& way_elem : document.ways())
     {
         Endpoints endpoints = getEntpoints(way_elem.second);
+//        assert(endpoints.start.osm_id() != endpoints.end.osm_id());
         Edge edge;
         edge.way_id = way_elem.first;
         edge.cost = getWayCost(way_elem.second);
@@ -33,8 +34,6 @@ DataConverter::DataConverter(OSMDocument &document)
         pushed[endpoints.end.osm_id()] = true;
     }
 
-    number_of_way_order(&nodes, edgesTable, 0);
-
     std::cout << "Oryginalne drogi "  << document.ways().size() << std::endl;
 
     int64_t firstAvailableID = (document.ways().rbegin()->first)+1;
@@ -42,6 +41,8 @@ DataConverter::DataConverter(OSMDocument &document)
 
     for(auto& way : newWays)
     {
+        Endpoints endpoints = getEntpoints(way.second);
+//        assert(endpoints.start.osm_id() != endpoints.end.osm_id());
         document.AddWay(way.second);
     }
     //Zmienienie aktualnych nodow (order)
@@ -56,7 +57,8 @@ DataConverter::DataConverter(OSMDocument &document)
         Endpoints endpoints = getEntpoints(way_elem.second);
         Way way = way_elem.second;
         //TODO Czemu tworzą się drogi z jednego noda ??
-//        assert(endpoints.start.order != endpoints.end.order);
+        assert(endpoints.start.order != endpoints.end.order ||
+               endpoints.start.osm_id() == endpoints.end.osm_id() );
         way.increasingOrder = (endpoints.start.order > endpoints.end.order);
         document.AddWay(way);
     }

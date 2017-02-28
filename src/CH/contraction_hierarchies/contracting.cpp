@@ -103,11 +103,12 @@ void contract(EdgesTable& edgesTable, Nodes& nodes,
     {
         std::cout << "Jeszcze " << nodes.size() - i << std::endl;
         std::cout << "Dodano juz tyle drog: " << newWays.size()<<std::endl;
-        contractNode(edgesTable,nodes[i], nodes, oldWays, newWays, firstID);
-        if(i % 10 == 1)
+        if(i % 10 == 0)
         {
             number_of_way_order(&nodes, edgesTable, i);
         }
+        contractNode(edgesTable,nodes[i], nodes, oldWays, newWays, firstID);
+
     }
 }
 
