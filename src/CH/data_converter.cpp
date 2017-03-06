@@ -22,22 +22,22 @@ DataConverter::DataConverter(OSMDocument &document)
         edge.cost = getWayCost(way_elem.second);
         edgesTable[endpoints.start.osm_id()][endpoints.end.osm_id()] = edge;
         edgesTable[endpoints.end.osm_id()][endpoints.start.osm_id()] = edge;
-        if(pushed.find(endpoints.start.osm_id()) == pushed.end())
-        {
-            nodes.push_back(document.nodes().at(endpoints.start.osm_id()));
-        }
-        pushed[endpoints.start.osm_id()] = true;
-        if(pushed.find(endpoints.end.osm_id()) == pushed.end())
-        {
-            nodes.push_back(document.nodes().at(endpoints.end.osm_id()));
-        }
-        pushed[endpoints.end.osm_id()] = true;
+    }
+    for(auto& node : document.nodes())
+    {
+        nodes.push_back(node.second);
     }
 
     std::cout << "Oryginalne drogi "  << document.ways().size() << std::endl;
-
+//    number_of_way_order(&nodes, edgesTable, 0);
+//    std::cout << "Oryginalne nody "  << document.nodes().size() << std::endl;
+//    simple_order(&nodes);
     int64_t firstAvailableID = (document.ways().rbegin()->first)+1;
     contract(edgesTable, nodes, document.ways(), newWays, firstAvailableID);
+
+//    std::cout << "Nody po kontrakcji "  << document.nodes().size() << std::endl;
+    //Silne sprawdzenie czy nie ma tych samych orderów dla 0:
+
 
     for(auto& way : newWays)
     {
@@ -49,6 +49,14 @@ DataConverter::DataConverter(OSMDocument &document)
     for(auto& node : nodes)
     {
         document.AddNode(node);
+    }
+
+    int orderZero = 0;
+    for(auto& node : document.nodes())
+    {
+        if(node.second.order == 0)
+            orderZero++;
+        assert(orderZero<=1);
     }
 
     //Dodanie informacji o malejącym/rosnącym orderze dla drogi
