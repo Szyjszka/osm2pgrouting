@@ -74,8 +74,10 @@ void contractNode(EdgesTable& edgesTable, Node& v, const Nodes &nodes,
             {
                 newWay.add_node(node);
             }
-            newWay.maxspeed_forward(ways.at((savedEdges)[*i].way_id).maxspeed_forward());
+	    newWay.maxspeed_forward(ways.at((savedEdges)[*i].way_id).maxspeed_forward());
             newWay.maxspeed_backward(ways.at((savedEdges)[*i].way_id).maxspeed_backward());
+            newWay.tag_config(ways.at((savedEdges)[*i].way_id).tag_config());
+            newWay.shortcut = true;
 
             newWays[firstID] = newWay;
         }
@@ -103,7 +105,7 @@ void contract(EdgesTable& edgesTable, Nodes& nodes,
     {
         std::cout << "Jeszcze " << nodes.size() - i << std::endl;
         std::cout << "Dodano juz tyle drog: " << newWays.size()<<std::endl;
-        if(i % 10 == 0)
+        if(i % 50 == 0)
         {
             number_of_way_order(&nodes, edgesTable, i);
         }

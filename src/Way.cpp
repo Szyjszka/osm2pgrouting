@@ -38,9 +38,11 @@ namespace osm2pgr {
 
 Way::Way(const char **atts) :
     Element(atts),
+    shortcut(false),
     m_maxspeed_forward(-1),
     m_maxspeed_backward(-1),
-    m_oneWay("UNKNOWN") { }
+    m_oneWay("UNKNOWN")
+    { }
 
 
 
