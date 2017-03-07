@@ -6,10 +6,7 @@
 namespace RouterCH
 {
 
-//Todo Readd const edgesTable&
-Route dijkstra(EdgesTable& edgesTable, const int64_t start,
-               const int64_t end, const Nodes& nodes, double max_cost = INF);
-
-EdgesTable makeEdgesTable(const Graph& graph, const unsigned int size);
+Route dijkstra(const EdgesTable& edgesTable, const unsigned int start,
+              const unsigned int end, const Nodes& nodes);
 }
 #endif // DIJKSTRA_HPP

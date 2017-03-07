@@ -11,21 +11,18 @@ struct Endpoints{
     osm2pgr::Node start, end;
 };
 
-struct Edge{
-    int64_t way_id;
-    double cost;
+struct QPoint{
+    unsigned x;
+    unsigned y;
 
-    operator double() const {return cost;}
-    double operator =(double d) {cost = d; return cost;}
 };
 
-typedef osm2pgr::Node Node;
-typedef std::map<int64_t, Edge> Edges;
-typedef std::map<int64_t, Edges> EdgesTable;
-typedef std::vector<std::vector<std::vector<double> > > ShorctutsTable;
-typedef std::vector<osm2pgr::Node> Nodes;
-typedef struct { Nodes nodes; double cost; int64_t id;} Route;
-typedef std::vector<Route> Graph;
+
+typedef std::vector<std::vector<double> > EdgesTable;
+typedef std::vector<std::vector<std::vector<unsigned int> > > ShorctutsTable;
+typedef struct{QPoint coord; unsigned int id; unsigned int order;} Node;
+typedef std::vector<Node> Nodes;
+typedef struct { Nodes nodes; double cost; unsigned int id;} Route;
 
 static const unsigned int INF = UINT_MAX;
 static const signed int NO_PRECCESSOR = -1;

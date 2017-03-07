@@ -1,116 +1,103 @@
 #include <algorithm>
-#include <cassert>
 #include <climits>
-#include <iostream>
 #include "contracting.hpp"
-#include "ordering.hpp"
-#include "../shortest_path_algorithms/dijkstra.hpp"
+#include "CH/shortest_path_algorithms/dijkstra.hpp"
 
 namespace RouterCH
 {
 
-bool chechIfShortcudNeeded(EdgesTable& edgesTable, const int64_t u,
-                           const int64_t v, const int64_t w, const Nodes &nodes)
+bool operator ==(Route a, Route b)
 {
-    Route checkedShortctut;
-    checkedShortctut.cost = edgesTable[u][v] + edgesTable[v][w];
-
-    Route sh = dijkstra(edgesTable, u, w, nodes, checkedShortctut.cost);
-
-    return ( sh.cost > checkedShortctut.cost);
-}
-
-//TODO readd const to v
-void contractNode(EdgesTable& edgesTable, Node& v, const Nodes &nodes,
-                  const std::map<int64_t, osm2pgr::Way>& oldWays, std::map<int64_t, osm2pgr::Way>& newWays,
-                  int64_t& firstID)
-{
-    // dla każdej pary (u, v) i (v,w) z krawędzi
-    if(edgesTable.find(v.osm_id()) == edgesTable.end())
+    if(a.nodes.size() != b.nodes.size())
     {
-        return;
+        return false;
     }
-
-    Edges savedEdges;
-    std::vector<int64_t> connectedNodes;
-    //erase connections
-    //TODO czy mozna usunac 2 rozne id przez to ?
-    for(std::pair<int64_t, Edge> elem : edgesTable[v.osm_id()])
+    if(a.cost != b.cost)
     {
-        savedEdges[elem.first] = elem.second;
-        savedEdges[elem.first].way_id = elem.second.way_id;
-        edgesTable[elem.first].erase(v.osm_id());
-        edgesTable[v.osm_id()].erase(elem.first);
-        connectedNodes.push_back(elem.first);
-        assert(elem.second.way_id != 0);
+        return false;
     }
-
-    for(auto i = connectedNodes.begin(); i != prev(connectedNodes.end()); ++i)
-    for(auto j = next(i); j != connectedNodes.end(); ++j)
+    for(unsigned int i = 0; i < a.nodes.size(); ++i)
     {
-
-        osm2pgr::Way newWay;
-        if(chechIfShortcudNeeded(edgesTable, *i , v.osm_id(), *j, nodes))
+        if(a.nodes[i].id != b.nodes[i].id)
         {
-        //dodaj skrót (u,v,w)
-            (edgesTable)[*i][*j] = (savedEdges)[*i] + (savedEdges)[*j];
-            (edgesTable)[*j][*i] = (savedEdges)[*i] + (savedEdges)[*j];
-//            std::cout <<"Dodano droge o koszcie " << (edgesTable)[*i][*j]  << std::endl;
-            newWay.setID(firstID++);
-            edgesTable[*i][*j].way_id = firstID;
-            edgesTable[*j][*i].way_id = firstID;
-            const std::map<int64_t, osm2pgr::Way>& ways =
-                    (oldWays.find((savedEdges)[*i].way_id) == oldWays.end())
-                    ? newWays : oldWays;
-            for(Node* node : ways.at((savedEdges)[*i].way_id).nodeRefs())
-            {
-                newWay.add_node(node);
-            }
-            newWay.add_node(&v);
-            const std::map<int64_t, osm2pgr::Way>& ways2 =
-                    (oldWays.find((savedEdges)[*j].way_id) == oldWays.end())
-                    ? newWays : oldWays;
-            for(Node* node : ways2.at((savedEdges)[*j].way_id).nodeRefs())
-            {
-                newWay.add_node(node);
-            }
-	    newWay.maxspeed_forward(ways.at((savedEdges)[*i].way_id).maxspeed_forward());
-            newWay.maxspeed_backward(ways.at((savedEdges)[*i].way_id).maxspeed_backward());
-            newWay.tag_config(ways.at((savedEdges)[*i].way_id).tag_config());
-            newWay.shortcut = true;
-
-            newWays[firstID] = newWay;
+            return false;
         }
     }
-    //Restore connections
-    for(std::pair<int64_t, Edge> elem : savedEdges)
+    return true;
+}
+
+bool chechIfShortcudNeeded(const EdgesTable& edgesTable, const Node& u,
+                           const Node& v, const Node& w, const Nodes &nodes)
+{
+    EdgesTable edgesTableForLocalSearch(edgesTable);
+
+    //wstawienie do tabeli duzych wartosci dla poszkiwanego skrótu żeby zobaczyć czy
+    //dijkstra znajdzie inną trasę
+    Route checkedShortctut;
+    checkedShortctut.nodes = Nodes({u, v, w});
+    checkedShortctut.cost = edgesTable[u.id][v.id] + edgesTable[v.id][w.id];
+    for(unsigned int i = 0; i < nodes.size(); ++i)
     {
-        edgesTable[elem.first][v.osm_id()] = elem.second;
-        edgesTable[v.osm_id()][elem.first] = elem.second;
-        edgesTable[elem.first][v.osm_id()].way_id = elem.second.way_id;
-        edgesTable[v.osm_id()][elem.first].way_id = elem.second.way_id;
-        assert(elem.second.way_id != 0);
+        edgesTableForLocalSearch[nodes[i].id][v.id] = INF;
+        edgesTableForLocalSearch[v.id][nodes[i].id] = INF;
     }
 
+    Route sh = dijkstra(edgesTableForLocalSearch, u.id, w.id, nodes);
 
+    return sh.cost > checkedShortctut.cost;
+}
+
+void contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes, ShorctutsTable& shorctcutsTable)
+{
+    // dla każdej pary (u, v) i (v,w) z krawędzi
+    for(unsigned int uID = 0; uID < (edgesTable)[0].size(); ++uID)
+    {
+        if(uID == v.id)
+        {
+            continue;
+        }
+        for(unsigned int wID = uID+1; wID < (edgesTable)[0].size(); ++wID)
+        {
+            if(wID == v.id)
+            {
+                continue;
+            }
+            if(((edgesTable)[uID][v.id] < UINT_MAX) && (edgesTable)[v.id][wID] < UINT_MAX)
+            {
+                //jeśli (u,v,w) jest unikalną najkrótszą ścieżką
+                if(chechIfShortcudNeeded(edgesTable, nodes[uID], v, nodes[wID], nodes))
+                {
+                //dodaj skrót (u,v,w)
+                    (edgesTable)[uID][wID] = (edgesTable)[uID][v.id] + (edgesTable)[v.id][wID];
+                    (edgesTable)[wID][uID] = (edgesTable)[uID][v.id] + (edgesTable)[v.id][wID];
+                    //Jeśli skrót już był to go usuwamy
+                    (shorctcutsTable)[uID][wID].clear();
+                    (shorctcutsTable)[wID][uID].clear();
+                    for(auto nodeID : shorctcutsTable[uID][v.id])
+                    {
+                        (shorctcutsTable)[uID][wID].push_back({nodeID});
+                        (shorctcutsTable)[wID][uID].push_back({nodeID});
+                    }
+                    (shorctcutsTable)[uID][wID].push_back({v.id});
+                    (shorctcutsTable)[wID][uID].push_back({v.id});
+                    for(auto nodeID : (shorctcutsTable)[v.id][wID])
+                    {
+                        (shorctcutsTable)[uID][wID].push_back({nodeID});
+                        (shorctcutsTable)[wID][uID].push_back({nodeID});
+                    }
+                }
+            }
+        }
+    }
 
 }
 
-void contract(EdgesTable& edgesTable, Nodes& nodes,
-              const std::map<int64_t, osm2pgr::Way>& oldWays, std::map<int64_t, osm2pgr::Way>& newWays,
-              int64_t& firstID)
+void contract(EdgesTable& edgesTable, const Nodes& nodes, ShorctutsTable& shortcutsTable)
 {
     //zakłada że nodes są w rosnącej kolejności po order
     for(unsigned int i = 0; i < nodes.size(); ++i)
     {
-        std::cout << "Jeszcze " << nodes.size() - i << std::endl;
-        std::cout << "Dodano juz tyle drog: " << newWays.size()<<std::endl;
-        if(i % 50 == 0)
-        {
-            number_of_way_order(&nodes, edgesTable, i);
-        }
-        contractNode(edgesTable,nodes[i], nodes, oldWays, newWays, firstID);
-
+        contractNode(edgesTable,nodes[i], nodes, shortcutsTable);
     }
 }
 

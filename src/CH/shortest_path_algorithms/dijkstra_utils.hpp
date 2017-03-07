@@ -1,21 +1,21 @@
 #ifndef DIJKSTRA_UTILS_HPP
 #define DIJKSTRA_UTILS_HPP
 
-#include "../ch_types.h"
+#include "CH/ch_types.h"
 
 namespace RouterCH
 {
-typedef std::map<int64_t, bool> QSTable; //true jeśli w Q (nie został policzony)
-typedef std::map<int64_t, double> CostTable;
-typedef std::map<int64_t, int64_t> PathTable;
+typedef std::vector<bool> QSTable; //true jeśli w Q (nie został policzony)
+typedef std::vector<unsigned int> CostTable;
+typedef std::vector<signed int> PathTable;
 
-int64_t getIndexOfNextNode(CostTable& costTable, QSTable& qsTable);
-Route createShortestPath(EdgesTable &edgesTable, PathTable& pathTable, const int64_t start,
-                         const int64_t end, const Nodes& nodes,const ShorctutsTable* shortcutsTable = nullptr);
-bool operator==(Route a, Route b);
-bool operator!=(Route a, Route b);
-bool operator==(Node a, Node b);
-bool operator!=(Node a, Node b);
+unsigned int getIndexOfNextNode(CostTable& costTable, const QSTable& qsTable);
+Route createShortestPath(const EdgesTable &edgesTable, const PathTable& pathTable, const unsigned int start,
+                         const unsigned int end, const Nodes& nodes,const ShorctutsTable* shortcutsTable = nullptr);
+bool operator==(const Route& a, const Route& b);
+bool operator!=(const Route& a, const Route& b);
+bool operator==(const Node& a, const Node& b);
+bool operator!=(const Node& a, const Node& b);
 }
 
 #endif // DIJKSTRA_UTILS_HPP

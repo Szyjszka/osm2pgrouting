@@ -4,25 +4,18 @@
 
 namespace RouterCH
 {
-bool operator==(Node a, Node b)
+
+bool operator==(const Node& a, const Node& b)
 {
-    if(a.point_geometry() != b.point_geometry())
-    {
-        return false;
-    }
-    if(a.osm_id() != b.osm_id())
-    {
-        return false;
-    }
-    return true;
+    return a.id == b.id;
 }
 
-bool operator !=(Node a, Node b)
+bool operator !=(const Node& a, const Node& b)
 {
     return !(a==b);
 }
 
-bool operator==(Route a, Route b)
+bool operator==(const Route& a, const Route& b)
 {
     if(a.cost != b.cost)
     {
@@ -39,39 +32,38 @@ bool operator==(Route a, Route b)
     return true;
 }
 
-bool operator!=(Route a, Route b)
+bool operator!=(const Route& a, const Route& b)
 {
     return !(a==b);
 }
 
-//TODO readd const QSTable&
-int64_t getIndexOfNextNode(CostTable& costTable, QSTable& qsTable)
+unsigned int getIndexOfNextNode(CostTable& costTable, const QSTable& qsTable)
 {
-    double minDistance = std::numeric_limits<double>::max();
-    int64_t indexOfMinDistance = 0;
+    uint64_t minDistance = UINT64_MAX;
+    unsigned int indexOfMinDistance = 0;
 
-    for(const std::pair<int64_t, double>& cost : costTable)
+    for(unsigned int i = 0; i < costTable.size(); ++i)
     {
-        if(qsTable[cost.first])
+        if(qsTable[i])
         {
-            if(minDistance > cost.second)
+            if(minDistance > costTable[i])
             {
-                minDistance = cost.second;
-                indexOfMinDistance = cost.first;
+                minDistance = costTable[i];
+                indexOfMinDistance = i;
             }
         }
     }
     return indexOfMinDistance;
 }
-//Todo readd const edgedTable&
-Route createShortestPath(EdgesTable &edgesTable, PathTable& pathTable, const int64_t start,
-                         const int64_t end, const Nodes& nodes, const ShorctutsTable* shortcutsTable)
+
+Route createShortestPath(const EdgesTable &edgesTable, const PathTable& pathTable, const unsigned int start,
+                         const unsigned int end, const Nodes& nodes, const ShorctutsTable* shortcutsTable)
 {
     Route shortestPath;
     shortestPath.id = 0; //TODO consider other solution
     shortestPath.cost = 0;
-    int64_t indexOfNext = end;
-    int64_t leftIter = UINT_MAX;
+    unsigned int indexOfNext = end;
+    unsigned int leftIter = UINT_MAX;
     if(start == end)
     {
         shortestPath.nodes.push_back(nodes[end]);
