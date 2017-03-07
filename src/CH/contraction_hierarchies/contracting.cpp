@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <climits>
+#include <iostream>
 #include "contracting.hpp"
 #include "CH/shortest_path_algorithms/dijkstra.hpp"
 
@@ -97,6 +98,7 @@ void contract(EdgesTable& edgesTable, const Nodes& nodes, ShorctutsTable& shortc
     //zakłada że nodes są w rosnącej kolejności po order
     for(unsigned int i = 0; i < nodes.size(); ++i)
     {
+        std::cout << "Zostalo jeszcze " << nodes.size() - i << std::endl;
         contractNode(edgesTable,nodes[i], nodes, shortcutsTable);
     }
 }

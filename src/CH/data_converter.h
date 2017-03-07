@@ -17,7 +17,9 @@ private:
 
     RouterCH::EdgesTable edgesTable;
     RouterCH::Nodes nodes;
+    ShorctutsTable shortcutsTable;
     std::map<int64_t, osm2pgr::Way> newWays;
+    std::map<int64_t, unsigned int> IDconverter;
 };
 
 }

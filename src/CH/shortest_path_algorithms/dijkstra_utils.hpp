@@ -6,7 +6,7 @@
 namespace RouterCH
 {
 typedef std::vector<bool> QSTable; //true jeśli w Q (nie został policzony)
-typedef std::vector<unsigned int> CostTable;
+typedef std::vector<double> CostTable;
 typedef std::vector<signed int> PathTable;
 
 unsigned int getIndexOfNextNode(CostTable& costTable, const QSTable& qsTable);

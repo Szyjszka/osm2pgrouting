@@ -39,7 +39,7 @@ bool operator!=(const Route& a, const Route& b)
 
 unsigned int getIndexOfNextNode(CostTable& costTable, const QSTable& qsTable)
 {
-    uint64_t minDistance = UINT64_MAX;
+    double minDistance = UINT64_MAX;
     unsigned int indexOfMinDistance = 0;
 
     for(unsigned int i = 0; i < costTable.size(); ++i)
