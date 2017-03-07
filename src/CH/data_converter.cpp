@@ -19,7 +19,9 @@ DataConverter::DataConverter(OSMDocument &document)
     for(auto& node : document.nodes())
     {
         nodes[i].id = i;
+        osm2pgrNodes.push_back(node.second);
         IDconverter[node.second.osm_id()] = nodes[i].id;
+        IDconverterBack[nodes[i].id] = node.second.osm_id();
         i++;
     }
 
@@ -38,6 +40,7 @@ DataConverter::DataConverter(OSMDocument &document)
        edgesTable[IDconverter.at(endpoints.end.osm_id())]
                [IDconverter.at(endpoints.start.osm_id())]= getWayCost(way.second);
     }
+    nextWayID = (document.ways().rbegin()->first)+1;
 
     //Add shortcuts table
     shortcutsTable.resize(nodes.size());
@@ -46,13 +49,17 @@ DataConverter::DataConverter(OSMDocument &document)
         shortcutsTable[j].resize(nodes.size());
     }
 
+    simple_order(&nodes);
     contract(edgesTable, nodes, shortcutsTable);
 
-    size_t shorctutsSize = 0;
-    for(unsigned n = 0; n < nodes.size(); ++n )
-        for(unsigned m = 0; m < nodes.size(); ++m )
-            shorctutsSize += shortcutsTable[n][m].size();
-    std::cout << " TYLE SKROTOW POWSTALO " << shorctutsSize << std::endl;
+    //Add new roads;
+    std::vector<osm2pgr::Way> newWays = createNewWays(document);
+
+    std::cout << " TYLE SKROTOW POWSTALO " << newWays.size() << std::endl;
+    for(auto& way : newWays)
+    {
+        document.AddWay(way);
+    }
 }
 
 double DataConverter::getWayCost(const Way &way) const
@@ -64,4 +71,32 @@ Endpoints DataConverter::getEntpoints(const Way &way) const
 {
     const std::vector<osm2pgr::Node*> nodes = way.nodeRefs();
     return {*(nodes.front()), *(nodes.back())};
+}
+
+std::vector<Way> DataConverter::createNewWays(const OSMDocument &document)
+{
+    std::vector<Way> newWays;
+    for(unsigned n = 0; n < nodes.size(); ++n )
+        for(unsigned m = 0; m < nodes.size(); ++m ){
+            if(n == m)
+            {
+                continue;
+            }
+            if(shortcutsTable[n][m].size()){
+                Way newWay;
+                for(unsigned i = 0; i < shortcutsTable[n][m].size(); ++i){
+                    int64_t nodeID = IDconverterBack.at(shortcutsTable[n][m][i]);
+                    newWay.add_node(&osm2pgrNodes[nodeID]);
+                    newWay.setID(nextWayID++);
+                    newWay.maxspeed_backward(51);
+                    newWay.maxspeed_forward(51);
+                    assert(nodes[n].order != nodes[m].order);
+                    newWay.increasingOrder = nodes[n].order > nodes[m].order;
+                    //TODO Hack tu jest - tag pierwszy z brzegu
+                    newWay.tag_config((document.ways().begin()->second).tag_config());
+                }
+                newWays.push_back(newWay);
+            }
+        }
+    return newWays;
 }

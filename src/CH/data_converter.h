@@ -15,11 +15,16 @@ private:
     double getWayCost(const osm2pgr::Way& way) const;
     Endpoints getEntpoints(const osm2pgr::Way& way) const;
 
+    std::vector<osm2pgr::Way> createNewWays(const osm2pgr::OSMDocument &document);
+
+    int64_t nextWayID;
     RouterCH::EdgesTable edgesTable;
     RouterCH::Nodes nodes;
     ShorctutsTable shortcutsTable;
+    std::vector<osm2pgr::Node> osm2pgrNodes;
     std::map<int64_t, osm2pgr::Way> newWays;
     std::map<int64_t, unsigned int> IDconverter;
+    std::map<int64_t, unsigned int> IDconverterBack;
 };
 
 }
