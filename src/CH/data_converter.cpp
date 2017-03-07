@@ -85,8 +85,7 @@ std::vector<Way> DataConverter::createNewWays(const OSMDocument &document)
             if(shortcutsTable[n][m].size()){
                 Way newWay;
                 for(unsigned i = 0; i < shortcutsTable[n][m].size(); ++i){
-                    int64_t nodeID = IDconverterBack.at(shortcutsTable[n][m][i]);
-                    newWay.add_node(&osm2pgrNodes[nodeID]);
+                    newWay.add_node(&(osm2pgrNodes[i]));
                 }
                 newWay.setID(nextWayID++);
                 newWay.maxspeed_backward(51);
