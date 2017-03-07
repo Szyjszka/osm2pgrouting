@@ -56,6 +56,11 @@ DataConverter::DataConverter(OSMDocument &document)
     std::vector<osm2pgr::Way> newWays = createNewWays(document);
 
     std::cout << " TYLE SKROTOW POWSTALO " << newWays.size() << std::endl;
+    for(auto way : document.ways())
+    {
+        way.second.increasingOrder = way.second.nodeRefs().back()->order >  way.second.nodeRefs().front()->order;
+        document.AddWay(way.second);
+    }
     for(auto& way : newWays)
     {
         document.AddWay(way);
@@ -91,7 +96,7 @@ std::vector<Way> DataConverter::createNewWays(const OSMDocument &document)
                 newWay.maxspeed_backward(51);
                 newWay.maxspeed_forward(51);
                 assert(nodes[n].order != nodes[m].order);
-                newWay.increasingOrder = nodes[n].order > nodes[m].order;
+                newWay.increasingOrder = nodes[m].order > nodes[n].order;
                 //TODO Hack tu jest - tag pierwszy z brzegu
                 newWay.tag_config((document.ways().begin()->second).tag_config());
                 newWays.push_back(newWay);
