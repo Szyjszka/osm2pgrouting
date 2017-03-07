@@ -716,23 +716,18 @@ void Export2DB::exportWays(const std::map<int64_t, Way> &ways, const Configurati
         }
 
         auto splits = way.split_me();
-        if(way.shortcut)
-        {
-            std::vector<std::vector<Node*>> shorctutSplits;
-            shorctutSplits.push_back(std::vector<Node*>());
-            shorctutSplits[0].push_back(splits[0][0]);
-            shorctutSplits[0].push_back(splits.back().back());
-            splits = shorctutSplits;
-        }
+//        if(way.shortcut)
+//        {
+//            std::vector<std::vector<Node*>> shorctutSplits;
+//            shorctutSplits.push_back(std::vector<Node*>());
+//            shorctutSplits[0].push_back(splits[0][0]);
+//            shorctutSplits[0].push_back(splits.back().back());
+//            splits = shorctutSplits;
+//        }
         split_count +=  splits.size();
 
         for (size_t i = 0; i < splits.size(); ++i) {
-            double dlength = way.length(splits[i]);
-            if(dlength == 0)
-            {
-                continue;
-            }
-            auto length = boost::lexical_cast<std::string>(dlength);
+            auto length = way.length_str(splits[i]);
             // length (degrees)
             auto split_data = length + "\t"
                 // x1, y1
