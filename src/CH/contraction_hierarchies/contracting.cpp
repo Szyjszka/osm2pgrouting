@@ -74,6 +74,8 @@ void contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes, Sho
                     //Jeśli skrót już był to go usuwamy
                     (shorctcutsTable)[uID][wID].clear();
                     (shorctcutsTable)[wID][uID].clear();
+
+                    (shorctcutsTable)[uID][wID].push_back({uID});
                     for(auto nodeID : shorctcutsTable[uID][v.id])
                     {
                         (shorctcutsTable)[uID][wID].push_back({nodeID});
@@ -86,6 +88,7 @@ void contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes, Sho
                         (shorctcutsTable)[uID][wID].push_back({nodeID});
                         (shorctcutsTable)[wID][uID].push_back({nodeID});
                     }
+                    (shorctcutsTable)[uID][wID].push_back({wID});
                 }
             }
         }

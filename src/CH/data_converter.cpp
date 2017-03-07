@@ -87,14 +87,14 @@ std::vector<Way> DataConverter::createNewWays(const OSMDocument &document)
                 for(unsigned i = 0; i < shortcutsTable[n][m].size(); ++i){
                     int64_t nodeID = IDconverterBack.at(shortcutsTable[n][m][i]);
                     newWay.add_node(&osm2pgrNodes[nodeID]);
-                    newWay.setID(nextWayID++);
-                    newWay.maxspeed_backward(51);
-                    newWay.maxspeed_forward(51);
-                    assert(nodes[n].order != nodes[m].order);
-                    newWay.increasingOrder = nodes[n].order > nodes[m].order;
-                    //TODO Hack tu jest - tag pierwszy z brzegu
-                    newWay.tag_config((document.ways().begin()->second).tag_config());
                 }
+                newWay.setID(nextWayID++);
+                newWay.maxspeed_backward(51);
+                newWay.maxspeed_forward(51);
+                assert(nodes[n].order != nodes[m].order);
+                newWay.increasingOrder = nodes[n].order > nodes[m].order;
+                //TODO Hack tu jest - tag pierwszy z brzegu
+                newWay.tag_config((document.ways().begin()->second).tag_config());
                 newWays.push_back(newWay);
             }
         }
