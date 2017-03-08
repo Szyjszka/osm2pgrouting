@@ -15,25 +15,54 @@ DataConverter::DataConverter(OSMDocument &document)
     //Convert nodes to my format
     size_t numberOfNodes = document.nodes().size();
     nodes.resize(numberOfNodes);
-    unsigned int i = 0;
     for(auto& node : document.nodes())
     {
-        nodes[i].id = i;
         osm2pgrNodes.push_back(node.second);
-        IDconverter[node.second.osm_id()] = nodes[i].id;
-        IDconverterBack[nodes[i].id] = node.second.osm_id();
-        i++;
     }
 
+    std::map<int64_t, bool> waysFromNode;
+    //Dodanie informacji o tym czy z noda sa drogi
+    for(auto& way : document.ways())
+    {
+       Endpoints endpoints = getEntpoints(way.second);
+       waysFromNode[endpoints.start.osm_id()] = true;
+       waysFromNode[endpoints.end.osm_id()] = true;
+    }
+
+    size_t IDWithRoads = 0;
+    size_t IDWithoutRoads = waysFromNode.size();
+    for(auto& node : osm2pgrNodes)
+    {
+        if(waysFromNode.find(node.osm_id()) != waysFromNode.end())
+        {
+            assert(IDWithRoads < waysFromNode.size());
+            nodes[IDWithRoads].id = IDWithRoads;
+            IDconverter[node.osm_id()] = nodes[IDWithRoads].id;
+            IDconverterBack[nodes[IDWithRoads].id] = node.osm_id();
+            ++IDWithRoads;
+        }
+        else
+        {
+
+            assert(IDWithoutRoads < osm2pgrNodes.size());
+            nodes[IDWithoutRoads].id = IDWithoutRoads;
+            IDconverter[node.osm_id()] = nodes[IDWithoutRoads].id;
+            IDconverterBack[nodes[IDWithoutRoads].id] = node.osm_id();
+            ++IDWithoutRoads;
+        }
+    }
     //Add edges in my format
-    edgesTable.resize(nodes.size());
+    edgesTable.resize(waysFromNode.size());
+
     for(size_t j = 0; j < edgesTable.size(); ++j)
     {
-        edgesTable[j].resize(nodes.size(), UINT_MAX);
+        edgesTable[j].resize(waysFromNode.size(), UINT_MAX);
     }
     for(auto& way : document.ways())
     {
        Endpoints endpoints = getEntpoints(way.second);
+       assert(IDconverter.at(endpoints.start.osm_id()) < waysFromNode.size());
+       assert(IDconverter.at(endpoints.end.osm_id()) < waysFromNode.size());
        edgesTable[IDconverter.at(endpoints.start.osm_id())]
                [IDconverter.at(endpoints.end.osm_id())] = getWayCost(way.second);
 
@@ -43,14 +72,15 @@ DataConverter::DataConverter(OSMDocument &document)
     nextWayID = (document.ways().rbegin()->first)+1;
 
     //Add shortcuts table
-    shortcutsTable.resize(nodes.size());
+    shortcutsTable.resize(waysFromNode.size());
     for(size_t j = 0; j < shortcutsTable.size(); ++j)
     {
-        shortcutsTable[j].resize(nodes.size());
+        shortcutsTable[j].resize(waysFromNode.size());
     }
 
     simple_order(&nodes);
-    contract(edgesTable, nodes, shortcutsTable);
+    std::vector<Node> NodesWithRoads = std::vector<Node>(nodes.begin(), nodes.begin() + waysFromNode.size());
+    contract(edgesTable, NodesWithRoads, shortcutsTable);
 
     //Add new roads;
     std::vector<osm2pgr::Way> newWays = createNewWays(document);
