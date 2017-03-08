@@ -79,8 +79,8 @@ DataConverter::DataConverter(OSMDocument &document)
     }
 
     simple_order(&nodes);
-    std::vector<Node> NodesWithRoads = std::vector<Node>(nodes.begin(), nodes.begin() + waysFromNode.size());
-    contract(edgesTable, NodesWithRoads, shortcutsTable);
+    nodesWithRoads = std::vector<Node>(nodes.begin(), nodes.begin() + waysFromNode.size());
+    contract(edgesTable, nodesWithRoads, shortcutsTable);
 
     //Add new roads;
     std::vector<osm2pgr::Way> newWays = createNewWays(document);
@@ -111,8 +111,8 @@ Endpoints DataConverter::getEntpoints(const Way &way) const
 std::vector<Way> DataConverter::createNewWays(const OSMDocument &document)
 {
     std::vector<Way> newWays;
-    for(unsigned n = 0; n < nodes.size(); ++n )
-        for(unsigned m = 0; m < nodes.size(); ++m ){
+    for(unsigned n = 0; n < nodesWithRoads.size(); ++n )
+        for(unsigned m = 0; m < nodesWithRoads.size(); ++m ){
             if(n == m)
             {
                 continue;

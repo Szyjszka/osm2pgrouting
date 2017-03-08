@@ -22,6 +22,7 @@ private:
     RouterCH::Nodes nodes;
     ShorctutsTable shortcutsTable;
     std::vector<osm2pgr::Node> osm2pgrNodes;
+    std::vector<Node> nodesWithRoads;
     std::map<int64_t, osm2pgr::Way> newWays;
     std::map<int64_t, unsigned int> IDconverter;
     std::map<int64_t, unsigned int> IDconverterBack;
