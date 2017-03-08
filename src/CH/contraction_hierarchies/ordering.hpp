@@ -6,5 +6,6 @@
 namespace RouterCH
 {
     void simple_order(Nodes* nodes);
+    void order_with_num_of_roads(Nodes* nodes);
 }
 #endif // ORDERING_HPP

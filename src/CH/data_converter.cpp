@@ -20,13 +20,27 @@ DataConverter::DataConverter(OSMDocument &document)
         osm2pgrNodes.push_back(node.second);
     }
 
-    std::map<int64_t, bool> waysFromNode;
+    std::map<int64_t, size_t> waysFromNode;
     //Dodanie informacji o tym czy z noda sa drogi
     for(auto& way : document.ways())
     {
        Endpoints endpoints = getEntpoints(way.second);
-       waysFromNode[endpoints.start.osm_id()] = true;
-       waysFromNode[endpoints.end.osm_id()] = true;
+       if(waysFromNode.find(endpoints.start.osm_id()) == waysFromNode.end())
+       {
+           waysFromNode[endpoints.start.osm_id()] = 1;
+       }
+       else
+       {
+           ++waysFromNode[endpoints.start.osm_id()];
+       }
+       if(waysFromNode.find(endpoints.end.osm_id()) == waysFromNode.end())
+       {
+           waysFromNode[endpoints.end.osm_id()] = 1;
+       }
+       else
+       {
+           ++waysFromNode[endpoints.end.osm_id()];
+       }
     }
 
     size_t IDWithRoads = 0;
@@ -37,6 +51,7 @@ DataConverter::DataConverter(OSMDocument &document)
         {
             assert(IDWithRoads < waysFromNode.size());
             nodes[IDWithRoads].id = IDWithRoads;
+            nodes[IDWithRoads].numOfWays = waysFromNode[node.osm_id()];
             IDconverter[node.osm_id()] = nodes[IDWithRoads].id;
             IDconverterBack[nodes[IDWithRoads].id] = node.osm_id();
             ++IDWithRoads;
@@ -46,6 +61,7 @@ DataConverter::DataConverter(OSMDocument &document)
 
             assert(IDWithoutRoads < osm2pgrNodes.size());
             nodes[IDWithoutRoads].id = IDWithoutRoads;
+            nodes[IDWithRoads].numOfWays = 0;
             IDconverter[node.osm_id()] = nodes[IDWithoutRoads].id;
             IDconverterBack[nodes[IDWithoutRoads].id] = node.osm_id();
             ++IDWithoutRoads;
@@ -80,6 +96,7 @@ DataConverter::DataConverter(OSMDocument &document)
 
     simple_order(&nodes);
     nodesWithRoads = std::vector<Node>(nodes.begin(), nodes.begin() + waysFromNode.size());
+//    order_with_num_of_roads(&nodesWithRoads);
     contract(edgesTable, nodesWithRoads, shortcutsTable);
 
     //Add new roads;

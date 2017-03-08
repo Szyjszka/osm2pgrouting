@@ -20,7 +20,7 @@ struct QPoint{
 
 typedef std::vector<std::vector<double> > EdgesTable;
 typedef std::vector<std::vector<std::vector<unsigned int> > > ShorctutsTable;
-typedef struct{QPoint coord; unsigned int id; unsigned int order;} Node;
+typedef struct{QPoint coord; unsigned int id; unsigned int order; unsigned int numOfWays;} Node;
 typedef std::vector<Node> Nodes;
 typedef struct { Nodes nodes; double cost; unsigned int id;} Route;
 
