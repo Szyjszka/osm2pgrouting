@@ -67,6 +67,12 @@ DataConverter::DataConverter(OSMDocument &document)
             ++IDWithoutRoads;
         }
     }
+
+    nodesWithRoads = std::vector<Node>(nodes.begin(), nodes.begin() + waysFromNode.size());
+    std::vector<unsigned int> order(waysFromNode.size());
+    order_with_num_of_roads(&nodesWithRoads, &order);
+//    simple_order(&nodesWithRoads);
+
     //Add edges in my format
     edgesTable.resize(waysFromNode.size());
 
@@ -94,10 +100,7 @@ DataConverter::DataConverter(OSMDocument &document)
         shortcutsTable[j].resize(waysFromNode.size());
     }
 
-    simple_order(&nodes);
-    nodesWithRoads = std::vector<Node>(nodes.begin(), nodes.begin() + waysFromNode.size());
-//    order_with_num_of_roads(&nodesWithRoads);
-    contract(edgesTable, nodesWithRoads, shortcutsTable);
+    contract(edgesTable, nodesWithRoads, shortcutsTable, order);
 
     //Add new roads;
     std::vector<osm2pgr::Way> newWays = createNewWays(document);
@@ -142,8 +145,8 @@ std::vector<Way> DataConverter::createNewWays(const OSMDocument &document)
                 newWay.setID(nextWayID++);
                 newWay.maxspeed_backward(51);
                 newWay.maxspeed_forward(51);
-                assert(nodes[n].order != nodes[m].order);
-                newWay.increasingOrder = nodes[m].order > nodes[n].order;
+                assert(nodesWithRoads[n].order != nodesWithRoads[m].order);
+                newWay.increasingOrder = nodesWithRoads[m].order > nodesWithRoads[n].order;
                 //TODO Hack tu jest - tag pierwszy z brzegu
                 newWay.tag_config((document.ways().begin()->second).tag_config());
                 newWays.push_back(newWay);

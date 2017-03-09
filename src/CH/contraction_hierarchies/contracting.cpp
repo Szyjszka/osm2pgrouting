@@ -96,13 +96,14 @@ void contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes, Sho
 
 }
 
-void contract(EdgesTable& edgesTable, const Nodes& nodes, ShorctutsTable& shortcutsTable)
+void contract(EdgesTable& edgesTable, const Nodes& nodes,
+              ShorctutsTable& shortcutsTable, const std::vector<unsigned int>& order)
 {
     //zakłada że nodes są w rosnącej kolejności po order
-    for(unsigned int i = 0; i < nodes.size(); ++i)
+    for(unsigned int i = 0; i < order.size(); ++i)
     {
         std::cout << "Zostalo jeszcze " << nodes.size() - i << std::endl;
-        contractNode(edgesTable,nodes[i], nodes, shortcutsTable);
+        contractNode(edgesTable, nodes[order[i]], nodes, shortcutsTable);
     }
 }
 

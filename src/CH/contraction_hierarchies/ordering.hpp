@@ -6,6 +6,6 @@
 namespace RouterCH
 {
     void simple_order(Nodes* nodes);
-    void order_with_num_of_roads(Nodes* nodes);
+    void order_with_num_of_roads(Nodes* nodes, std::vector<unsigned int>* order);
 }
 #endif // ORDERING_HPP

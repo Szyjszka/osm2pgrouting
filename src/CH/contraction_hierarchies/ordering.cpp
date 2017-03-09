@@ -14,12 +14,15 @@ void simple_order(Nodes* nodes)
     //    std::sort(nodes->begin(), nodes->end());
 }
 
-void order_with_num_of_roads(Nodes *nodes)
+void order_with_num_of_roads(Nodes *nodes, std::vector<unsigned int>* order)
 {
-    std::sort(nodes->begin(), nodes->end(), [](Node a, Node b) {return a.numOfWays < b.numOfWays;});
-    for(unsigned int i = 0; i <nodes->size(); ++i)
+    Nodes copyOfNodes(*nodes);
+//    std::copy(nodes->begin(), nodes->end(), copyOfNodes.begin());
+    std::sort(copyOfNodes.begin(), copyOfNodes.end(), [](Node a, Node b) {return a.numOfWays < b.numOfWays;});
+    for(unsigned int i = 0; i <copyOfNodes.size(); ++i)
     {
-        (*nodes)[i].order = i;
+        (*order)[i] = copyOfNodes[i].id;
+        (*nodes)[copyOfNodes[i].id].order = i;
     }
 }
 
