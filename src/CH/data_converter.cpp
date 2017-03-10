@@ -67,6 +67,12 @@ DataConverter::DataConverter(OSMDocument &document)
             ++IDWithoutRoads;
         }
     }
+    // "Reorder of osm2pgr nodes
+    osm2pgrNodes.clear();
+    for(auto& node : nodes)
+    {
+        osm2pgrNodes.push_back(document.nodes().at(IDconverterBack[node.id]));
+    }
 
     nodesWithRoads = std::vector<Node>(nodes.begin(), nodes.begin() + waysFromNode.size());
     std::vector<unsigned int> order(waysFromNode.size());
@@ -132,15 +138,11 @@ std::vector<Way> DataConverter::createNewWays(const OSMDocument &document)
 {
     std::vector<Way> newWays;
     for(unsigned n = 0; n < nodesWithRoads.size(); ++n )
-        for(unsigned m = 0; m < nodesWithRoads.size(); ++m ){
-            if(n == m)
-            {
-                continue;
-            }
+        for(unsigned m = n+1; m < nodesWithRoads.size(); ++m ){
             if(shortcutsTable[n][m].size()){
                 Way newWay;
                 for(unsigned i = 0; i < shortcutsTable[n][m].size(); ++i){
-                    newWay.add_node(&(osm2pgrNodes[i]));
+                    newWay.add_node(&(osm2pgrNodes[shortcutsTable[n][m][i]]));
                 }
                 newWay.setID(nextWayID++);
                 newWay.maxspeed_backward(51);

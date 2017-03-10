@@ -79,16 +79,26 @@ void contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes, Sho
                     for(auto nodeID : shorctcutsTable[uID][v.id])
                     {
                         (shorctcutsTable)[uID][wID].push_back({nodeID});
-                        (shorctcutsTable)[wID][uID].push_back({nodeID});
                     }
                     (shorctcutsTable)[uID][wID].push_back({v.id});
-                    (shorctcutsTable)[wID][uID].push_back({v.id});
                     for(auto nodeID : (shorctcutsTable)[v.id][wID])
                     {
                         (shorctcutsTable)[uID][wID].push_back({nodeID});
-                        (shorctcutsTable)[wID][uID].push_back({nodeID});
                     }
                     (shorctcutsTable)[uID][wID].push_back({wID});
+
+
+                    (shorctcutsTable)[wID][uID].push_back({wID});
+                    for(auto nodeID : shorctcutsTable[uID][v.id])
+                    {
+                        (shorctcutsTable)[wID][uID].push_back({nodeID});
+                    }
+                    (shorctcutsTable)[wID][uID].push_back({v.id});
+                    for(auto nodeID : (shorctcutsTable)[v.id][wID])
+                    {
+                        (shorctcutsTable)[wID][uID].push_back({nodeID});
+                    }
+                    (shorctcutsTable)[wID][uID].push_back({uID});
                 }
             }
         }
