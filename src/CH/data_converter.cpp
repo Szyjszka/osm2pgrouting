@@ -114,7 +114,15 @@ DataConverter::DataConverter(OSMDocument &document)
     std::cout << " TYLE SKROTOW POWSTALO " << newWays.size() << std::endl;
     for(auto way : document.ways())
     {
-        way.second.increasingOrder = way.second.nodeRefs().back()->order >  way.second.nodeRefs().front()->order;
+        assert(IDconverter.find(way.second.nodeRefs().back()->osm_id()) != IDconverter.end());
+        assert(IDconverter.find(way.second.nodeRefs().front()->osm_id()) != IDconverter.end());
+        const unsigned int aID = IDconverter.at(way.second.nodeRefs().back()->osm_id());
+        const unsigned int bID = IDconverter.at(way.second.nodeRefs().front()->osm_id());
+        assert(aID < nodesWithRoads.size());
+        assert(bID < nodesWithRoads.size());
+        //TODO check aID == bID
+        assert( nodesWithRoads[aID].order !=  nodesWithRoads[bID].order || aID == bID);
+        way.second.increasingOrder = nodesWithRoads[aID].order > nodesWithRoads[bID].order;
         way.second.shortcut = false;
         document.AddWay(way.second);
     }
