@@ -382,7 +382,7 @@ void Export2DB::exportNodes(const std::map<int64_t, Node> &nodes) const {
         row_data += "\t";
         row_data += TO_STR(node.numsOfUse());
         row_data += "\t";
-        row_data += TO_STR(node.order);
+        row_data += TO_STR(0);
         row_data += "\t";
         row_data += node.point_geometry();
         row_data += "\n";
@@ -716,18 +716,24 @@ void Export2DB::exportWays(const std::map<int64_t, Way> &ways, const Configurati
         }
 
         auto splits = way.split_me();
-//        if(way.shortcut)
-//        {
-//            std::vector<std::vector<Node*>> shorctutSplits;
-//            shorctutSplits.push_back(std::vector<Node*>());
-//            shorctutSplits[0].push_back(splits[0][0]);
-//            shorctutSplits[0].push_back(splits.back().back());
-//            splits = shorctutSplits;
-//        }
+        std::string length_shortcut_str;
+        if(way.shortcut)
+        {
+            double length_of_shortcut = 0;
+            std::vector<std::vector<Node*>> shorctutSplits;
+            shorctutSplits.push_back(std::vector<Node*>());
+            shorctutSplits[0].push_back(splits[0][0]);
+            shorctutSplits[0].push_back(splits.back().back());
+            for (size_t i = 0; i < splits.size(); ++i) {
+                length_of_shortcut += way.length(splits[i]);
+            }
+            length_shortcut_str = boost::lexical_cast<std::string>(length_of_shortcut);
+            splits = shorctutSplits;
+        }
         split_count +=  splits.size();
 
         for (size_t i = 0; i < splits.size(); ++i) {
-            auto length = way.length_str(splits[i]);
+            auto length = way.shortcut ? length_shortcut_str : way.length_str(splits[i]);
             // length (degrees)
             auto split_data = length + "\t"
                 // x1, y1

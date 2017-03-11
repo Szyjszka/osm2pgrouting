@@ -115,6 +115,7 @@ DataConverter::DataConverter(OSMDocument &document)
     for(auto way : document.ways())
     {
         way.second.increasingOrder = way.second.nodeRefs().back()->order >  way.second.nodeRefs().front()->order;
+        way.second.shortcut = false;
         document.AddWay(way.second);
     }
     for(auto& way : newWays)
@@ -149,6 +150,7 @@ std::vector<Way> DataConverter::createNewWays(const OSMDocument &document)
                 newWay.maxspeed_forward(51);
                 assert(nodesWithRoads[n].order != nodesWithRoads[m].order);
                 newWay.increasingOrder = nodesWithRoads[m].order > nodesWithRoads[n].order;
+                newWay.shortcut = true;
                 //TODO Hack tu jest - tag pierwszy z brzegu
                 newWay.tag_config((document.ways().begin()->second).tag_config());
                 newWays.push_back(newWay);
