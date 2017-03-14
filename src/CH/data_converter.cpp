@@ -22,24 +22,28 @@ DataConverter::DataConverter(OSMDocument &document)
 
     std::map<int64_t, size_t> waysFromNode;
     //Dodanie informacji o tym czy z noda sa drogi
-    for(auto& way : document.ways())
+    for(auto ways_together : document.ways())
     {
-       Endpoints endpoints = getEntpoints(way.second);
-       if(waysFromNode.find(endpoints.start.osm_id()) == waysFromNode.end())
+       auto ways_splitted = ways_together.second.split_me();
+       for(auto& way: ways_splitted)
        {
-           waysFromNode[endpoints.start.osm_id()] = 1;
-       }
-       else
-       {
-           ++waysFromNode[endpoints.start.osm_id()];
-       }
-       if(waysFromNode.find(endpoints.end.osm_id()) == waysFromNode.end())
-       {
-           waysFromNode[endpoints.end.osm_id()] = 1;
-       }
-       else
-       {
-           ++waysFromNode[endpoints.end.osm_id()];
+           Endpoints endpoints = getEntpoints(way);
+           if(waysFromNode.find(endpoints.start.osm_id()) == waysFromNode.end())
+           {
+               waysFromNode[endpoints.start.osm_id()] = 1;
+           }
+           else
+           {
+               ++waysFromNode[endpoints.start.osm_id()];
+           }
+           if(waysFromNode.find(endpoints.end.osm_id()) == waysFromNode.end())
+           {
+               waysFromNode[endpoints.end.osm_id()] = 1;
+           }
+           else
+           {
+               ++waysFromNode[endpoints.end.osm_id()];
+           }
        }
     }
 
@@ -86,16 +90,20 @@ DataConverter::DataConverter(OSMDocument &document)
     {
         edgesTable[j].resize(waysFromNode.size(), UINT_MAX);
     }
-    for(auto& way : document.ways())
+    for(auto ways_together : document.ways())
     {
-       Endpoints endpoints = getEntpoints(way.second);
-       assert(IDconverter.at(endpoints.start.osm_id()) < waysFromNode.size());
-       assert(IDconverter.at(endpoints.end.osm_id()) < waysFromNode.size());
-       edgesTable[IDconverter.at(endpoints.start.osm_id())]
-               [IDconverter.at(endpoints.end.osm_id())] = getWayCost(way.second);
+       auto ways_splitted = ways_together.second.split_me();
+       for(auto& way: ways_splitted)
+       {
+           Endpoints endpoints = getEntpoints(way);
+           assert(IDconverter.at(endpoints.start.osm_id()) < waysFromNode.size());
+           assert(IDconverter.at(endpoints.end.osm_id()) < waysFromNode.size());
+           edgesTable[IDconverter.at(endpoints.start.osm_id())]
+                   [IDconverter.at(endpoints.end.osm_id())] = getWayCost(way);
 
-       edgesTable[IDconverter.at(endpoints.end.osm_id())]
-               [IDconverter.at(endpoints.start.osm_id())]= getWayCost(way.second);
+           edgesTable[IDconverter.at(endpoints.end.osm_id())]
+                   [IDconverter.at(endpoints.start.osm_id())]= getWayCost(way);
+        }
     }
     nextWayID = (document.ways().rbegin()->first)+1;
 
@@ -112,19 +120,32 @@ DataConverter::DataConverter(OSMDocument &document)
     std::vector<osm2pgr::Way> newWays = createNewWays(document);
 
     std::cout << " TYLE SKROTOW POWSTALO " << newWays.size() << std::endl;
-    for(auto way : document.ways())
+
+    std::map<int64_t, Way> copyOfWays(document.ways());
+    document.clear();
+
+    for(auto ways_together : copyOfWays)
     {
-        assert(IDconverter.find(way.second.nodeRefs().back()->osm_id()) != IDconverter.end());
-        assert(IDconverter.find(way.second.nodeRefs().front()->osm_id()) != IDconverter.end());
-        const unsigned int aID = IDconverter.at(way.second.nodeRefs().back()->osm_id());
-        const unsigned int bID = IDconverter.at(way.second.nodeRefs().front()->osm_id());
+       auto ways_splitted = ways_together.second.split_me();
+       for(auto& way: ways_splitted)
+       {
+//        document.ways().erase(ways_together.second);
+        Way newWay(ways_together.second);
+        newWay.nodeRefs().clear();
+        newWay.add_node(way.front());
+        newWay.add_node(way.back());
+        assert(IDconverter.find(newWay.nodeRefs().back()->osm_id()) != IDconverter.end());
+        assert(IDconverter.find(newWay.nodeRefs().front()->osm_id()) != IDconverter.end());
+        const unsigned int aID = IDconverter.at(newWay.nodeRefs().back()->osm_id());
+        const unsigned int bID = IDconverter.at(newWay.nodeRefs().front()->osm_id());
         assert(aID < nodesWithRoads.size());
         assert(bID < nodesWithRoads.size());
         //TODO check aID == bID
         assert( nodesWithRoads[aID].order !=  nodesWithRoads[bID].order || aID == bID);
-        way.second.increasingOrder = nodesWithRoads[aID].order > nodesWithRoads[bID].order;
-        way.second.shortcut = false;
-        document.AddWay(way.second);
+        newWay.increasingOrder = nodesWithRoads[aID].order > nodesWithRoads[bID].order;
+        newWay.shortcut = false;
+        document.AddWay(newWay);
+        }
     }
     for(auto& way : newWays)
     {
@@ -132,14 +153,13 @@ DataConverter::DataConverter(OSMDocument &document)
     }
 }
 
-double DataConverter::getWayCost(const Way &way) const
+double DataConverter::getWayCost(const std::vector<osm2pgr::Node*> &nodes) const
 {
-    return way.length();
+    return Way::length(nodes);
 }
 
-Endpoints DataConverter::getEntpoints(const Way &way) const
+Endpoints DataConverter::getEntpoints(const std::vector<osm2pgr::Node*> &nodes) const
 {
-    const std::vector<osm2pgr::Node*> nodes = way.nodeRefs();
     return {*(nodes.front()), *(nodes.back())};
 }
 

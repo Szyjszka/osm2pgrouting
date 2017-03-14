@@ -12,8 +12,8 @@ class DataConverter
 public:
     DataConverter(osm2pgr::OSMDocument& document);
 private:
-    double getWayCost(const osm2pgr::Way& way) const;
-    Endpoints getEntpoints(const osm2pgr::Way& way) const;
+    double getWayCost(const std::vector<osm2pgr::Node*> &nodes) const;
+    Endpoints getEntpoints(const std::vector<osm2pgr::Node*>& way) const;
 
     std::vector<osm2pgr::Way> createNewWays(const osm2pgr::OSMDocument &document);
 

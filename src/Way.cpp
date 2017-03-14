@@ -102,7 +102,7 @@ Way::length_str(const std::vector<Node*> &nodeRefs) const {
     return boost::lexical_cast<std::string>(length(nodeRefs));
 }
 
-double Way::length(const std::vector<Node *> &nodeRefs) const
+double Way::length(const std::vector<Node *> &nodeRefs)
 {
     double length = 0;
     auto prev_node_ptr = nodeRefs.front();

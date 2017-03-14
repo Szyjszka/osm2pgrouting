@@ -63,7 +63,7 @@ class Way : public Element {
      void add_node(Node* node);
 
      std::vector<Node*>& nodeRefs() {return m_NodeRefs;}
-     const std::vector<Node*> nodeRefs() const {return m_NodeRefs;}
+//     std::vector<Node*> nodeRefs() {return m_NodeRefs;}
 
 
  public:
@@ -103,7 +103,7 @@ class Way : public Element {
      std::vector<std::vector<Node*>> split_me();
      std::string geometry_str(const std::vector<Node*> &) const;
      std::string length_str(const std::vector<Node*> &) const;
-     double length(const std::vector<Node*> &) const;
+     static double length(const std::vector<Node*> &);
 
      /**
       * to insert the relations tags

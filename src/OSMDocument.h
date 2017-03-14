@@ -25,13 +25,14 @@
 #include <map>
 #include <vector>
 #include <string>
+#include "Way.h"
 #include "./Configuration.h"
 
 namespace osm2pgr {
 
 
 class Node;
-class Way;
+//class Way;
 class Relation;
 
 /**
@@ -62,6 +63,11 @@ class OSMDocument {
 
     //! add way to the map
     void AddWay(Way w);
+
+    void clear()
+    {
+        m_Ways.clear();
+    }
 
     //! find node by using an ID
     bool has_node(int64_t nodeRefId) const;
