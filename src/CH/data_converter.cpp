@@ -144,11 +144,13 @@ DataConverter::DataConverter(OSMDocument &document)
         assert( nodesWithRoads[aID].order !=  nodesWithRoads[bID].order || aID == bID);
         newWay.increasingOrder = nodesWithRoads[aID].order > nodesWithRoads[bID].order;
         newWay.shortcut = false;
+        newWay.setID(nextWayID++);
         document.AddWay(newWay);
         }
     }
     for(auto& way : newWays)
     {
+        assert(document.ways().find(way.osm_id()) == document.ways().end());
         document.AddWay(way);
     }
 }
