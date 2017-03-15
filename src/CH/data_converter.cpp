@@ -20,7 +20,7 @@ DataConverter::DataConverter(OSMDocument &document)
         osm2pgrNodes.push_back(node.second);
     }
 
-    std::map<int64_t, size_t> waysFromNode;
+    std::map<int64_t, uint32_t> waysFromNode;
     //Dodanie informacji o tym czy z noda sa drogi
     for(auto ways_together : document.ways())
     {
@@ -47,8 +47,8 @@ DataConverter::DataConverter(OSMDocument &document)
        }
     }
 
-    size_t IDWithRoads = 0;
-    size_t IDWithoutRoads = waysFromNode.size();
+    uint32_t IDWithRoads = 0;
+    uint32_t IDWithoutRoads = waysFromNode.size();
     for(auto& node : osm2pgrNodes)
     {
         if(waysFromNode.find(node.osm_id()) != waysFromNode.end())
@@ -79,7 +79,7 @@ DataConverter::DataConverter(OSMDocument &document)
     }
 
     nodesWithRoads = std::vector<Node>(nodes.begin(), nodes.begin() + waysFromNode.size());
-    std::vector<unsigned int> order(waysFromNode.size());
+    std::vector<uint32_t> order(waysFromNode.size());
     order_with_num_of_roads(&nodesWithRoads, &order);
 //    simple_order(&nodesWithRoads);
 
@@ -166,11 +166,11 @@ Endpoints DataConverter::getEntpoints(const std::vector<osm2pgr::Node*> &nodes) 
 std::vector<Way> DataConverter::createNewWays(const OSMDocument &document)
 {
     std::vector<Way> newWays;
-    for(unsigned n = 0; n < nodesWithRoads.size(); ++n )
-        for(unsigned m = n+1; m < nodesWithRoads.size(); ++m ){
+    for(uint32_t n = 0; n < nodesWithRoads.size(); ++n )
+        for(uint32_t m = n+1; m < nodesWithRoads.size(); ++m ){
             if(shortcutsTable[n][m].size()){
                 Way newWay;
-                for(unsigned i = 0; i < shortcutsTable[n][m].size(); ++i){
+                for(uint32_t i = 0; i < shortcutsTable[n][m].size(); ++i){
                     newWay.add_node(&(osm2pgrNodes[shortcutsTable[n][m][i]]));
                 }
                 newWay.setID(nextWayID++);

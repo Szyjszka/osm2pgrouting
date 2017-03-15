@@ -23,8 +23,8 @@ private:
     ShorctutsTable shortcutsTable;
     std::vector<osm2pgr::Node> osm2pgrNodes;
     std::vector<Node> nodesWithRoads;
-    std::map<int64_t, unsigned int> IDconverter;
-    std::map<unsigned int, int64_t> IDconverterBack;
+    std::map<int64_t, uint32_t> IDconverter;
+    std::map<uint32_t, int64_t> IDconverterBack;
 };
 
 }

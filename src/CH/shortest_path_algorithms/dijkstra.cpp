@@ -13,7 +13,7 @@ Route dijkstra(const EdgesTable &edgesTable, const unsigned int start,
 {
 
     QSTable qsTable(nodes.size(),true);
-    CostTable costTable(nodes.size(), INF);
+    CostTable costTable(nodes.size(), std::numeric_limits<double>::max());
     costTable[start] = 0;
     PathTable pathTable(nodes.size(), NO_PRECCESSOR);
     Route invalidRoute;
@@ -25,7 +25,7 @@ Route dijkstra(const EdgesTable &edgesTable, const unsigned int start,
     while(nodesLeft && indexOfNextElem != end )
     {
         indexOfNextElem = getIndexOfNextNode(costTable, qsTable);
-        if(costTable[indexOfNextElem] == INF)
+        if(costTable[indexOfNextElem] > INF)
         {
             return invalidRoute;
         }
