@@ -24,6 +24,7 @@ DataConverter::DataConverter(OSMDocument &document)
     //Dodanie informacji o tym czy z noda sa drogi
     for(auto ways_together : document.ways())
     {
+       if (ways_together.second.tag_config().key() == "" || ways_together.second.tag_config().value() == "") continue;
        auto ways_splitted = ways_together.second.split_me();
        for(auto& way: ways_splitted)
        {
@@ -88,16 +89,21 @@ DataConverter::DataConverter(OSMDocument &document)
 
     for(size_t j = 0; j < edgesTable.size(); ++j)
     {
-        edgesTable[j].resize(waysFromNode.size(), UINT_MAX);
+        edgesTable[j].resize(waysFromNode.size(), std::numeric_limits<double>::max());
     }
     for(auto ways_together : document.ways())
     {
        auto ways_splitted = ways_together.second.split_me();
        for(auto& way: ways_splitted)
        {
+           if (ways_together.second.tag_config().key() == "" || ways_together.second.tag_config().value() == "") continue;
            Endpoints endpoints = getEntpoints(way);
            assert(IDconverter.at(endpoints.start.osm_id()) < waysFromNode.size());
            assert(IDconverter.at(endpoints.end.osm_id()) < waysFromNode.size());
+           //if(endpoints.start.osm_id() == 352670061 || endpoints.end.osm_id() == 352670061)
+           //{
+           //    std::cout << " to ten" << std::endl;
+           //}
            edgesTable[IDconverter.at(endpoints.start.osm_id())]
                    [IDconverter.at(endpoints.end.osm_id())] = getWayCost(way);
 
@@ -114,7 +120,7 @@ DataConverter::DataConverter(OSMDocument &document)
         shortcutsTable[j].resize(waysFromNode.size());
     }
 
-    contract(edgesTable, nodesWithRoads, shortcutsTable, order);
+    contract(edgesTable, nodesWithRoads, shortcutsTable, order, IDconverterBack);
 
     //Add new roads;
     std::vector<osm2pgr::Way> newWays = createNewWays(document);
@@ -126,6 +132,7 @@ DataConverter::DataConverter(OSMDocument &document)
 
     for(auto ways_together : copyOfWays)
     {
+       if (ways_together.second.tag_config().key() == "" || ways_together.second.tag_config().value() == "") continue;
        auto ways_splitted = ways_together.second.split_me();
        for(auto& way: ways_splitted)
        {
@@ -141,6 +148,10 @@ DataConverter::DataConverter(OSMDocument &document)
         assert(aID < nodesWithRoads.size());
         assert(bID < nodesWithRoads.size());
         //TODO check aID == bID
+        if(aID == bID)
+        {
+            continue;
+        }
         assert( nodesWithRoads[aID].order !=  nodesWithRoads[bID].order || aID == bID);
         newWay.increasingOrder = nodesWithRoads[aID].order > nodesWithRoads[bID].order;
         newWay.shortcut = false;
