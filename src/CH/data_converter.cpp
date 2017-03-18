@@ -5,6 +5,8 @@
 #include <iostream>
 #include "contraction_hierarchies/contracting.hpp"
 #include "contraction_hierarchies/ordering.hpp"
+#include "shortest_path_algorithms/dijkstra.hpp"
+#include "shortest_path_algorithms/modified_bidirectional_dijkstra.hpp"
 
 using namespace osm2pgr;
 using namespace RouterCH;
@@ -82,7 +84,7 @@ DataConverter::DataConverter(OSMDocument &document)
     nodesWithRoads = std::vector<Node>(nodes.begin(), nodes.begin() + waysFromNode.size());
     std::vector<uint32_t> order(waysFromNode.size());
     order_with_num_of_roads(&nodesWithRoads, &order);
-//    simple_order(&nodesWithRoads);
+//    simple_order(&nodesWithRoads, &order);
 
     //Add edges in my format
     edgesTable.resize(waysFromNode.size());
@@ -120,9 +122,9 @@ DataConverter::DataConverter(OSMDocument &document)
         shortcutsTable[j].resize(waysFromNode.size());
     }
 
+//    Route sh2 = dijkstra(edgesTable, 36, 8, nodesWithRoads);
     contract(edgesTable, nodesWithRoads, shortcutsTable, order, IDconverterBack);
 
-    //Add new roads;
     std::vector<osm2pgr::Way> newWays = createNewWays(document);
 
     std::cout << " TYLE SKROTOW POWSTALO " << newWays.size() << std::endl;
@@ -136,7 +138,6 @@ DataConverter::DataConverter(OSMDocument &document)
        auto ways_splitted = ways_together.second.split_me();
        for(auto& way: ways_splitted)
        {
-//        document.ways().erase(ways_together.second);
         Way newWay(ways_together.second);
         newWay.nodeRefs().clear();
         newWay.add_node(way.front());
@@ -164,6 +165,30 @@ DataConverter::DataConverter(OSMDocument &document)
         assert(document.ways().find(way.osm_id()) == document.ways().end());
         document.AddWay(way);
     }
+
+    Route sh = modified_bidirectional_dijkstra(edgesTable, 36, 8, nodesWithRoads, shortcutsTable);
+//    for(auto node : sh.nodes)
+//    {
+//        std::cout << "osm id : " << IDconverterBack.at(node.id) << std::endl;
+//    }
+    std::cout << std::endl;
+    unsigned int licznik = 0, licznik2 =0;
+    for(int i = 0; i < nodesWithRoads.size(); ++i)
+    for(int j = i+1; j < nodesWithRoads.size(); ++j)
+    {
+        Route sh2 = dijkstra(edgesTable, i, j, nodesWithRoads);
+        if(sh2.nodes.size())
+        {
+            Route sh = modified_bidirectional_dijkstra(edgesTable, i, j, nodesWithRoads, shortcutsTable);
+            if(!sh.nodes.size())
+                licznik++;
+        }
+        else
+        {
+            licznik2++;
+        }
+    }
+    std::cout << "TYLU DROG NIE MA " << licznik << " A TYLU NAWET Z DIJSKTRY " << licznik2 << std::endl;
 }
 
 double DataConverter::getWayCost(const std::vector<osm2pgr::Node*> &nodes) const
@@ -184,6 +209,7 @@ std::vector<Way> DataConverter::createNewWays(const OSMDocument &document)
             if(shortcutsTable[n][m].size()){
                 Way newWay;
                 for(uint32_t i = 0; i < shortcutsTable[n][m].size(); ++i){
+                    assert(shortcutsTable[n][m][i] < nodesWithRoads.size());
                     newWay.add_node(&(osm2pgrNodes[shortcutsTable[n][m][i]]));
                 }
                 newWay.setID(nextWayID++);

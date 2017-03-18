@@ -40,13 +40,13 @@ bool chechIfShortcudNeeded(const EdgesTable& edgesTable, const Node& u,
     checkedShortctut.cost = edgesTable[u.id][v.id] + edgesTable[v.id][w.id];
     for(unsigned int i = 0; i < nodes.size(); ++i)
     {
-        edgesTableForLocalSearch[nodes[i].id][v.id] = INF;
-        edgesTableForLocalSearch[v.id][nodes[i].id] = INF;
+        edgesTableForLocalSearch[nodes[i].id][v.id] = std::numeric_limits<double>::max();
+        edgesTableForLocalSearch[v.id][nodes[i].id] = std::numeric_limits<double>::max();
     }
 
     Route sh = dijkstra(edgesTableForLocalSearch, u.id, w.id, nodes);
 
-    return sh.cost > checkedShortctut.cost;
+    return sh.cost >= checkedShortctut.cost;
 }
 
 void contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
@@ -66,22 +66,22 @@ void contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
             {
                 continue;
             }
-            if(((edgesTable)[uID][v.id] < UINT_MAX) && (edgesTable)[v.id][wID] < UINT_MAX)
+
+            //dodaj skrót (u,v,w)
+                if((IDconverterBack.at(uID) == 352670061 && IDconverterBack.at(wID) == 1974837159)
+                    || (IDconverterBack.at(wID) == 352670061 && IDconverterBack.at(uID) == 1974837159))
+                {
+//                    std::cout << "Postal taki skrot dla osm_id " << IDconverterBack.at(v.id) << std::endl;
+                }
+            if(((edgesTable)[uID][v.id] < UINT_MAX) && (edgesTable)[v.id][wID] < UINT_MAX && (edgesTable)[uID][wID]>=UINT_MAX)
             {
-                //if((IDconverterBack.at(uID) == 3291116323 && IDconverterBack.at(wID) == 352670061)
-                //    || (IDconverterBack.at(wID) == 3291116323 && IDconverterBack.at(uID) == 352670061))
-                //{
-                //    std::cout << "Som takie krawedzie" << std::endl;
-                //}
                 //jeśli (u,v,w) jest unikalną najkrótszą ścieżką
                 if(chechIfShortcudNeeded(edgesTable, nodes[uID], v, nodes[wID], nodes))
                 {
-                //dodaj skrót (u,v,w)
                     (edgesTable)[uID][wID] = (edgesTable)[uID][v.id] + (edgesTable)[v.id][wID];
                     (edgesTable)[wID][uID] = (edgesTable)[uID][v.id] + (edgesTable)[v.id][wID];
                     //Jeśli skrót już był to go usuwamy
-                    (shorctcutsTable)[uID][wID].clear();
-                    (shorctcutsTable)[wID][uID].clear();
+                    assert(!shorctcutsTable[uID][wID].size());
 
                     (shorctcutsTable)[uID][wID].push_back({uID});
                     for(auto nodeID : shorctcutsTable[uID][v.id])
@@ -121,9 +121,17 @@ void contract(EdgesTable& edgesTable, const Nodes& nodes,
     //zakłada że nodes są w rosnącej kolejności po order
     for(unsigned int i = 0; i < order.size(); ++i)
     {
-        if(IDconverterBack.at(nodes[order[i]].id) == 352670061)
+        if(IDconverterBack.at(nodes[order[i]].id) == 347683850)
         {
-            std::cout << " to ten" << std::endl;
+            std::cout << " 59 ma order " <<  i << "i id " << nodes[order[i]].id <<" " << std::endl;
+        }
+        if(IDconverterBack.at(nodes[order[i]].id) == 352671524)
+        {
+            std::cout << " 41 ma order " <<  i << "i id " << nodes[order[i]].id << std::endl;
+        }
+        if(IDconverterBack.at(nodes[order[i]].id) == 2401955174)
+        {
+            std::cout << " 61 ma order " <<  i << "i id " << nodes[order[i]].id <<  std::endl;
         }
         std::cout << "Zostalo jeszcze " << nodes.size() - i << std::endl;
         contractNode(edgesTable, nodes[order[i]], nodes, shortcutsTable, IDconverterBack);

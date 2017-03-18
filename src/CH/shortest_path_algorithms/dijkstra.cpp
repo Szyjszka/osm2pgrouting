@@ -17,7 +17,7 @@ Route dijkstra(const EdgesTable &edgesTable, const unsigned int start,
     costTable[start] = 0;
     PathTable pathTable(nodes.size(), NO_PRECCESSOR);
     Route invalidRoute;
-    invalidRoute.cost = INF;
+    invalidRoute.cost = std::numeric_limits<double>::max();
     invalidRoute.id = 0;
     size_t nodesLeft = nodes.size();
     unsigned int indexOfNextElem = start;

@@ -3,10 +3,11 @@
 //using namespace RouterCH;
 namespace RouterCH
 {
-void simple_order(Nodes* nodes)
+void simple_order(Nodes* nodes, std::vector<unsigned int>* order)
 {
     for(unsigned int i = 0; i <nodes->size(); ++i)
     {
+        (*order)[i] = (*nodes)[i].id;
         (*nodes)[i].order = i;
     }
 
