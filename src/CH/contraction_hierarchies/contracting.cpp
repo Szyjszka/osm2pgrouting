@@ -117,13 +117,13 @@ void contract(EdgesTable& edgesTable, Nodes* nodes,
 {
     EdgesTable edge2(edgesTable);
     //zakłada że nodes są w rosnącej kolejności po order
-    for(signed int i = order.size()-1; i >=0; --i)
+    for(signed int i = 0; i < order.size(); ++i)
     {
 //        if(IDconverterBack.at(nodes[order[i]].id) == 352670061)
 //        {
 //            std::cout << "tu ten " <<  i << "i id " << nodes[order[i]].id <<" " << std::endl;
 //        }
-     if(i && !(i % 2))
+     if(i && !(i % 20))
      {
         order_with_num_of_roads(nodes, &order, edgesTable, i);
      }
