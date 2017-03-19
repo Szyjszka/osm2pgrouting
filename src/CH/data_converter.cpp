@@ -100,8 +100,8 @@ DataConverter::DataConverter(OSMDocument &document)
 
     nodesWithRoads = std::vector<Node>(nodes.begin(), nodes.begin() + waysFromNode.size());
     std::vector<uint32_t> order(waysFromNode.size());
-//    simple_order(&nodesWithRoads, &order);
-    order_with_num_of_roads(&nodesWithRoads, &order);
+    simple_order(&nodesWithRoads, &order);
+    order_with_number_of_shorctuts(&nodesWithRoads, &order, edgesTable, 0);
 
     nextWayID = (document.ways().rbegin()->first)+1;
 

@@ -28,32 +28,12 @@ bool operator ==(Route a, Route b)
     return true;
 }
 
-bool chechIfShortcudNeeded(const EdgesTable& edgesTable, const Node& u,
-                           const Node& v, const Node& w, const Nodes &nodes)
-{
-    //To może być wyżej
-    EdgesTable edgesTableForLocalSearch(edgesTable);
 
-    //wstawienie do tabeli duzych wartosci dla poszkiwanego skrótu żeby zobaczyć czy
-    //dijkstra znajdzie inną trasę
-    Route checkedShortctut;
-    checkedShortctut.nodes = Nodes({u, v, w});
-    checkedShortctut.cost = edgesTable[u.id][v.id] + edgesTable[v.id][w.id];
-    for(unsigned int i = 0; i < nodes.size(); ++i)
-    {
-        edgesTableForLocalSearch[nodes[i].id][v.id] = std::numeric_limits<double>::max();
-        edgesTableForLocalSearch[v.id][nodes[i].id] = std::numeric_limits<double>::max();
-    }
-
-    Route sh = dijkstra(edgesTableForLocalSearch, u.id, w.id, nodes);
-
-    return sh.cost > checkedShortctut.cost;
-}
-
-void contractNode(EdgesTable& edgesTable, EdgesTable& edgesTableOut, const Node& v, const Nodes &nodes,
+unsigned int contractNode(EdgesTable& edgesTable, EdgesTable& edgesTableOut, const Node& v, const Nodes &nodes,
                   ShorctutsTable& shorctcutsTable,
                   const std::map<uint32_t, int64_t>& IDconverterBack)
 {
+    unsigned int numberOfShortcutsCreated = 0;
     // dla każdej pary (u, v) i (v,w) z krawędzi
     for(unsigned int uID = 0; uID < (edgesTable)[0].size(); ++uID)
     {
@@ -79,6 +59,8 @@ void contractNode(EdgesTable& edgesTable, EdgesTable& edgesTableOut, const Node&
                 //jeśli (u,v,w) jest unikalną najkrótszą ścieżką
                 if(chechIfShortcudNeeded(edgesTable, nodes[uID], v, nodes[wID], nodes))
                 {
+                    ++numberOfShortcutsCreated;
+
                     (edgesTableOut)[uID][wID] = (edgesTable)[uID][v.id] + (edgesTable)[v.id][wID];
                     (edgesTableOut)[wID][uID] = (edgesTable)[uID][v.id] + (edgesTable)[v.id][wID];
                     //Jeśli skrót już był to go usuwamy
@@ -108,13 +90,14 @@ void contractNode(EdgesTable& edgesTable, EdgesTable& edgesTableOut, const Node&
             }
         }
     }
-
+    return numberOfShortcutsCreated;
 }
 
 void contract(EdgesTable& edgesTable, Nodes* nodes,
               ShorctutsTable& shortcutsTable, std::vector<unsigned int>& order,
               const std::map<uint32_t, int64_t>& IDconverterBack)
 {
+    unsigned int shortcuts = 0;
     EdgesTable edge2(edgesTable);
     //zakłada że nodes są w rosnącej kolejności po order
     for(signed int i = 0; i < order.size(); ++i)
@@ -123,12 +106,14 @@ void contract(EdgesTable& edgesTable, Nodes* nodes,
 //        {
 //            std::cout << "tu ten " <<  i << "i id " << nodes[order[i]].id <<" " << std::endl;
 //        }
-     if(i && !(i % 20))
+//     if(i && !(i % 2))
      {
-        order_with_num_of_roads(nodes, &order, edgesTable, i);
+        order_with_number_of_shorctuts(nodes, &order, edgesTable, i);
      }
-     std::cout << "Zostalo jeszcze " << i << std::endl;
-     contractNode(edgesTable, edge2, (*nodes)[order[i]], *nodes, shortcutsTable, IDconverterBack);
+     std::cout << "Zostalo jeszcze " << order.size() - i << std::endl;
+      shortcuts += contractNode(edgesTable, edge2, (*nodes)[order[i]], *nodes, shortcutsTable, IDconverterBack);
+
+     std::cout << "Stworzono " << shortcuts << std::endl;
      edgesTable = edge2;
     }
 }

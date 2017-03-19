@@ -1,6 +1,7 @@
 #include <climits>
 #include <cassert>
 #include "dijkstra_utils.hpp"
+#include "dijkstra.hpp"
 
 namespace RouterCH
 {
@@ -99,5 +100,29 @@ Route createShortestPath(const EdgesTable &edgesTable, const PathTable& pathTabl
 
     std::reverse(shortestPath.nodes.begin(), shortestPath.nodes.end());
     return shortestPath;
+}
+
+
+
+bool chechIfShortcudNeeded(const EdgesTable& edgesTable, const Node& u,
+                           const Node& v, const Node& w, const Nodes &nodes)
+{
+    //To może być wyżej
+    EdgesTable edgesTableForLocalSearch(edgesTable);
+
+    //wstawienie do tabeli duzych wartosci dla poszkiwanego skrótu żeby zobaczyć czy
+    //dijkstra znajdzie inną trasę
+    Route checkedShortctut;
+    checkedShortctut.nodes = Nodes({u, v, w});
+    checkedShortctut.cost = edgesTable[u.id][v.id] + edgesTable[v.id][w.id];
+    for(unsigned int i = 0; i < nodes.size(); ++i)
+    {
+        edgesTableForLocalSearch[nodes[i].id][v.id] = std::numeric_limits<double>::max();
+        edgesTableForLocalSearch[v.id][nodes[i].id] = std::numeric_limits<double>::max();
+    }
+
+    Route sh = dijkstra(edgesTableForLocalSearch, u.id, w.id, nodes);
+
+    return sh.cost > checkedShortctut.cost;
 }
 }

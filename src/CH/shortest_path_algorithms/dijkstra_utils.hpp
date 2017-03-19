@@ -12,6 +12,9 @@ typedef std::vector<signed int> PathTable;
 unsigned int getIndexOfNextNode(CostTable& costTable, const QSTable& qsTable);
 Route createShortestPath(const EdgesTable &edgesTable, const PathTable& pathTable, const unsigned int start,
                          const unsigned int end, const Nodes& nodes,const ShorctutsTable* shortcutsTable = nullptr);
+
+bool chechIfShortcudNeeded(const EdgesTable& edgesTable, const Node& u,
+                           const Node& v, const Node& w, const Nodes &nodes);
 bool operator==(const Route& a, const Route& b);
 bool operator!=(const Route& a, const Route& b);
 bool operator==(const Node& a, const Node& b);

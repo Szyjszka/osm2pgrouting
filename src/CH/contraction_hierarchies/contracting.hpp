@@ -2,6 +2,7 @@
 #define CONTRACTING_HPP
 
 #include "../ch_types.h"
+#include "../shortest_path_algorithms/dijkstra_utils.hpp"
 
 namespace RouterCH
 {
