@@ -25,7 +25,7 @@ Route modified_bidirectional_dijkstra(const EdgesTable &edgesTable, const unsign
     unsigned int indexOfNextElemUp  = start;
     unsigned int indexOfNextElemDown = end;
     unsigned int meetingNode = INF;
-    unsigned int shortestPathLength = INF;
+    double shortestPathLength = INF;
     unsigned int nodesLefUp = nodes.size();
     unsigned int nodesLefDown = nodes.size();
 
@@ -37,8 +37,12 @@ Route modified_bidirectional_dijkstra(const EdgesTable &edgesTable, const unsign
     while(((costTableUp[indexOfNextElemUp] + costTableDown[indexOfNextElemDown]) <= shortestPathLength) &&
           nodesLefDown && nodesLefUp)
     {
-        indexOfNextElemUp = getIndexOfNextNode(costTableUp, qsTableUp);
+        uint32_t indexOfNextElemUpExp = getIndexOfNextNode(costTableUp, qsTableUp);
+        uint32_t indexOfNextElemDownExp = getIndexOfNextNode(costTableDown, qsTableDown);
+        bool Up = costTableDown[indexOfNextElemDownExp] > costTableUp[indexOfNextElemUpExp];
+        if(Up){
         --nodesLefUp;
+        indexOfNextElemUp = indexOfNextElemUpExp;
         if(costTableUp[indexOfNextElemUp] < INF)
         {
             qsTableUp[indexOfNextElemUp] = false;
@@ -64,9 +68,10 @@ Route modified_bidirectional_dijkstra(const EdgesTable &edgesTable, const unsign
             }
 
         }
-
-        indexOfNextElemDown = getIndexOfNextNode(costTableDown, qsTableDown);
+        }
+        else{
         nodesLefDown--;
+        indexOfNextElemDown = indexOfNextElemDownExp;
         if(costTableDown[indexOfNextElemDown] < INF)
         {
             qsTableDown[indexOfNextElemDown] = false;
@@ -90,6 +95,7 @@ Route modified_bidirectional_dijkstra(const EdgesTable &edgesTable, const unsign
                     }
                 }
             }
+        }
         }
     }
     if(meetingNode == INF)
