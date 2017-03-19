@@ -49,7 +49,7 @@ DataConverter::DataConverter(OSMDocument &document)
     }
 
     uint32_t IDWithRoads = 0;
-    uint32_t IDWithoutRoads = waysFromNode.size();
+    uint32_t IDWithoutRoads = static_cast<uint32_t>(waysFromNode.size());
     for(auto& node : osm2pgrNodes)
     {
         if(waysFromNode.find(node.osm_id()) != waysFromNode.end())
@@ -101,7 +101,7 @@ DataConverter::DataConverter(OSMDocument &document)
     nodesWithRoads = std::vector<Node>(nodes.begin(), nodes.begin() + waysFromNode.size());
     std::vector<uint32_t> order(waysFromNode.size());
 //    simple_order(&nodesWithRoads, &order);
-    order_with_num_of_roads(&nodesWithRoads, &order, edgesTable);
+    order_with_num_of_roads(&nodesWithRoads, &order);
 
     nextWayID = (document.ways().rbegin()->first)+1;
 
@@ -115,29 +115,32 @@ DataConverter::DataConverter(OSMDocument &document)
     contract(edgesTable, &nodesWithRoads, shortcutsTable, order, IDconverterBack);
 //    std::cout << " ID 11 " << IDconverter.at(2401955174) << std::endl;
 //    std::cout << " ID 6 " << IDconverter.at(352671528) << std::endl;
-//    for(int i = 0; i < nodesWithRoads.size(); ++i){
-//        std::cout <<"Do sprawdzenia " << ( nodesWithRoads.size() - i) << std::endl;
+//    for(int i = 0; i < nodesWithRoads.size(); ++i)
 //    for(int j = i +1; j < nodesWithRoads.size(); ++j)
-    int i = 10;
-    int j = 5;
-//    {
-        Route sh = dijkstra(edgesTable, i, j, nodesWithRoads);
-        assert(sh.nodes.size());
-        Route sh2 = modified_bidirectional_dijkstra(edgesTable, i, j,
-                                                    nodesWithRoads, shortcutsTable);
-//        if(!sh2.nodes.size() && sh.nodes.size())
+////    int i = 3;
+////    int j = 4;
+    {
+//        std::cout << "Do sprawdzenia " << nodesWithRoads.size() - i << std::endl;
+//        Route sh = dijkstra(edgesTable, i, j, nodesWithRoads);
+////        assert(sh.nodes.size());
+//        Route sh2 = modified_bidirectional_dijkstra(edgesTable, i, j,
+//                                                    nodesWithRoads, shortcutsTable);
+//        if((!sh2.nodes.size() || sh2.cost >= (sh.cost + 0.000001)) && sh.nodes.size())
 //        {
 //            edgesTable[i][j] = sh.cost;
 //            edgesTable[j][i] = sh.cost;
+//            shortcutsTable[i][j].clear();
+//            shortcutsTable[j][i].clear();
 //            shortcutsTable[i][j].push_back(i);
 //            shortcutsTable[i][j].push_back(j);
 //            shortcutsTable[j][i].push_back(j);
 //            shortcutsTable[j][i].push_back(i);
 //        }
-//        std::cout << "sh2 size " << sh2.nodes.size() << std::endl;
-        assert(sh2.nodes.size() && sh2.cost <= (sh.cost + 0.00001));
-//    }
-//    }
+//////        std::cout << "sh2 size " << sh2.nodes.size() << std::endl;
+//        Route sh3 = modified_bidirectional_dijkstra(edgesTable, i, j,
+//                                                    nodesWithRoads, shortcutsTable);
+//        assert((sh3.nodes.size() && sh3.cost <= (sh.cost + 0.00001)) || !sh.nodes.size());
+    }
 
     std::vector<osm2pgr::Way> newWays = createNewWays(document);
 
@@ -150,7 +153,7 @@ DataConverter::DataConverter(OSMDocument &document)
     {
        if (ways_together.second.tag_config().key() == "" || ways_together.second.tag_config().value() == "") continue;
        bool found = true;
-       for(int i = 0; i < sizeof(id_table)/sizeof(id_table[0]); ++i)
+       for(size_t i = 0; i < sizeof(id_table)/sizeof(id_table[0]); ++i)
        {
            if(ways_together.second.osm_id() == id_table[i])
            {
@@ -181,7 +184,7 @@ DataConverter::DataConverter(OSMDocument &document)
         }
         assert( nodesWithRoads[aID].order !=  nodesWithRoads[bID].order || aID == bID);
         newWay.increasingOrder = nodesWithRoads[aID].order > nodesWithRoads[bID].order;
-        newWay.shortcut = false;
+        newWay.shortcut = 0;
         newWay.setID(nextWayID++);
         document.AddWay(newWay);
         }
@@ -210,16 +213,18 @@ std::vector<Way> DataConverter::createNewWays(const OSMDocument &document)
         for(uint32_t m = n+1; m < nodesWithRoads.size(); ++m ){
             if(shortcutsTable[n][m].size()){
                 Way newWay;
+                newWay.add_node(&(osm2pgrNodes[n]));
                 for(uint32_t i = 0; i < shortcutsTable[n][m].size(); ++i){
                     assert(shortcutsTable[n][m][i] < nodesWithRoads.size());
                     newWay.add_node(&(osm2pgrNodes[shortcutsTable[n][m][i]]));
                 }
+                newWay.add_node(&(osm2pgrNodes[m]));
                 newWay.setID(nextWayID++);
                 newWay.maxspeed_backward(51);
                 newWay.maxspeed_forward(51);
                 assert(nodesWithRoads[n].order != nodesWithRoads[m].order);
                 newWay.increasingOrder = nodesWithRoads[m].order > nodesWithRoads[n].order;
-                newWay.shortcut = true;
+                newWay.shortcut = 1;
                 //TODO Hack tu jest - tag pierwszy z brzegu
                 newWay.tag_config((document.ways().begin()->second).tag_config());
                 newWays.push_back(newWay);
@@ -235,7 +240,7 @@ DataConverter::SplittedWays DataConverter::createSplittedWays(const OSMDocument 
     {
        if (ways_together.second.tag_config().key() == "" || ways_together.second.tag_config().value() == "") continue;
        bool found = true;
-       for(int i = 0; i < sizeof(id_table)/sizeof(id_table[0]); ++i)
+       for(unsigned int i = 0; i < sizeof(id_table)/sizeof(id_table[0]); ++i)
        {
            if(ways_together.second.osm_id() == id_table[i])
            {

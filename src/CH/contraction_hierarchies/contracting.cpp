@@ -82,9 +82,8 @@ void contractNode(EdgesTable& edgesTable, EdgesTable& edgesTableOut, const Node&
                     (edgesTableOut)[uID][wID] = (edgesTable)[uID][v.id] + (edgesTable)[v.id][wID];
                     (edgesTableOut)[wID][uID] = (edgesTable)[uID][v.id] + (edgesTable)[v.id][wID];
                     //Jeśli skrót już był to go usuwamy
-                    assert(!shorctcutsTable[uID][wID].size());
+                    shorctcutsTable[uID][wID].clear();
 
-                    (shorctcutsTable)[uID][wID].push_back({uID});
                     for(auto nodeID : shorctcutsTable[uID][v.id])
                     {
                         (shorctcutsTable)[uID][wID].push_back({nodeID});
@@ -94,10 +93,8 @@ void contractNode(EdgesTable& edgesTable, EdgesTable& edgesTableOut, const Node&
                     {
                         (shorctcutsTable)[uID][wID].push_back({nodeID});
                     }
-                    (shorctcutsTable)[uID][wID].push_back({wID});
 
 
-                    (shorctcutsTable)[wID][uID].push_back({wID});
                     for(auto nodeID : shorctcutsTable[uID][v.id])
                     {
                         (shorctcutsTable)[wID][uID].push_back({nodeID});
@@ -107,7 +104,6 @@ void contractNode(EdgesTable& edgesTable, EdgesTable& edgesTableOut, const Node&
                     {
                         (shorctcutsTable)[wID][uID].push_back({nodeID});
                     }
-                    (shorctcutsTable)[wID][uID].push_back({uID});
                 }
             }
         }
@@ -127,7 +123,7 @@ void contract(EdgesTable& edgesTable, Nodes* nodes,
 //        {
 //            std::cout << "tu ten " <<  i << "i id " << nodes[order[i]].id <<" " << std::endl;
 //        }
-     if(i && !(i % 10))
+     if(i && !(i % 2))
      {
         order_with_num_of_roads(nodes, &order, edgesTable, i);
      }

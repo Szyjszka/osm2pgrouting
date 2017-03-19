@@ -27,7 +27,7 @@ void simple_order(Nodes* nodes, std::vector<unsigned int>* order)
     //    std::sort(nodes->begin(), nodes->end());
 }
 
-void order_with_num_of_roads(Nodes *nodes, std::vector<unsigned int>* order, const EdgesTable &edgesTable)
+void order_with_num_of_roads(Nodes *nodes, std::vector<unsigned int>* order)
 {
     Nodes copyOfNodes(*nodes);
 //    std::copy(nodes->begin(), nodes->end(), copyOfNodes.begin());
@@ -42,7 +42,7 @@ void order_with_num_of_roads(Nodes *nodes, std::vector<unsigned int>* order, con
 void order_with_num_of_roads(Nodes *nodes, std::vector<unsigned int>* order, const EdgesTable &edgesTable, const int start)
 {
     Nodes copyOfNodes;
-    for(int i = start; i < order->size(); ++i)
+    for(size_t i = start; i < order->size(); ++i)
     {
         assert((*nodes)[(*order)[i]].order >= start);
         (*nodes)[(*order)[i]].order = INF;
