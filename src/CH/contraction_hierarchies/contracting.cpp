@@ -2,6 +2,7 @@
 #include <climits>
 #include <iostream>
 #include "contracting.hpp"
+#include "ordering.hpp"
 #include "CH/shortest_path_algorithms/dijkstra.hpp"
 
 namespace RouterCH
@@ -46,10 +47,10 @@ bool chechIfShortcudNeeded(const EdgesTable& edgesTable, const Node& u,
 
     Route sh = dijkstra(edgesTableForLocalSearch, u.id, w.id, nodes);
 
-    return sh.cost >= checkedShortctut.cost;
+    return sh.cost > checkedShortctut.cost;
 }
 
-void contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
+void contractNode(EdgesTable& edgesTable, EdgesTable& edgesTableOut, const Node& v, const Nodes &nodes,
                   ShorctutsTable& shorctcutsTable,
                   const std::map<uint32_t, int64_t>& IDconverterBack)
 {
@@ -78,8 +79,8 @@ void contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
                 //jeśli (u,v,w) jest unikalną najkrótszą ścieżką
                 if(chechIfShortcudNeeded(edgesTable, nodes[uID], v, nodes[wID], nodes))
                 {
-                    (edgesTable)[uID][wID] = (edgesTable)[uID][v.id] + (edgesTable)[v.id][wID];
-                    (edgesTable)[wID][uID] = (edgesTable)[uID][v.id] + (edgesTable)[v.id][wID];
+                    (edgesTableOut)[uID][wID] = (edgesTable)[uID][v.id] + (edgesTable)[v.id][wID];
+                    (edgesTableOut)[wID][uID] = (edgesTable)[uID][v.id] + (edgesTable)[v.id][wID];
                     //Jeśli skrót już był to go usuwamy
                     assert(!shorctcutsTable[uID][wID].size());
 
@@ -114,27 +115,25 @@ void contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
 
 }
 
-void contract(EdgesTable& edgesTable, const Nodes& nodes,
-              ShorctutsTable& shortcutsTable, const std::vector<unsigned int>& order,
+void contract(EdgesTable& edgesTable, Nodes* nodes,
+              ShorctutsTable& shortcutsTable, std::vector<unsigned int>& order,
               const std::map<uint32_t, int64_t>& IDconverterBack)
 {
+    EdgesTable edge2(edgesTable);
     //zakłada że nodes są w rosnącej kolejności po order
-    for(unsigned int i = 0; i < order.size(); ++i)
+    for(signed int i = order.size()-1; i >=0; --i)
     {
-        if(IDconverterBack.at(nodes[order[i]].id) == 347683850)
-        {
-            std::cout << " 59 ma order " <<  i << "i id " << nodes[order[i]].id <<" " << std::endl;
-        }
-        if(IDconverterBack.at(nodes[order[i]].id) == 352671524)
-        {
-            std::cout << " 41 ma order " <<  i << "i id " << nodes[order[i]].id << std::endl;
-        }
-        if(IDconverterBack.at(nodes[order[i]].id) == 2401955174)
-        {
-            std::cout << " 61 ma order " <<  i << "i id " << nodes[order[i]].id <<  std::endl;
-        }
-        std::cout << "Zostalo jeszcze " << nodes.size() - i << std::endl;
-        contractNode(edgesTable, nodes[order[i]], nodes, shortcutsTable, IDconverterBack);
+//        if(IDconverterBack.at(nodes[order[i]].id) == 352670061)
+//        {
+//            std::cout << "tu ten " <<  i << "i id " << nodes[order[i]].id <<" " << std::endl;
+//        }
+     if(i && !(i % 10))
+     {
+        order_with_num_of_roads(nodes, &order, edgesTable, i);
+     }
+     std::cout << "Zostalo jeszcze " << i << std::endl;
+     contractNode(edgesTable, edge2, (*nodes)[order[i]], *nodes, shortcutsTable, IDconverterBack);
+     edgesTable = edge2;
     }
 }
 

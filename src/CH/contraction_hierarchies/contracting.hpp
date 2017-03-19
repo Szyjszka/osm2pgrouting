@@ -6,8 +6,8 @@
 namespace RouterCH
 {
 
-void contract(EdgesTable& edgesTable, const Nodes& nodes, ShorctutsTable& shortcutsTable,
-              const std::vector<unsigned int> &order, const std::map<uint32_t, int64_t>& IDconverterBack);
+void contract(EdgesTable& edgesTable, Nodes *nodes, ShorctutsTable& shortcutsTable,
+              std::vector<unsigned int> &order, const std::map<uint32_t, int64_t>& IDconverterBack);
 
 }
 #endif // CONTRACTING_HPP

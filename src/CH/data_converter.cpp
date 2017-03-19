@@ -79,11 +79,6 @@ DataConverter::DataConverter(OSMDocument &document)
         osm2pgrNodes.push_back(document.nodes().at(IDconverterBack[node.id]));
     }
 
-    nodesWithRoads = std::vector<Node>(nodes.begin(), nodes.begin() + waysFromNode.size());
-    std::vector<uint32_t> order(waysFromNode.size());
-//    order_with_num_of_roads(&nodesWithRoads, &order);
-    simple_order(&nodesWithRoads, &order);
-
     //Add edges in my format
     edgesTable.resize(waysFromNode.size());
 
@@ -96,16 +91,18 @@ DataConverter::DataConverter(OSMDocument &document)
         Endpoints endpoints = getEntpoints(way);
         assert(IDconverter.at(endpoints.start.osm_id()) < waysFromNode.size());
         assert(IDconverter.at(endpoints.end.osm_id()) < waysFromNode.size());
-        //if(endpoints.start.osm_id() == 352670061 || endpoints.end.osm_id() == 352670061)
-        //{
-        //    std::cout << " to ten" << std::endl;
-        //}
         edgesTable[IDconverter.at(endpoints.start.osm_id())]
                 [IDconverter.at(endpoints.end.osm_id())] = getWayCost(way);
 
         edgesTable[IDconverter.at(endpoints.end.osm_id())]
                 [IDconverter.at(endpoints.start.osm_id())]= getWayCost(way);
     }
+
+    nodesWithRoads = std::vector<Node>(nodes.begin(), nodes.begin() + waysFromNode.size());
+    std::vector<uint32_t> order(waysFromNode.size());
+//    simple_order(&nodesWithRoads, &order);
+    order_with_num_of_roads(&nodesWithRoads, &order, edgesTable);
+
     nextWayID = (document.ways().rbegin()->first)+1;
 
     //Add shortcuts table
@@ -115,8 +112,32 @@ DataConverter::DataConverter(OSMDocument &document)
         shortcutsTable[j].resize(waysFromNode.size());
     }
 
-//    Route sh2 = dijkstra(edgesTable, 36, 8, nodesWithRoads);
-    contract(edgesTable, nodesWithRoads, shortcutsTable, order, IDconverterBack);
+    contract(edgesTable, &nodesWithRoads, shortcutsTable, order, IDconverterBack);
+//    std::cout << " ID 11 " << IDconverter.at(2401955174) << std::endl;
+//    std::cout << " ID 6 " << IDconverter.at(352671528) << std::endl;
+//    for(int i = 0; i < nodesWithRoads.size(); ++i){
+//        std::cout <<"Do sprawdzenia " << ( nodesWithRoads.size() - i) << std::endl;
+//    for(int j = i +1; j < nodesWithRoads.size(); ++j)
+    int i = 10;
+    int j = 5;
+//    {
+        Route sh = dijkstra(edgesTable, i, j, nodesWithRoads);
+        assert(sh.nodes.size());
+        Route sh2 = modified_bidirectional_dijkstra(edgesTable, i, j,
+                                                    nodesWithRoads, shortcutsTable);
+//        if(!sh2.nodes.size() && sh.nodes.size())
+//        {
+//            edgesTable[i][j] = sh.cost;
+//            edgesTable[j][i] = sh.cost;
+//            shortcutsTable[i][j].push_back(i);
+//            shortcutsTable[i][j].push_back(j);
+//            shortcutsTable[j][i].push_back(j);
+//            shortcutsTable[j][i].push_back(i);
+//        }
+//        std::cout << "sh2 size " << sh2.nodes.size() << std::endl;
+        assert(sh2.nodes.size() && sh2.cost <= (sh.cost + 0.00001));
+//    }
+//    }
 
     std::vector<osm2pgr::Way> newWays = createNewWays(document);
 
@@ -127,7 +148,8 @@ DataConverter::DataConverter(OSMDocument &document)
 
     for(auto ways_together : copyOfWays)
     {
-       if (ways_together.second.tag_config().key() == "" || ways_together.second.tag_config().value() == "") continue;       bool found = false;
+       if (ways_together.second.tag_config().key() == "" || ways_together.second.tag_config().value() == "") continue;
+       bool found = true;
        for(int i = 0; i < sizeof(id_table)/sizeof(id_table[0]); ++i)
        {
            if(ways_together.second.osm_id() == id_table[i])
@@ -212,7 +234,7 @@ DataConverter::SplittedWays DataConverter::createSplittedWays(const OSMDocument 
     for(auto ways_together : document.ways())
     {
        if (ways_together.second.tag_config().key() == "" || ways_together.second.tag_config().value() == "") continue;
-       bool found = false;
+       bool found = true;
        for(int i = 0; i < sizeof(id_table)/sizeof(id_table[0]); ++i)
        {
            if(ways_together.second.osm_id() == id_table[i])
