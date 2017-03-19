@@ -652,10 +652,10 @@ void Export2DB::exportWays(const std::map<int64_t, Way> &ways, const Configurati
             " osm_id, "
             " maxspeed_forward, maxspeed_backward, "
             " incOrder,"
-            " shortcut,"
             " one_way, "
             " priority, "
 
+            " shortcut,"
             " length,"
             " x1, y1,"
             " x2, y2,"
@@ -701,8 +701,6 @@ void Export2DB::exportWays(const std::map<int64_t, Way> &ways, const Configurati
             + way.maxspeed_backward_str() + "\t"
             // CH increasing order bool
             + TO_STR(way.increasingOrder) + "\t"
-            // CH shortcut int
-            + TO_STR(way.shortcut) + "\t"
             // one_way
             + way.oneWayType_str() + "\t"
             // priority
@@ -721,25 +719,33 @@ void Export2DB::exportWays(const std::map<int64_t, Way> &ways, const Configurati
 
         auto splits = way.split_me();
         std::string length_shortcut_str;
-        if(way.shortcut)
+        if(way.shortcut == 0)
         {
             double length_of_shortcut = 0;
-            std::vector<std::vector<Node*>> shorctutSplits;
-            shorctutSplits.push_back(std::vector<Node*>());
-            shorctutSplits[0].push_back(splits[0][0]);
-            shorctutSplits[0].push_back(splits.back().back());
+            std::vector<Node*> wholeShortcut;
+            wholeShortcut.push_back(splits[0][0]);
+            wholeShortcut.push_back(splits.back().back());
             for (size_t i = 0; i < splits.size(); ++i) {
                 length_of_shortcut += way.length(splits[i]);
             }
             length_shortcut_str = boost::lexical_cast<std::string>(length_of_shortcut);
-            splits = shorctutSplits;
+            splits.clear(); //This is to commented
+            splits.push_back(wholeShortcut);
         }
         split_count +=  splits.size();
 
         for (size_t i = 0; i < splits.size(); ++i) {
-            auto length = way.shortcut ? length_shortcut_str : way.length_str(splits[i]);
+            int64_t shortcuteID = i == (splits.size()-1) && way.shortcut == 0 ? 0 : way.osm_id();
+            if(way.shortcut == -1 )
+            {
+                shortcuteID = -1;
+            }
+            std::string length = way.shortcut == 0 ? length_shortcut_str : way.length_str(splits[i]);
             // length (degrees)
-            auto split_data = length + "\t"
+            auto split_data =
+                // CH shortcut int
+                TO_STR(shortcuteID) + "\t"
+                + length + "\t"
                 // x1, y1
                 + splits[i].front()->geom_str("\t") + "\t"
                 // x2, y2
