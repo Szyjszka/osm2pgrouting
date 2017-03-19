@@ -12,6 +12,8 @@ using namespace osm2pgr;
 using namespace RouterCH;
 
 
+static const int64_t id_table[] = { 31257922};
+
 DataConverter::DataConverter(OSMDocument &document)
 {
     //Convert nodes to my format
@@ -24,30 +26,26 @@ DataConverter::DataConverter(OSMDocument &document)
 
     std::map<int64_t, uint32_t> waysFromNode;
     //Dodanie informacji o tym czy z noda sa drogi
-    for(auto ways_together : document.ways())
+    splittedWays = createSplittedWays(document);
+    for(auto& way: splittedWays)
     {
-       if (ways_together.second.tag_config().key() == "" || ways_together.second.tag_config().value() == "") continue;
-       auto ways_splitted = ways_together.second.split_me();
-       for(auto& way: ways_splitted)
-       {
-           Endpoints endpoints = getEntpoints(way);
-           if(waysFromNode.find(endpoints.start.osm_id()) == waysFromNode.end())
-           {
-               waysFromNode[endpoints.start.osm_id()] = 1;
-           }
-           else
-           {
-               ++waysFromNode[endpoints.start.osm_id()];
-           }
-           if(waysFromNode.find(endpoints.end.osm_id()) == waysFromNode.end())
-           {
-               waysFromNode[endpoints.end.osm_id()] = 1;
-           }
-           else
-           {
-               ++waysFromNode[endpoints.end.osm_id()];
-           }
-       }
+        Endpoints endpoints = getEntpoints(way);
+        if(waysFromNode.find(endpoints.start.osm_id()) == waysFromNode.end())
+        {
+            waysFromNode[endpoints.start.osm_id()] = 1;
+        }
+        else
+        {
+            ++waysFromNode[endpoints.start.osm_id()];
+        }
+        if(waysFromNode.find(endpoints.end.osm_id()) == waysFromNode.end())
+        {
+            waysFromNode[endpoints.end.osm_id()] = 1;
+        }
+        else
+        {
+            ++waysFromNode[endpoints.end.osm_id()];
+        }
     }
 
     uint32_t IDWithRoads = 0;
@@ -83,8 +81,8 @@ DataConverter::DataConverter(OSMDocument &document)
 
     nodesWithRoads = std::vector<Node>(nodes.begin(), nodes.begin() + waysFromNode.size());
     std::vector<uint32_t> order(waysFromNode.size());
-    order_with_num_of_roads(&nodesWithRoads, &order);
-//    simple_order(&nodesWithRoads, &order);
+//    order_with_num_of_roads(&nodesWithRoads, &order);
+    simple_order(&nodesWithRoads, &order);
 
     //Add edges in my format
     edgesTable.resize(waysFromNode.size());
@@ -93,25 +91,20 @@ DataConverter::DataConverter(OSMDocument &document)
     {
         edgesTable[j].resize(waysFromNode.size(), std::numeric_limits<double>::max());
     }
-    for(auto ways_together : document.ways())
+    for(auto& way: splittedWays)
     {
-       auto ways_splitted = ways_together.second.split_me();
-       for(auto& way: ways_splitted)
-       {
-           if (ways_together.second.tag_config().key() == "" || ways_together.second.tag_config().value() == "") continue;
-           Endpoints endpoints = getEntpoints(way);
-           assert(IDconverter.at(endpoints.start.osm_id()) < waysFromNode.size());
-           assert(IDconverter.at(endpoints.end.osm_id()) < waysFromNode.size());
-           //if(endpoints.start.osm_id() == 352670061 || endpoints.end.osm_id() == 352670061)
-           //{
-           //    std::cout << " to ten" << std::endl;
-           //}
-           edgesTable[IDconverter.at(endpoints.start.osm_id())]
-                   [IDconverter.at(endpoints.end.osm_id())] = getWayCost(way);
+        Endpoints endpoints = getEntpoints(way);
+        assert(IDconverter.at(endpoints.start.osm_id()) < waysFromNode.size());
+        assert(IDconverter.at(endpoints.end.osm_id()) < waysFromNode.size());
+        //if(endpoints.start.osm_id() == 352670061 || endpoints.end.osm_id() == 352670061)
+        //{
+        //    std::cout << " to ten" << std::endl;
+        //}
+        edgesTable[IDconverter.at(endpoints.start.osm_id())]
+                [IDconverter.at(endpoints.end.osm_id())] = getWayCost(way);
 
-           edgesTable[IDconverter.at(endpoints.end.osm_id())]
-                   [IDconverter.at(endpoints.start.osm_id())]= getWayCost(way);
-        }
+        edgesTable[IDconverter.at(endpoints.end.osm_id())]
+                [IDconverter.at(endpoints.start.osm_id())]= getWayCost(way);
     }
     nextWayID = (document.ways().rbegin()->first)+1;
 
@@ -134,7 +127,18 @@ DataConverter::DataConverter(OSMDocument &document)
 
     for(auto ways_together : copyOfWays)
     {
-       if (ways_together.second.tag_config().key() == "" || ways_together.second.tag_config().value() == "") continue;
+       if (ways_together.second.tag_config().key() == "" || ways_together.second.tag_config().value() == "") continue;       bool found = false;
+       for(int i = 0; i < sizeof(id_table)/sizeof(id_table[0]); ++i)
+       {
+           if(ways_together.second.osm_id() == id_table[i])
+           {
+               found = true;
+           }
+       }
+       if(!found)
+       {
+           continue;
+       }
        auto ways_splitted = ways_together.second.split_me();
        for(auto& way: ways_splitted)
        {
@@ -165,30 +169,6 @@ DataConverter::DataConverter(OSMDocument &document)
         assert(document.ways().find(way.osm_id()) == document.ways().end());
         document.AddWay(way);
     }
-
-    Route sh = modified_bidirectional_dijkstra(edgesTable, 36, 8, nodesWithRoads, shortcutsTable);
-//    for(auto node : sh.nodes)
-//    {
-//        std::cout << "osm id : " << IDconverterBack.at(node.id) << std::endl;
-//    }
-    std::cout << std::endl;
-    unsigned int licznik = 0, licznik2 =0;
-    for(int i = 0; i < nodesWithRoads.size(); ++i)
-    for(int j = i+1; j < nodesWithRoads.size(); ++j)
-    {
-        Route sh2 = dijkstra(edgesTable, i, j, nodesWithRoads);
-        if(sh2.nodes.size())
-        {
-            Route sh = modified_bidirectional_dijkstra(edgesTable, i, j, nodesWithRoads, shortcutsTable);
-            if(!sh.nodes.size())
-                licznik++;
-        }
-        else
-        {
-            licznik2++;
-        }
-    }
-    std::cout << "TYLU DROG NIE MA " << licznik << " A TYLU NAWET Z DIJSKTRY " << licznik2 << std::endl;
 }
 
 double DataConverter::getWayCost(const std::vector<osm2pgr::Node*> &nodes) const
@@ -224,4 +204,32 @@ std::vector<Way> DataConverter::createNewWays(const OSMDocument &document)
             }
         }
     return newWays;
+}
+
+DataConverter::SplittedWays DataConverter::createSplittedWays(const OSMDocument &document)
+{
+    SplittedWays splittedWays;
+    for(auto ways_together : document.ways())
+    {
+       if (ways_together.second.tag_config().key() == "" || ways_together.second.tag_config().value() == "") continue;
+       bool found = false;
+       for(int i = 0; i < sizeof(id_table)/sizeof(id_table[0]); ++i)
+       {
+           if(ways_together.second.osm_id() == id_table[i])
+           {
+               found = true;
+           }
+       }
+       if(!found)
+       {
+           continue;
+       }
+
+       auto ways_splitted = ways_together.second.split_me();
+       for(auto way : ways_splitted)
+       {
+           splittedWays.push_back(way);
+       }
+    }
+    return splittedWays;
 }
