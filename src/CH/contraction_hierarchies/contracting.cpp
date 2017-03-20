@@ -31,20 +31,20 @@ bool operator ==(Route a, Route b)
 
 unsigned int contractNode(const EdgesTable& edgesTable, EdgesTable& edgesTableOut, const Node& v, const Nodes &nodes,
                   ShorctutsTable& shorctcutsTable, std::vector<unsigned int>& order,
-                  const std::map<uint32_t, int64_t>& IDconverterBack)
+                  const std::map<uint32_t, int64_t>& IDconverterBack, const unsigned int startOrder)
 {
     unsigned int numberOfShortcutsCreated = 0;
     // dla każdej pary (u, v) i (v,w) z krawędzi
-    for(int i = 0; i < order.size() - v.id; ++i)
+    for(int i = startOrder+1; i < order.size(); ++i)
     {
-        signed int uID = order[v.id + i];
+        signed int uID = order[i];
         if(uID == v.id)
         {
             continue;
         }
-        for(int j = i + 1; j < order.size() - v.id; ++j)
+        for(int j = i + 1; j < order.size(); ++j)
         {
-            signed int wID = order[v.id + j];
+            signed int wID = order[j];
             if(wID == v.id)
             {
                 continue;
@@ -104,12 +104,8 @@ void contract(EdgesTable& edgesTable, Nodes* nodes,
     //zakłada że nodes są w rosnącej kolejności po order
     for(signed int i = 0; i < order.size(); ++i)
     {
-//     if(i && !(i % 10))
-     {
-//        order_with_number_of_shorctuts(nodes, &order, edgesTable, i);
-     }
-     std::cout << "Zostalo jeszcze " << order.size() - i << std::endl;
-     shortcuts += contractNode(edgesTable, edge2, (*nodes)[order[i]], *nodes, shortcutsTable, order, IDconverterBack);
+//     std::cout << "Zostalo jeszcze " << order.size() - i << std::endl;
+     shortcuts += contractNode(edgesTable, edge2, (*nodes)[order[i]], *nodes, shortcutsTable, order, IDconverterBack, i);
 
      edgesTable = edge2;
     }
