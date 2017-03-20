@@ -29,20 +29,22 @@ bool operator ==(Route a, Route b)
 }
 
 
-unsigned int contractNode(EdgesTable& edgesTable, EdgesTable& edgesTableOut, const Node& v, const Nodes &nodes,
-                  ShorctutsTable& shorctcutsTable,
+unsigned int contractNode(const EdgesTable& edgesTable, EdgesTable& edgesTableOut, const Node& v, const Nodes &nodes,
+                  ShorctutsTable& shorctcutsTable, std::vector<unsigned int>& order,
                   const std::map<uint32_t, int64_t>& IDconverterBack)
 {
     unsigned int numberOfShortcutsCreated = 0;
     // dla każdej pary (u, v) i (v,w) z krawędzi
-    for(unsigned int uID = 0; uID < (edgesTable)[0].size(); ++uID)
+    for(int i = 0; i < order.size() - v.id; ++i)
     {
+        signed int uID = order[v.id + i];
         if(uID == v.id)
         {
             continue;
         }
-        for(unsigned int wID = uID+1; wID < (edgesTable)[0].size(); ++wID)
+        for(int j = i + 1; j < order.size() - v.id; ++j)
         {
+            signed int wID = order[v.id + j];
             if(wID == v.id)
             {
                 continue;
@@ -54,7 +56,7 @@ unsigned int contractNode(EdgesTable& edgesTable, EdgesTable& edgesTableOut, con
                 {
 //                    std::cout << "Postal taki skrot dla osm_id " << IDconverterBack.at(v.id) << std::endl;
                 }
-            if(((edgesTable)[uID][v.id] < UINT_MAX) && (edgesTable)[v.id][wID] < UINT_MAX && (edgesTable)[uID][wID]>=UINT_MAX)
+            if(((edgesTable)[uID][v.id] < INF) && (edgesTable)[v.id][wID] < INF && (edgesTable)[uID][wID]>=INF)
             {
                 //jeśli (u,v,w) jest unikalną najkrótszą ścieżką
                 if(chechIfShortcudNeeded(edgesTable, nodes[uID], v, nodes[wID], nodes))
@@ -102,18 +104,13 @@ void contract(EdgesTable& edgesTable, Nodes* nodes,
     //zakłada że nodes są w rosnącej kolejności po order
     for(signed int i = 0; i < order.size(); ++i)
     {
-//        if(IDconverterBack.at(nodes[order[i]].id) == 352670061)
-//        {
-//            std::cout << "tu ten " <<  i << "i id " << nodes[order[i]].id <<" " << std::endl;
-//        }
-//     if(i && !(i % 2))
+//     if(i && !(i % 10))
      {
-        order_with_number_of_shorctuts(nodes, &order, edgesTable, i);
+//        order_with_number_of_shorctuts(nodes, &order, edgesTable, i);
      }
      std::cout << "Zostalo jeszcze " << order.size() - i << std::endl;
-      shortcuts += contractNode(edgesTable, edge2, (*nodes)[order[i]], *nodes, shortcutsTable, IDconverterBack);
+     shortcuts += contractNode(edgesTable, edge2, (*nodes)[order[i]], *nodes, shortcutsTable, order, IDconverterBack);
 
-     std::cout << "Stworzono " << shortcuts << std::endl;
      edgesTable = edge2;
     }
 }
