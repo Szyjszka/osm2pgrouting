@@ -130,8 +130,8 @@ DataConverter::DataConverter(OSMDocument &document)
         newWay.add_node(way.back());
         assert(IDconverter.find(newWay.nodeRefs().back()->osm_id()) != IDconverter.end());
         assert(IDconverter.find(newWay.nodeRefs().front()->osm_id()) != IDconverter.end());
-        const unsigned int aID = IDconverter.at(newWay.nodeRefs().back()->osm_id());
-        const unsigned int bID = IDconverter.at(newWay.nodeRefs().front()->osm_id());
+        const uint32_t aID = IDconverter.at(newWay.nodeRefs().back()->osm_id());
+        const uint32_t bID = IDconverter.at(newWay.nodeRefs().front()->osm_id());
         assert(aID < nodesWithRoads.size());
         assert(bID < nodesWithRoads.size());
         if(aID == bID)

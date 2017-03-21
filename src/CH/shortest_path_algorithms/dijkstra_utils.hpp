@@ -9,7 +9,7 @@ typedef std::vector<bool> QSTable; //true jeśli w Q (nie został policzony)
 typedef std::vector<double> CostTable;
 typedef std::vector<int32_t> PathTable;
 
-unsigned int getIndexOfNextNode(CostTable& costTable, const QSTable& qsTable);
+uint32_t getIndexOfNextNode(CostTable& costTable, const QSTable& qsTable);
 Route createShortestPath(const EdgesTable &edgesTable, const PathTable& pathTable, const uint32_t start,
                          const uint32_t end, const Nodes& nodes, const ShorctutsTable* shortcutsTable = nullptr);
 
