@@ -29,33 +29,26 @@ bool operator ==(Route a, Route b)
 }
 
 
-unsigned int contractNode(const EdgesTable& edgesTable, EdgesTable& edgesTableOut, const Node& v, const Nodes &nodes,
-                  ShorctutsTable& shorctcutsTable, std::vector<unsigned int>& order,
-                  const std::map<uint32_t, int64_t>& IDconverterBack, const unsigned int startOrder)
+uint32_t contractNode(const EdgesTable& edgesTable, EdgesTable& edgesTableOut, const Node& v, const Nodes &nodes,
+                  ShorctutsTable& shorctcutsTable, std::vector<uint32_t>& order, const uint32_t startOrder)
 {
-    unsigned int numberOfShortcutsCreated = 0;
+    uint32_t numberOfShortcutsCreated = 0;
     // dla każdej pary (u, v) i (v,w) z krawędzi
-    for(int i = startOrder+1; i < order.size(); ++i)
+    for(uint32_t i = startOrder+1; i < order.size(); ++i)
     {
-        signed int uID = order[i];
+        uint32_t uID = order[i];
         if(uID == v.id)
         {
             continue;
         }
-        for(int j = i + 1; j < order.size(); ++j)
+        for(uint32_t j = i + 1; j < order.size(); ++j)
         {
-            signed int wID = order[j];
+            uint32_t wID = order[j];
             if(wID == v.id)
             {
                 continue;
             }
 
-            //dodaj skrót (u,v,w)
-                if((IDconverterBack.at(uID) == 352670061 && IDconverterBack.at(wID) == 1974837159)
-                    || (IDconverterBack.at(wID) == 352670061 && IDconverterBack.at(uID) == 1974837159))
-                {
-//                    std::cout << "Postal taki skrot dla osm_id " << IDconverterBack.at(v.id) << std::endl;
-                }
             if(((edgesTable)[uID][v.id] < INF) && (edgesTable)[v.id][wID] < INF && (edgesTable)[uID][wID]>=INF)
             {
                 //jeśli (u,v,w) jest unikalną najkrótszą ścieżką
@@ -96,16 +89,14 @@ unsigned int contractNode(const EdgesTable& edgesTable, EdgesTable& edgesTableOu
 }
 
 void contract(EdgesTable& edgesTable, Nodes* nodes,
-              ShorctutsTable& shortcutsTable, std::vector<unsigned int>& order,
-              const std::map<uint32_t, int64_t>& IDconverterBack)
+              ShorctutsTable& shortcutsTable, std::vector<uint32_t>& order)
 {
-    unsigned int shortcuts = 0;
+    uint32_t shortcuts = 0;
     EdgesTable edge2(edgesTable);
-    //zakłada że nodes są w rosnącej kolejności po order
-    for(signed int i = 0; i < order.size(); ++i)
+    for(uint32_t i = 0; i < order.size(); ++i)
     {
-//     std::cout << "Zostalo jeszcze " << order.size() - i << std::endl;
-     shortcuts += contractNode(edgesTable, edge2, (*nodes)[order[i]], *nodes, shortcutsTable, order, IDconverterBack, i);
+     std::cout << "Zostalo jeszcze " << order.size() - i << std::endl;
+     shortcuts += contractNode(edgesTable, edge2, (*nodes)[order[i]], *nodes, shortcutsTable, order, i);
 
      edgesTable = edge2;
     }

@@ -7,11 +7,11 @@ namespace RouterCH
 {
 typedef std::vector<bool> QSTable; //true jeśli w Q (nie został policzony)
 typedef std::vector<double> CostTable;
-typedef std::vector<signed int> PathTable;
+typedef std::vector<int32_t> PathTable;
 
 unsigned int getIndexOfNextNode(CostTable& costTable, const QSTable& qsTable);
-Route createShortestPath(const EdgesTable &edgesTable, const PathTable& pathTable, const unsigned int start,
-                         const unsigned int end, const Nodes& nodes,const ShorctutsTable* shortcutsTable = nullptr);
+Route createShortestPath(const EdgesTable &edgesTable, const PathTable& pathTable, const uint32_t start,
+                         const uint32_t end, const Nodes& nodes, const ShorctutsTable* shortcutsTable = nullptr);
 
 bool chechIfShortcudNeeded(const EdgesTable& edgesTable, const Node& u,
                            const Node& v, const Node& w, const Nodes &nodes);

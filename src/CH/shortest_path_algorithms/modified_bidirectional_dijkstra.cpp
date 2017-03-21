@@ -7,8 +7,8 @@
 namespace RouterCH
 {
 
-Route modified_bidirectional_dijkstra(const EdgesTable &edgesTable, const unsigned int start,
-                                      const unsigned int end, const Nodes& nodes, const ShorctutsTable& shortcutsTable)
+Route modified_bidirectional_dijkstra(const EdgesTable &edgesTable, const uint32_t start,
+                                      const uint32_t end, const Nodes& nodes, const ShorctutsTable& shortcutsTable)
 {
     QSTable qsTableUp(nodes.size(),true);
     QSTable qsTableDown(nodes.size(),true);
@@ -22,12 +22,12 @@ Route modified_bidirectional_dijkstra(const EdgesTable &edgesTable, const unsign
     PathTable prevTable(nodes.size(),NO_PRECCESSOR);
     PathTable nextTable(nodes.size(),NO_PRECCESSOR);
 
-    unsigned int indexOfNextElemUp  = start;
-    unsigned int indexOfNextElemDown = end;
-    unsigned int meetingNode = INF;
+    uint32_t indexOfNextElemUp  = start;
+    uint32_t indexOfNextElemDown = end;
+    uint32_t meetingNode = INF;
     double shortestPathLength = INF;
-    unsigned int nodesLefUp = nodes.size();
-    unsigned int nodesLefDown = nodes.size();
+    size_t nodesLefUp = nodes.size();
+    size_t nodesLefDown = nodes.size();
 
     if(start==end)
     {
@@ -46,7 +46,7 @@ Route modified_bidirectional_dijkstra(const EdgesTable &edgesTable, const unsign
         if(costTableUp[indexOfNextElemUp] < INF)
         {
             qsTableUp[indexOfNextElemUp] = false;
-            for(unsigned int i = 0; i < nodes.size(); ++i)
+            for(uint32_t i = 0; i < nodes.size(); ++i)
             {
                 if(qsTableUp[i] && (edgesTable[indexOfNextElemUp][i] < INF) &&
                         (nodes[i].order > nodes[indexOfNextElemUp].order))
@@ -75,7 +75,7 @@ Route modified_bidirectional_dijkstra(const EdgesTable &edgesTable, const unsign
         if(costTableDown[indexOfNextElemDown] < INF)
         {
             qsTableDown[indexOfNextElemDown] = false;
-            for(unsigned int i = 0; i < nodes.size(); ++i)
+            for(uint32_t i = 0; i < nodes.size(); ++i)
             {
                 if(qsTableDown[i] && (edgesTable[indexOfNextElemDown][i] < INF) &&
                         (nodes[i].order > nodes[indexOfNextElemDown].order))

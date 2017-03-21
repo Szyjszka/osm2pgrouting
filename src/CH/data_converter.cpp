@@ -11,9 +11,6 @@
 using namespace osm2pgr;
 using namespace RouterCH;
 
-
-static const int64_t id_table[] = { 31257922};
-
 DataConverter::DataConverter(OSMDocument &document)
 {
     //Convert nodes to my format
@@ -101,8 +98,8 @@ DataConverter::DataConverter(OSMDocument &document)
     nodesWithRoads = std::vector<Node>(nodes.begin(), nodes.begin() + waysFromNode.size());
     std::vector<uint32_t> order(waysFromNode.size());
     simple_order(&nodesWithRoads, &order);
-//    order_with_number_of_shorctuts(&nodesWithRoads, &order, edgesTable, 0);
-
+    order_with_number_of_shorctuts(&nodesWithRoads, &order, edgesTable, 0);
+//    order_with_num_of_roads(&nodesWithRoads, &order);
     nextWayID = (document.ways().rbegin()->first)+1;
 
     //Add shortcuts table
@@ -112,35 +109,7 @@ DataConverter::DataConverter(OSMDocument &document)
         shortcutsTable[j].resize(waysFromNode.size());
     }
 
-    contract(edgesTable, &nodesWithRoads, shortcutsTable, order, IDconverterBack);
-//    std::cout << " ID 11 " << IDconverter.at(2401955174) << std::endl;
-//    std::cout << " ID 6 " << IDconverter.at(352671528) << std::endl;
-//    for(int i = 0; i < nodesWithRoads.size(); ++i)
-//    for(int j = i +1; j < nodesWithRoads.size(); ++j)
-////    int i = 3;
-////    int j = 4;
-    {
-//        std::cout << "Do sprawdzenia " << nodesWithRoads.size() - i << std::endl;
-//        Route sh = dijkstra(edgesTable, i, j, nodesWithRoads);
-////        assert(sh.nodes.size());
-//        Route sh2 = modified_bidirectional_dijkstra(edgesTable, i, j,
-//                                                    nodesWithRoads, shortcutsTable);
-//        if((!sh2.nodes.size() || sh2.cost >= (sh.cost + 0.000001)) && sh.nodes.size())
-//        {
-//            edgesTable[i][j] = sh.cost;
-//            edgesTable[j][i] = sh.cost;
-//            shortcutsTable[i][j].clear();
-//            shortcutsTable[j][i].clear();
-//            shortcutsTable[i][j].push_back(i);
-//            shortcutsTable[i][j].push_back(j);
-//            shortcutsTable[j][i].push_back(j);
-//            shortcutsTable[j][i].push_back(i);
-//        }
-//////        std::cout << "sh2 size " << sh2.nodes.size() << std::endl;
-//        Route sh3 = modified_bidirectional_dijkstra(edgesTable, i, j,
-//                                                    nodesWithRoads, shortcutsTable);
-//        assert((sh3.nodes.size() && sh3.cost <= (sh.cost + 0.00001)) || !sh.nodes.size());
-    }
+    contract(edgesTable, &nodesWithRoads, shortcutsTable, order);
 
     std::vector<osm2pgr::Way> newWays = createNewWays(document);
 
@@ -152,18 +121,6 @@ DataConverter::DataConverter(OSMDocument &document)
     for(auto ways_together : copyOfWays)
     {
        if (ways_together.second.tag_config().key() == "" || ways_together.second.tag_config().value() == "") continue;
-       bool found = true;
-       for(size_t i = 0; i < sizeof(id_table)/sizeof(id_table[0]); ++i)
-       {
-           if(ways_together.second.osm_id() == id_table[i])
-           {
-               found = true;
-           }
-       }
-       if(!found)
-       {
-           continue;
-       }
        auto ways_splitted = ways_together.second.split_me();
        for(auto& way: ways_splitted)
        {
@@ -177,7 +134,6 @@ DataConverter::DataConverter(OSMDocument &document)
         const unsigned int bID = IDconverter.at(newWay.nodeRefs().front()->osm_id());
         assert(aID < nodesWithRoads.size());
         assert(bID < nodesWithRoads.size());
-        //TODO check aID == bID
         if(aID == bID)
         {
             continue;
@@ -239,18 +195,6 @@ DataConverter::SplittedWays DataConverter::createSplittedWays(const OSMDocument 
     for(auto ways_together : document.ways())
     {
        if (ways_together.second.tag_config().key() == "" || ways_together.second.tag_config().value() == "") continue;
-       bool found = true;
-       for(unsigned int i = 0; i < sizeof(id_table)/sizeof(id_table[0]); ++i)
-       {
-           if(ways_together.second.osm_id() == id_table[i])
-           {
-               found = true;
-           }
-       }
-       if(!found)
-       {
-           continue;
-       }
 
        auto ways_splitted = ways_together.second.split_me();
        for(auto way : ways_splitted)

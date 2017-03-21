@@ -13,7 +13,7 @@ struct Endpoints{
 
 typedef std::vector<std::vector<double> > EdgesTable;
 typedef std::vector<std::vector<std::vector<uint32_t> > > ShorctutsTable;
-typedef struct{uint32_t id; uint32_t order; unsigned int numOfWays;} Node;
+typedef struct{uint32_t id; uint32_t order; uint32_t numOfWays;} Node;
 typedef std::vector<Node> Nodes;
 typedef struct { Nodes nodes; double cost; uint32_t id;} Route;
 

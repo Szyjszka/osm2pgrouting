@@ -38,12 +38,12 @@ bool operator!=(const Route& a, const Route& b)
     return !(a==b);
 }
 
-unsigned int getIndexOfNextNode(CostTable& costTable, const QSTable& qsTable)
+uint32_t getIndexOfNextNode(CostTable& costTable, const QSTable& qsTable)
 {
-    double minDistance = UINT64_MAX;
-    unsigned int indexOfMinDistance = 0;
+    double minDistance = std::numeric_limits<double>::max();
+    uint32_t indexOfMinDistance = 0;
 
-    for(unsigned int i = 0; i < costTable.size(); ++i)
+    for(uint32_t i = 0; i < costTable.size(); ++i)
     {
         if(qsTable[i])
         {
@@ -57,14 +57,14 @@ unsigned int getIndexOfNextNode(CostTable& costTable, const QSTable& qsTable)
     return indexOfMinDistance;
 }
 
-Route createShortestPath(const EdgesTable &edgesTable, const PathTable& pathTable, const unsigned int start,
-                         const unsigned int end, const Nodes& nodes, const ShorctutsTable* shortcutsTable)
+Route createShortestPath(const EdgesTable &edgesTable, const PathTable& pathTable, const uint32_t start,
+                         const uint32_t end, const Nodes& nodes, const ShorctutsTable* shortcutsTable)
 {
     Route shortestPath;
     shortestPath.id = 0; //TODO consider other solution
     shortestPath.cost = 0;
-    unsigned int indexOfNext = end;
-    unsigned int leftIter = UINT_MAX;
+    uint32_t indexOfNext = end;
+    uint32_t leftIter = INF;
     if(start == end)
     {
         shortestPath.nodes.push_back(nodes[end]);
@@ -83,7 +83,7 @@ Route createShortestPath(const EdgesTable &edgesTable, const PathTable& pathTabl
             size_t shortcutSize = (*shortcutsTable)[indexOfNext][pathTable[indexOfNext]].size();
             if(shortcutSize)
             {
-                for(unsigned int j = 0; j < shortcutSize; ++j)
+                for(uint32_t j = 0; j < shortcutSize; ++j)
                 {
                     shortestPath.nodes.push_back(nodes[(*shortcutsTable)[indexOfNext][pathTable[indexOfNext]][shortcutSize-j-1]]);
                 }
@@ -115,7 +115,7 @@ bool chechIfShortcudNeeded(const EdgesTable& edgesTable, const Node& u,
     Route checkedShortctut;
     checkedShortctut.nodes = Nodes({u, v, w});
     checkedShortctut.cost = edgesTable[u.id][v.id] + edgesTable[v.id][w.id];
-    for(unsigned int i = 0; i < nodes.size(); ++i)
+    for(uint32_t i = 0; i < nodes.size(); ++i)
     {
         edgesTableForLocalSearch[nodes[i].id][v.id] = std::numeric_limits<double>::max();
         edgesTableForLocalSearch[v.id][nodes[i].id] = std::numeric_limits<double>::max();

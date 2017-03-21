@@ -8,8 +8,8 @@
 namespace RouterCH
 {
 
-Route dijkstra(const EdgesTable &edgesTable, const unsigned int start,
-               const unsigned int end, const Nodes& nodes)
+Route dijkstra(const EdgesTable &edgesTable, const uint32_t start,
+               const uint32_t end, const Nodes& nodes)
 {
 
     QSTable qsTable(nodes.size(),true);
@@ -20,7 +20,7 @@ Route dijkstra(const EdgesTable &edgesTable, const unsigned int start,
     invalidRoute.cost = std::numeric_limits<double>::max();
     invalidRoute.id = 0;
     size_t nodesLeft = nodes.size();
-    unsigned int indexOfNextElem = start;
+    uint32_t indexOfNextElem = start;
 
     while(nodesLeft && indexOfNextElem != end )
     {
@@ -30,7 +30,7 @@ Route dijkstra(const EdgesTable &edgesTable, const unsigned int start,
             return invalidRoute;
         }
         qsTable[indexOfNextElem] = false;
-        for(unsigned int i = 0; i < nodes.size(); ++i)
+        for(uint32_t i = 0; i < nodes.size(); ++i)
         {
             if(qsTable[i] && edgesTable[indexOfNextElem][i] < INF)
             {
