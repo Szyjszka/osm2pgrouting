@@ -15,6 +15,7 @@ DataConverter::DataConverter(OSMDocument &document)
 {
     //Convert nodes to my format
     size_t numberOfNodes = document.nodes().size();
+    getTagForNewWays(document);
     nodes.resize(numberOfNodes);
     for(auto& node : document.nodes())
     {
@@ -111,7 +112,7 @@ DataConverter::DataConverter(OSMDocument &document)
 
     contract(edgesTable, &nodesWithRoads, shortcutsTable, order);
 
-    std::vector<osm2pgr::Way> newWays = createNewWays(document);
+    std::vector<osm2pgr::Way> newWays = createNewWays();
 
     std::cout << " TYLE SKROTOW POWSTALO " << newWays.size() << std::endl;
 
@@ -162,7 +163,20 @@ Endpoints DataConverter::getEntpoints(const std::vector<osm2pgr::Node*> &nodes) 
     return {*(nodes.front()), *(nodes.back())};
 }
 
-std::vector<Way> DataConverter::createNewWays(const OSMDocument &document)
+void DataConverter::getTagForNewWays(const OSMDocument &document)
+{
+    for(auto& way : document.ways())
+    {
+        tagForNewWays = way.second.tag_config();
+        if(tagForNewWays.key() != "" && tagForNewWays.value() != "")
+        {
+            return;
+        }
+    }
+    assert(false);
+}
+
+std::vector<Way> DataConverter::createNewWays()
 {
     std::vector<Way> newWays;
     for(uint32_t n = 0; n < nodesWithRoads.size(); ++n )
@@ -181,8 +195,7 @@ std::vector<Way> DataConverter::createNewWays(const OSMDocument &document)
                 assert(nodesWithRoads[n].order != nodesWithRoads[m].order);
                 newWay.increasingOrder = nodesWithRoads[m].order > nodesWithRoads[n].order;
                 newWay.shortcut = 0;
-                //TODO Hack tu jest - tag pierwszy z brzegu
-                newWay.tag_config((document.ways().begin()->second).tag_config());
+                newWay.tag_config(tagForNewWays);
                 newWays.push_back(newWay);
             }
         }

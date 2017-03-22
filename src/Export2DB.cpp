@@ -101,7 +101,7 @@ Export2DB::Export2DB(const  po::variables_map &vm) :
                 " reverse_cost_s double precision,"
                 " rule text,"
                 " incOrder boolean,"
-                " shortcut int, "
+                " shortcut bigint, "
                 " one_way int, "  //  0 unknown, 1 yes(normal direction), 2 (2 way),
                 //  -1 reversed (1 way but geometry is reversed)
                 //  3 - reversible (one way street but direction chnges on time)
@@ -729,13 +729,13 @@ void Export2DB::exportWays(const std::map<int64_t, Way> &ways, const Configurati
                 length_of_shortcut += way.length(splits[i]);
             }
             length_shortcut_str = boost::lexical_cast<std::string>(length_of_shortcut);
-            splits.clear(); //This is to commented
+//            splits.clear(); //This is to commented
             splits.push_back(wholeShortcut);
         }
         split_count +=  splits.size();
 
         for (size_t i = 0; i < splits.size(); ++i) {
-            int64_t shortcuteID = i == (splits.size()-1) && way.shortcut == 0 ? 0 : way.osm_id();
+            int64_t shortcuteID = i == (splits.size()-1) && way.shortcut == 0 ? 0 : i+1;
             if(way.shortcut == -1 )
             {
                 shortcuteID = -1;

@@ -69,7 +69,7 @@ class Way : public Element {
  public:
      //for CH
      bool increasingOrder;
-     int shortcut;
+     int64_t shortcut;
      inline void maxspeed_forward(double p_max) {m_maxspeed_forward = p_max;}
      inline void maxspeed_backward(double p_max) {m_maxspeed_backward = p_max;}
 
