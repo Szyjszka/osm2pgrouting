@@ -730,17 +730,13 @@ void Export2DB::exportWays(const std::map<int64_t, Way> &ways, const Configurati
             }
             length_shortcut_str = boost::lexical_cast<std::string>(length_of_shortcut);
 //            splits.clear(); //This is to commented
-            splits.push_back(wholeShortcut);
+            splits.insert(splits.begin(), wholeShortcut);
         }
         split_count +=  splits.size();
 
         for (size_t i = 0; i < splits.size(); ++i) {
-            int64_t shortcuteID = i == (splits.size()-1) && way.shortcut == 0 ? 0 : i+1;
-            if(way.shortcut == -1 )
-            {
-                shortcuteID = -1;
-            }
-            std::string length = way.shortcut == 0 ? length_shortcut_str : way.length_str(splits[i]);
+            const int64_t shortcuteID = way.shortcut == -1 ? -1 : i;
+            const std::string length = way.shortcut == 0 ? length_shortcut_str : way.length_str(splits[i]);
             // length (degrees)
             auto split_data =
                 // CH shortcut int
