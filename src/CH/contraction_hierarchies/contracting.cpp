@@ -60,6 +60,7 @@ uint32_t contractNode(const EdgesTable& edgesTable, EdgesTable& edgesTableOut, c
                     (edgesTableOut)[wID][uID] = (edgesTable)[uID][v.id] + (edgesTable)[v.id][wID];
                     //Jeśli skrót już był to go usuwamy
                     shorctcutsTable[uID][wID].clear();
+                    shorctcutsTable[wID][uID].clear();
 
                     for(auto nodeID : shorctcutsTable[uID][v.id])
                     {
@@ -70,17 +71,11 @@ uint32_t contractNode(const EdgesTable& edgesTable, EdgesTable& edgesTableOut, c
                     {
                         (shorctcutsTable)[uID][wID].push_back({nodeID});
                     }
-
-
-                    for(auto nodeID : shorctcutsTable[uID][v.id])
-                    {
-                        (shorctcutsTable)[wID][uID].push_back({nodeID});
-                    }
-                    (shorctcutsTable)[wID][uID].push_back({v.id});
-                    for(auto nodeID : (shorctcutsTable)[v.id][wID])
-                    {
-                        (shorctcutsTable)[wID][uID].push_back({nodeID});
-                    }
+                    shorctcutsTable[wID][uID] = shorctcutsTable[uID][wID];
+                    std::reverse(std::begin(shorctcutsTable[wID][uID]), std::end(shorctcutsTable[wID][uID]));
+//                    std::reverse_copy(std::begin((shorctcutsTable)[uID][wID]),
+//                                      std::end((shorctcutsTable)[uID][wID]),
+//                                      std::begin((shorctcutsTable)[wID][uID]));
                 }
             }
         }
