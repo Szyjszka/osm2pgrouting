@@ -34,21 +34,23 @@ Endpoints DataConverter::getEntpoints(const std::vector<osm2pgr::Node*> &nodes) 
     return {*(nodes.front()), *(nodes.back())};
 }
 
-void DataConverter::getTagForNewWays(const OSMDocument &document)
+Tag DataConverter::getTagForNewWays(const OSMDocument &document)
 {
+    osm2pgr::Tag tagForNewWays;
     for(auto& way : document.ways())
     {
         tagForNewWays = way.second.tag_config();
         if(tagForNewWays.key() != "" && tagForNewWays.value() != "")
         {
-            return;
+            return tagForNewWays;
         }
     }
     assert(false);
 }
 
-DataConverter::Osm2pgrWays DataConverter::createNewWays()
+DataConverter::Osm2pgrWays DataConverter::createNewWays(const osm2pgr::OSMDocument& document)
 {
+    osm2pgr::Tag tagForNewWays = getTagForNewWays(document);
     Osm2pgrWays newWays;
     for(uint32_t n = 0; n < nodesWithRoads.size(); ++n )
         for(uint32_t m = n+1; m < nodesWithRoads.size(); ++m ){
@@ -76,7 +78,7 @@ DataConverter::Osm2pgrWays DataConverter::createNewWays()
 void DataConverter::upgradeWays(OSMDocument &document)
 {
 
-    std::vector<osm2pgr::Way> newWays = createNewWays();
+    std::vector<osm2pgr::Way> newWays = createNewWays(document);
 
     std::cout << " TYLE SKROTOW POWSTALO " << newWays.size() << std::endl;
 

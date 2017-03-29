@@ -20,9 +20,9 @@ public:
 private:
     double getWayCost(const std::vector<osm2pgr::Node*> &nodes) const;
     Endpoints getEntpoints(const std::vector<osm2pgr::Node*>& way) const;
-    void getTagForNewWays(const osm2pgr::OSMDocument& document);
+    osm2pgr::Tag getTagForNewWays(const osm2pgr::OSMDocument& document);
 
-    Osm2pgrWays createNewWays();
+    Osm2pgrWays createNewWays(const osm2pgr::OSMDocument& document);
     void upgradeWays(osm2pgr::OSMDocument& document);
     void convertToInternalFormat(const osm2pgr::OSMDocument& document);
     NumberOfWaysFromNode getNumberOfWaysFromNode(const SplittedWays& splittedWays);
@@ -40,7 +40,6 @@ private:
     std::map<int64_t, uint32_t> IDconverter;
     std::map<uint32_t, int64_t> IDconverterBack;
     Order order;
-    osm2pgr::Tag tagForNewWays;
 };
 
 }
