@@ -13,7 +13,112 @@ using namespace RouterCH;
 
 DataConverter::DataConverter(OSMDocument &document)
 {
-    //Convert nodes to my format
+    convertToInternalFormat(document);
+
+    simple_order(&nodesWithRoads, &order);
+    order_with_number_of_shorctuts(&nodesWithRoads, &order, edgesTable, 0);
+//    order_with_num_of_roads(&nodesWithRoads, &order);
+
+    contract(edgesTable, &nodesWithRoads, shortcutsTable, order);
+
+    upgradeWays(document);
+}
+
+double DataConverter::getWayCost(const std::vector<osm2pgr::Node*> &nodes) const
+{
+    return Way::length(nodes);
+}
+
+Endpoints DataConverter::getEntpoints(const std::vector<osm2pgr::Node*> &nodes) const
+{
+    return {*(nodes.front()), *(nodes.back())};
+}
+
+void DataConverter::getTagForNewWays(const OSMDocument &document)
+{
+    for(auto& way : document.ways())
+    {
+        tagForNewWays = way.second.tag_config();
+        if(tagForNewWays.key() != "" && tagForNewWays.value() != "")
+        {
+            return;
+        }
+    }
+    assert(false);
+}
+
+std::vector<Way> DataConverter::createNewWays()
+{
+    std::vector<Way> newWays;
+    for(uint32_t n = 0; n < nodesWithRoads.size(); ++n )
+        for(uint32_t m = n+1; m < nodesWithRoads.size(); ++m ){
+            if(shortcutsTable[n][m].size()){
+                Way newWay;
+                newWay.add_node(&(osm2pgrNodes[n]));
+                for(uint32_t i = 0; i < shortcutsTable[n][m].size(); ++i){
+                    assert(shortcutsTable[n][m][i] < nodesWithRoads.size());
+                    newWay.add_node(&(osm2pgrNodes[shortcutsTable[n][m][i]]));
+                }
+                newWay.add_node(&(osm2pgrNodes[m]));
+                newWay.setID(nextWayID++);
+                newWay.maxspeed_backward(51);
+                newWay.maxspeed_forward(51);
+                assert(nodesWithRoads[n].order != nodesWithRoads[m].order);
+                newWay.increasingOrder = nodesWithRoads[m].order > nodesWithRoads[n].order;
+                newWay.shortcut = 0;
+                newWay.tag_config(tagForNewWays);
+                newWays.push_back(newWay);
+            }
+        }
+    return newWays;
+}
+
+void DataConverter::upgradeWays(OSMDocument &document)
+{
+
+    std::vector<osm2pgr::Way> newWays = createNewWays();
+
+    std::cout << " TYLE SKROTOW POWSTALO " << newWays.size() << std::endl;
+
+    std::map<int64_t, Way> copyOfWays(document.ways());
+    document.clear();
+
+    for(auto ways_together : copyOfWays)
+    {
+       if (ways_together.second.tag_config().key() == "" || ways_together.second.tag_config().value() == "") continue;
+       auto ways_splitted = ways_together.second.split_me();
+       for(auto& way: ways_splitted)
+       {
+        Way newWay(ways_together.second);
+        newWay.nodeRefs().clear();
+        newWay.add_node(way.front());
+        newWay.add_node(way.back());
+        assert(IDconverter.find(newWay.nodeRefs().back()->osm_id()) != IDconverter.end());
+        assert(IDconverter.find(newWay.nodeRefs().front()->osm_id()) != IDconverter.end());
+        const uint32_t aID = IDconverter.at(newWay.nodeRefs().back()->osm_id());
+        const uint32_t bID = IDconverter.at(newWay.nodeRefs().front()->osm_id());
+        assert(aID < nodesWithRoads.size());
+        assert(bID < nodesWithRoads.size());
+        if(aID == bID)
+        {
+            continue;
+        }
+        assert( nodesWithRoads[aID].order !=  nodesWithRoads[bID].order || aID == bID);
+        newWay.increasingOrder = nodesWithRoads[aID].order > nodesWithRoads[bID].order;
+        newWay.shortcut = -1;
+        newWay.setID(nextWayID++);
+        document.AddWay(newWay);
+        }
+    }
+    for(auto& way : newWays)
+    {
+        assert(document.ways().find(way.osm_id()) == document.ways().end());
+        document.AddWay(way);
+    }
+}
+
+void DataConverter::convertToInternalFormat(const OSMDocument &document)
+{
     size_t numberOfNodes = document.nodes().size();
     getTagForNewWays(document);
     nodes.resize(numberOfNodes);
@@ -84,6 +189,15 @@ DataConverter::DataConverter(OSMDocument &document)
     {
         edgesTable[j].resize(waysFromNode.size(), std::numeric_limits<double>::max());
     }
+
+
+    //Add shortcuts table
+    shortcutsTable.resize(waysFromNode.size());
+    for(size_t j = 0; j < shortcutsTable.size(); ++j)
+    {
+        shortcutsTable[j].resize(waysFromNode.size());
+    }
+
     for(auto& way: splittedWays)
     {
         Endpoints endpoints = getEntpoints(way);
@@ -97,109 +211,9 @@ DataConverter::DataConverter(OSMDocument &document)
     }
 
     nodesWithRoads = std::vector<Node>(nodes.begin(), nodes.begin() + waysFromNode.size());
-    std::vector<uint32_t> order(waysFromNode.size());
-    simple_order(&nodesWithRoads, &order);
-    order_with_number_of_shorctuts(&nodesWithRoads, &order, edgesTable, 0);
-//    order_with_num_of_roads(&nodesWithRoads, &order);
+    order.resize(waysFromNode.size());
+
     nextWayID = (document.ways().rbegin()->first)+1;
-
-    //Add shortcuts table
-    shortcutsTable.resize(waysFromNode.size());
-    for(size_t j = 0; j < shortcutsTable.size(); ++j)
-    {
-        shortcutsTable[j].resize(waysFromNode.size());
-    }
-
-    contract(edgesTable, &nodesWithRoads, shortcutsTable, order);
-
-    std::vector<osm2pgr::Way> newWays = createNewWays();
-
-    std::cout << " TYLE SKROTOW POWSTALO " << newWays.size() << std::endl;
-
-    std::map<int64_t, Way> copyOfWays(document.ways());
-    document.clear();
-
-    for(auto ways_together : copyOfWays)
-    {
-       if (ways_together.second.tag_config().key() == "" || ways_together.second.tag_config().value() == "") continue;
-       auto ways_splitted = ways_together.second.split_me();
-       for(auto& way: ways_splitted)
-       {
-        Way newWay(ways_together.second);
-        newWay.nodeRefs().clear();
-        newWay.add_node(way.front());
-        newWay.add_node(way.back());
-        assert(IDconverter.find(newWay.nodeRefs().back()->osm_id()) != IDconverter.end());
-        assert(IDconverter.find(newWay.nodeRefs().front()->osm_id()) != IDconverter.end());
-        const uint32_t aID = IDconverter.at(newWay.nodeRefs().back()->osm_id());
-        const uint32_t bID = IDconverter.at(newWay.nodeRefs().front()->osm_id());
-        assert(aID < nodesWithRoads.size());
-        assert(bID < nodesWithRoads.size());
-        if(aID == bID)
-        {
-            continue;
-        }
-        assert( nodesWithRoads[aID].order !=  nodesWithRoads[bID].order || aID == bID);
-        newWay.increasingOrder = nodesWithRoads[aID].order > nodesWithRoads[bID].order;
-        newWay.shortcut = -1;
-        newWay.setID(nextWayID++);
-        document.AddWay(newWay);
-        }
-    }
-    for(auto& way : newWays)
-    {
-        assert(document.ways().find(way.osm_id()) == document.ways().end());
-        document.AddWay(way);
-    }
-}
-
-double DataConverter::getWayCost(const std::vector<osm2pgr::Node*> &nodes) const
-{
-    return Way::length(nodes);
-}
-
-Endpoints DataConverter::getEntpoints(const std::vector<osm2pgr::Node*> &nodes) const
-{
-    return {*(nodes.front()), *(nodes.back())};
-}
-
-void DataConverter::getTagForNewWays(const OSMDocument &document)
-{
-    for(auto& way : document.ways())
-    {
-        tagForNewWays = way.second.tag_config();
-        if(tagForNewWays.key() != "" && tagForNewWays.value() != "")
-        {
-            return;
-        }
-    }
-    assert(false);
-}
-
-std::vector<Way> DataConverter::createNewWays()
-{
-    std::vector<Way> newWays;
-    for(uint32_t n = 0; n < nodesWithRoads.size(); ++n )
-        for(uint32_t m = n+1; m < nodesWithRoads.size(); ++m ){
-            if(shortcutsTable[n][m].size()){
-                Way newWay;
-                newWay.add_node(&(osm2pgrNodes[n]));
-                for(uint32_t i = 0; i < shortcutsTable[n][m].size(); ++i){
-                    assert(shortcutsTable[n][m][i] < nodesWithRoads.size());
-                    newWay.add_node(&(osm2pgrNodes[shortcutsTable[n][m][i]]));
-                }
-                newWay.add_node(&(osm2pgrNodes[m]));
-                newWay.setID(nextWayID++);
-                newWay.maxspeed_backward(51);
-                newWay.maxspeed_forward(51);
-                assert(nodesWithRoads[n].order != nodesWithRoads[m].order);
-                newWay.increasingOrder = nodesWithRoads[m].order > nodesWithRoads[n].order;
-                newWay.shortcut = 0;
-                newWay.tag_config(tagForNewWays);
-                newWays.push_back(newWay);
-            }
-        }
-    return newWays;
 }
 
 DataConverter::SplittedWays DataConverter::createSplittedWays(const OSMDocument &document)

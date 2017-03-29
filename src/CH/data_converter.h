@@ -20,6 +20,8 @@ private:
     void getTagForNewWays(const osm2pgr::OSMDocument& document);
 
     std::vector<osm2pgr::Way> createNewWays();
+    void upgradeWays(osm2pgr::OSMDocument& document);
+    void convertToInternalFormat(const osm2pgr::OSMDocument& document);
     SplittedWays createSplittedWays(const osm2pgr::OSMDocument &document);
     int64_t nextWayID;
     RouterCH::EdgesTable edgesTable;
@@ -30,6 +32,7 @@ private:
     std::vector<Node> nodesWithRoads;
     std::map<int64_t, uint32_t> IDconverter;
     std::map<uint32_t, int64_t> IDconverterBack;
+    std::vector<uint32_t> order;
     osm2pgr::Tag tagForNewWays;
 
     //    int64_t id_table[] = { 451784587, 451784588, 451784589, 451784590, 451784591, 451784592};
