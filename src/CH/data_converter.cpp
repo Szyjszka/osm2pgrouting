@@ -78,7 +78,7 @@ DataConverter::Osm2pgrWays DataConverter::createNewWays(const osm2pgr::OSMDocume
 void DataConverter::upgradeWays(OSMDocument &document)
 {
 
-    std::vector<osm2pgr::Way> newWays = createNewWays(document);
+    Osm2pgrWays newWays = createNewWays(document);
 
     std::cout << " TYLE SKROTOW POWSTALO " << newWays.size() << std::endl;
 
@@ -144,7 +144,7 @@ void DataConverter::convertToInternalFormat(const OSMDocument &document)
 
 DataConverter::NumberOfWaysFromNode DataConverter::getNumberOfWaysFromNode(const DataConverter::SplittedWays &splittedWays)
 {
-    std::map<int64_t, uint32_t> waysFromNode;
+    NumberOfWaysFromNode waysFromNode;
     for(auto& way: splittedWays)
     {
         Endpoints endpoints = getEntpoints(way);
