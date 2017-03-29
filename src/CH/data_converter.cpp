@@ -130,74 +130,19 @@ void DataConverter::convertToInternalFormat(const OSMDocument &document)
 
     //Dodanie informacji o tym czy z noda sa drogi
     splittedWays = createSplittedWays(document);
-    std::map<int64_t, uint32_t> waysFromNode = getNumberOfWaysFromNode(splittedWays);
+    NumberOfWaysFromNode numberOfWaysFromNode = getNumberOfWaysFromNode(splittedWays);
 
-    uint32_t IDWithRoads = 0;
-    uint32_t IDWithoutRoads = static_cast<uint32_t>(waysFromNode.size());
-    for(auto& node : osm2pgrNodes)
-    {
-        if(waysFromNode.find(node.osm_id()) != waysFromNode.end())
-        {
-            assert(IDWithRoads < waysFromNode.size());
-            nodes[IDWithRoads].id = IDWithRoads;
-            nodes[IDWithRoads].numOfWays = waysFromNode[node.osm_id()];
-            IDconverter[node.osm_id()] = nodes[IDWithRoads].id;
-            IDconverterBack[nodes[IDWithRoads].id] = node.osm_id();
-            ++IDWithRoads;
-        }
-        else
-        {
+    groupNodesWithRoads(numberOfWaysFromNode, document);
 
-            assert(IDWithoutRoads < osm2pgrNodes.size());
-            nodes[IDWithoutRoads].id = IDWithoutRoads;
-            nodes[IDWithRoads].numOfWays = 0;
-            IDconverter[node.osm_id()] = nodes[IDWithoutRoads].id;
-            IDconverterBack[nodes[IDWithoutRoads].id] = node.osm_id();
-            ++IDWithoutRoads;
-        }
-    }
-    // "Reorder of osm2pgr nodes
-    osm2pgrNodes.clear();
-    for(auto& node : nodes)
-    {
-        osm2pgrNodes.push_back(document.nodes().at(IDconverterBack[node.id]));
-    }
+    fillEdgesTable(splittedWays, numberOfWaysFromNode.size());
 
-    //Add edges in my format
-    edgesTable.resize(waysFromNode.size());
+    nodesWithRoads = std::vector<Node>(nodes.begin(), nodes.begin() + numberOfWaysFromNode.size());
+    order.resize(numberOfWaysFromNode.size());
 
-    for(size_t j = 0; j < edgesTable.size(); ++j)
-    {
-        edgesTable[j].resize(waysFromNode.size(), std::numeric_limits<double>::max());
-    }
-
-
-    //Add shortcuts table
-    shortcutsTable.resize(waysFromNode.size());
-    for(size_t j = 0; j < shortcutsTable.size(); ++j)
-    {
-        shortcutsTable[j].resize(waysFromNode.size());
-    }
-
-    for(auto& way: splittedWays)
-    {
-        Endpoints endpoints = getEntpoints(way);
-        assert(IDconverter.at(endpoints.start.osm_id()) < waysFromNode.size());
-        assert(IDconverter.at(endpoints.end.osm_id()) < waysFromNode.size());
-        edgesTable[IDconverter.at(endpoints.start.osm_id())]
-                [IDconverter.at(endpoints.end.osm_id())] = getWayCost(way);
-
-        edgesTable[IDconverter.at(endpoints.end.osm_id())]
-                [IDconverter.at(endpoints.start.osm_id())]= getWayCost(way);
-    }
-
-    nodesWithRoads = std::vector<Node>(nodes.begin(), nodes.begin() + waysFromNode.size());
-    order.resize(waysFromNode.size());
-
-        nextWayID = (document.ways().rbegin()->first)+1;
+    nextWayID = (document.ways().rbegin()->first)+1;
 }
 
-std::map<int64_t, uint32_t> DataConverter::getNumberOfWaysFromNode(const DataConverter::SplittedWays &splittedWays)
+DataConverter::NumberOfWaysFromNode DataConverter::getNumberOfWaysFromNode(const DataConverter::SplittedWays &splittedWays)
 {
     std::map<int64_t, uint32_t> waysFromNode;
     for(auto& way: splittedWays)
@@ -237,4 +182,70 @@ DataConverter::SplittedWays DataConverter::createSplittedWays(const OSMDocument 
        }
     }
     return splittedWays;
+}
+
+void DataConverter::groupNodesWithRoads(const DataConverter::NumberOfWaysFromNode &numberOfWaysFromNode, const OSMDocument &document)
+{
+    uint32_t IDWithRoads = 0;
+    uint32_t IDWithoutRoads = numberOfWaysFromNode.size();
+    for(auto& node : osm2pgrNodes)
+    {
+        if(numberOfWaysFromNode.find(node.osm_id()) != numberOfWaysFromNode.end())
+        {
+            assert(IDWithRoads < numberOfWaysFromNode.size());
+            nodes[IDWithRoads].id = IDWithRoads;
+            nodes[IDWithRoads].numOfWays = numberOfWaysFromNode.at(node.osm_id());
+            IDconverter[node.osm_id()] = nodes[IDWithRoads].id;
+            IDconverterBack[nodes[IDWithRoads].id] = node.osm_id();
+            ++IDWithRoads;
+        }
+        else
+        {
+
+            assert(IDWithoutRoads < osm2pgrNodes.size());
+            nodes[IDWithoutRoads].id = IDWithoutRoads;
+            nodes[IDWithRoads].numOfWays = 0;
+            IDconverter[node.osm_id()] = nodes[IDWithoutRoads].id;
+            IDconverterBack[nodes[IDWithoutRoads].id] = node.osm_id();
+            ++IDWithoutRoads;
+        }
+    }
+    // "Reorder of osm2pgr nodes
+    osm2pgrNodes.clear();
+    for(auto& node : nodes)
+    {
+        osm2pgrNodes.push_back(document.nodes().at(IDconverterBack[node.id]));
+    }
+}
+
+void DataConverter::fillEdgesTable(const DataConverter::SplittedWays &splittedWays, const size_t numberOfWays)
+{
+
+    //Add edges in my format
+    edgesTable.resize(numberOfWays);
+
+    for(size_t j = 0; j < edgesTable.size(); ++j)
+    {
+        edgesTable[j].resize(numberOfWays, std::numeric_limits<double>::max());
+    }
+
+
+    //Add shortcuts table
+    shortcutsTable.resize(numberOfWays);
+    for(size_t j = 0; j < shortcutsTable.size(); ++j)
+    {
+        shortcutsTable[j].resize(numberOfWays);
+    }
+
+    for(auto& way: splittedWays)
+    {
+        Endpoints endpoints = getEntpoints(way);
+        assert(IDconverter.at(endpoints.start.osm_id()) < numberOfWays);
+        assert(IDconverter.at(endpoints.end.osm_id()) < numberOfWays);
+        edgesTable[IDconverter.at(endpoints.start.osm_id())]
+                [IDconverter.at(endpoints.end.osm_id())] = getWayCost(way);
+
+        edgesTable[IDconverter.at(endpoints.end.osm_id())]
+                [IDconverter.at(endpoints.start.osm_id())]= getWayCost(way);
+    }
 }
