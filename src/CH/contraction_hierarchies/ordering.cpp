@@ -15,7 +15,7 @@ uint32_t getNumOfWays(const uint32_t nodeID, const EdgesTable& edgesTable)
     return i;
 }
 
-void simple_order(Nodes* nodes, std::vector<uint32_t>* order)
+void simple_order(Nodes* nodes, Order *order)
 {
     for(uint32_t i = 0; i <nodes->size(); ++i)
     {
@@ -27,7 +27,7 @@ void simple_order(Nodes* nodes, std::vector<uint32_t>* order)
     //    std::sort(nodes->begin(), nodes->end());
 }
 
-void order_with_num_of_roads(Nodes *nodes, std::vector<uint32_t>* order)
+void order_with_num_of_roads(Nodes *nodes, Order *order)
 {
     Nodes copyOfNodes(*nodes);
 //    std::copy(nodes->begin(), nodes->end(), copyOfNodes.begin());
@@ -39,7 +39,7 @@ void order_with_num_of_roads(Nodes *nodes, std::vector<uint32_t>* order)
     }
 }
 
-void order_with_num_of_roads(Nodes *nodes, std::vector<uint32_t>* order, const EdgesTable &edgesTable, const uint32_t start)
+void order_with_num_of_roads(Nodes *nodes, Order *order, const EdgesTable &edgesTable, const uint32_t start)
 {
     Nodes copyOfNodes;
     for(size_t i = start; i < order->size(); ++i)
@@ -91,7 +91,7 @@ uint32_t tryToContractNode(const EdgesTable& edgesTable, const Node& v, const No
 
 }
 
-void order_with_number_of_shorctuts(Nodes *nodes, std::vector<uint32_t> *order, const EdgesTable &edgesTable, const uint32_t start)
+void order_with_number_of_shorctuts(Nodes *nodes, Order *order, const EdgesTable &edgesTable, const uint32_t start)
 {
     Nodes copyOfNodes;
     for(size_t i = start; i < order->size(); ++i)

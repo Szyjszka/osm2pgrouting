@@ -15,6 +15,7 @@ typedef std::vector<std::vector<double> > EdgesTable;
 typedef std::vector<std::vector<std::vector<uint32_t> > > ShorctutsTable;
 typedef struct{uint32_t id; uint32_t order; uint32_t numOfWays;} Node;
 typedef std::vector<Node> Nodes;
+typedef std::vector<uint32_t> Order;
 typedef struct { Nodes nodes; double cost; uint32_t id;} Route;
 
 static const uint32_t INF = UINT_MAX;

@@ -8,7 +8,7 @@ namespace RouterCH
 {
 
 void contract(EdgesTable& edgesTable, Nodes *nodes, ShorctutsTable& shortcutsTable,
-              std::vector<uint32_t> &order);
+              Order& order);
 
 }
 #endif // CONTRACTING_HPP

@@ -30,7 +30,7 @@ bool operator ==(Route a, Route b)
 
 
 uint32_t contractNode(const EdgesTable& edgesTable, EdgesTable& edgesTableOut, const Node& v, const Nodes &nodes,
-                  ShorctutsTable& shorctcutsTable, std::vector<uint32_t>& order, const uint32_t startOrder)
+                  ShorctutsTable& shorctcutsTable, Order& order, const uint32_t startOrder)
 {
     uint32_t numberOfShortcutsCreated = 0;
     // dla każdej pary (u, v) i (v,w) z krawędzi
@@ -84,7 +84,7 @@ uint32_t contractNode(const EdgesTable& edgesTable, EdgesTable& edgesTableOut, c
 }
 
 void contract(EdgesTable& edgesTable, Nodes* nodes,
-              ShorctutsTable& shortcutsTable, std::vector<uint32_t>& order)
+              ShorctutsTable& shortcutsTable, Order &order)
 {
     uint32_t shortcuts = 0;
     EdgesTable edge2(edgesTable);
