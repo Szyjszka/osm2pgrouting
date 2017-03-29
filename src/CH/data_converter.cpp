@@ -127,29 +127,10 @@ void DataConverter::convertToInternalFormat(const OSMDocument &document)
         osm2pgrNodes.push_back(node.second);
     }
 
-    std::map<int64_t, uint32_t> waysFromNode;
+
     //Dodanie informacji o tym czy z noda sa drogi
     splittedWays = createSplittedWays(document);
-    for(auto& way: splittedWays)
-    {
-        Endpoints endpoints = getEntpoints(way);
-        if(waysFromNode.find(endpoints.start.osm_id()) == waysFromNode.end())
-        {
-            waysFromNode[endpoints.start.osm_id()] = 1;
-        }
-        else
-        {
-            ++waysFromNode[endpoints.start.osm_id()];
-        }
-        if(waysFromNode.find(endpoints.end.osm_id()) == waysFromNode.end())
-        {
-            waysFromNode[endpoints.end.osm_id()] = 1;
-        }
-        else
-        {
-            ++waysFromNode[endpoints.end.osm_id()];
-        }
-    }
+    std::map<int64_t, uint32_t> waysFromNode = getNumberOfWaysFromNode(splittedWays);
 
     uint32_t IDWithRoads = 0;
     uint32_t IDWithoutRoads = static_cast<uint32_t>(waysFromNode.size());
@@ -213,7 +194,33 @@ void DataConverter::convertToInternalFormat(const OSMDocument &document)
     nodesWithRoads = std::vector<Node>(nodes.begin(), nodes.begin() + waysFromNode.size());
     order.resize(waysFromNode.size());
 
-    nextWayID = (document.ways().rbegin()->first)+1;
+        nextWayID = (document.ways().rbegin()->first)+1;
+}
+
+std::map<int64_t, uint32_t> DataConverter::getNumberOfWaysFromNode(const DataConverter::SplittedWays &splittedWays)
+{
+    std::map<int64_t, uint32_t> waysFromNode;
+    for(auto& way: splittedWays)
+    {
+        Endpoints endpoints = getEntpoints(way);
+        if(waysFromNode.find(endpoints.start.osm_id()) == waysFromNode.end())
+        {
+            waysFromNode[endpoints.start.osm_id()] = 1;
+        }
+        else
+        {
+            ++waysFromNode[endpoints.start.osm_id()];
+        }
+        if(waysFromNode.find(endpoints.end.osm_id()) == waysFromNode.end())
+        {
+            waysFromNode[endpoints.end.osm_id()] = 1;
+        }
+        else
+        {
+            ++waysFromNode[endpoints.end.osm_id()];
+        }
+    }
+    return waysFromNode;
 }
 
 DataConverter::SplittedWays DataConverter::createSplittedWays(const OSMDocument &document)
