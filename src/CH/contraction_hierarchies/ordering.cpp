@@ -80,7 +80,7 @@ uint32_t tryToContractNode(const EdgesTable& edgesTable, const Node& v, const No
             if(((edgesTable)[uID][v.id] < UINT_MAX) && (edgesTable)[v.id][wID] < UINT_MAX && (edgesTable)[uID][wID]>=UINT_MAX)
             {
                 //jeśli (u,v,w) jest unikalną najkrótszą ścieżką
-                if(chechIfShortcudNeeded(edgesTable, nodes[uID], v, nodes[wID], nodes))
+                if(chechIfShortcudNeeded(edgesTable, edgesTable, nodes[uID], v, nodes[wID], nodes))
                 {
                     ++numberOfShortcutsCreated;
                 }
