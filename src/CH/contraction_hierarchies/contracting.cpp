@@ -52,7 +52,7 @@ uint32_t contractNode(const EdgesTable& edgesTable, EdgesTable& edgesTableOut, c
             if(((edgesTable)[uID][v.id] < INF) && (edgesTable)[v.id][wID] < INF && (edgesTable)[uID][wID]>=INF)
             {
                 //jeśli (u,v,w) jest unikalną najkrótszą ścieżką
-                if(chechIfShortcudNeeded(edgesTable, nodes[uID], v, nodes[wID], nodes))
+                if(chechIfShortcudNeeded(edgesTable, edgesTableOut, nodes[uID], v, nodes[wID], nodes))
                 {
                     ++numberOfShortcutsCreated;
 
