@@ -104,7 +104,7 @@ Route createShortestPath(const EdgesTable &edgesTable, const PathTable& pathTabl
 
 
 
-bool chechIfShortcudNeeded(const EdgesTable& edgesTable, const Node& u,
+bool chechIfShortcudNeeded(const EdgesTable& edgesTable, const EdgesTable& edgesTableOut, const Node& u,
                            const Node& v, const Node& w, const Nodes &nodes)
 {
     //To może być wyżej
@@ -123,6 +123,6 @@ bool chechIfShortcudNeeded(const EdgesTable& edgesTable, const Node& u,
 
     Route sh = dijkstra(edgesTableForLocalSearch, u.id, w.id, nodes);
 
-    return sh.cost > checkedShortctut.cost;
+    return sh.cost > checkedShortctut.cost && (checkedShortctut.cost < edgesTableOut[u.id][w.id] || edgesTableOut[u.id][w.id] >= INF);
 }
 }
