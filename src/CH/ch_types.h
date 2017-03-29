@@ -11,8 +11,10 @@ struct Endpoints{
     osm2pgr::Node start, end;
 };
 
-typedef std::vector<std::vector<double> > EdgesTable;
-typedef std::vector<std::vector<std::vector<uint32_t> > > ShorctutsTable;
+typedef std::vector<double> Edges;
+typedef std::vector<Edges> EdgesTable;
+typedef std::vector<std::vector<uint32_t> > Shortcuts;
+typedef std::vector<Shortcuts> ShorctutsTable;
 typedef struct{uint32_t id; uint32_t order; uint32_t numOfWays;} Node;
 typedef std::vector<Node> Nodes;
 typedef std::vector<uint32_t> Order;

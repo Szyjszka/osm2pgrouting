@@ -47,9 +47,9 @@ void DataConverter::getTagForNewWays(const OSMDocument &document)
     assert(false);
 }
 
-std::vector<Way> DataConverter::createNewWays()
+DataConverter::Osm2pgrWays DataConverter::createNewWays()
 {
-    std::vector<Way> newWays;
+    Osm2pgrWays newWays;
     for(uint32_t n = 0; n < nodesWithRoads.size(); ++n )
         for(uint32_t m = n+1; m < nodesWithRoads.size(); ++m ){
             if(shortcutsTable[n][m].size()){
@@ -127,8 +127,6 @@ void DataConverter::convertToInternalFormat(const OSMDocument &document)
         osm2pgrNodes.push_back(node.second);
     }
 
-
-    //Dodanie informacji o tym czy z noda sa drogi
     splittedWays = createSplittedWays(document);
     NumberOfWaysFromNode numberOfWaysFromNode = getNumberOfWaysFromNode(splittedWays);
 
@@ -220,22 +218,8 @@ void DataConverter::groupNodesWithRoads(const DataConverter::NumberOfWaysFromNod
 
 void DataConverter::fillEdgesTable(const DataConverter::SplittedWays &splittedWays, const size_t numberOfWays)
 {
-
-    //Add edges in my format
-    edgesTable.resize(numberOfWays);
-
-    for(size_t j = 0; j < edgesTable.size(); ++j)
-    {
-        edgesTable[j].resize(numberOfWays, std::numeric_limits<double>::max());
-    }
-
-
-    //Add shortcuts table
-    shortcutsTable.resize(numberOfWays);
-    for(size_t j = 0; j < shortcutsTable.size(); ++j)
-    {
-        shortcutsTable[j].resize(numberOfWays);
-    }
+    edgesTable.resize(numberOfWays, Edges(numberOfWays, std::numeric_limits<double>::max()));
+    shortcutsTable.resize(numberOfWays, Shortcuts(numberOfWays));
 
     for(auto& way: splittedWays)
     {
