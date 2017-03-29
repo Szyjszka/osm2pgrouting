@@ -736,7 +736,7 @@ void Export2DB::exportWays(const std::map<int64_t, Way> &ways, const Configurati
 
         for (size_t i = 0; i < splits.size(); ++i) {
             const int64_t shortcuteID = way.shortcut == -1 ? -1 : i;
-            const std::string length = way.shortcut == 0 ? length_shortcut_str : way.length_str(splits[i]);
+            const std::string length = shortcuteID == 0 ? length_shortcut_str : way.length_str(splits[i]);
             // length (degrees)
             auto split_data =
                 // CH shortcut int
