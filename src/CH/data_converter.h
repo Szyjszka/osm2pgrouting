@@ -36,6 +36,7 @@ private:
     RouterCH::Nodes nodes;
     ShorctutsTable shortcutsTable;
     Osm2pgrNodes osm2pgrNodes;
+    NeighboursTable neighboursTable;
     RouterCH::Nodes nodesWithRoads;
     std::map<int64_t, uint32_t> IDconverter;
     std::map<uint32_t, int64_t> IDconverterBack;

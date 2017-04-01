@@ -30,27 +30,30 @@ bool operator ==(Route a, Route b)
 
 
 uint32_t contractNode(const EdgesTable& edgesTable, EdgesTable& edgesTableOut, const Node& v, const Nodes &nodes,
-                  ShorctutsTable& shorctcutsTable, Order& order, const uint32_t startOrder)
+                  ShorctutsTable& shorctcutsTable, const uint32_t startOrder, NeighboursTable& neighboursTable)
 {
     uint32_t numberOfShortcutsCreated = 0;
     // dla każdej pary (u, v) i (v,w) z krawędzi
-    for(uint32_t i = startOrder+1; i < order.size(); ++i)
+    for(uint32_t i = 0; i < neighboursTable[v.id].size(); ++i)
     {
-        uint32_t uID = order[i];
-        if(uID == v.id)
+        uint32_t uID = neighboursTable[v.id][i];
+        assert(startOrder == nodes[v.id].order);
+        if(nodes[uID].order <= nodes[v.id].order)
         {
             continue;
         }
-        for(uint32_t j = i + 1; j < order.size(); ++j)
+
+        for(uint32_t j = i + 1; j < neighboursTable[v.id].size(); ++j)
         {
-            uint32_t wID = order[j];
-            if(wID == v.id)
+            uint32_t wID = neighboursTable[v.id][j];
+            if(nodes[wID].order <= nodes[v.id].order)
             {
                 continue;
             }
 
-            if(((edgesTable)[uID][v.id] < INF) && (edgesTable)[v.id][wID] < INF && (edgesTable)[uID][wID]>=INF)
+            if((edgesTable)[uID][wID]>=INF)
             {
+                //TODO Inicjalizacja na INF wyzej
                 //jeśli (u,v,w) jest unikalną najkrótszą ścieżką
                 if(chechIfShortcudNeeded(edgesTable, edgesTableOut, nodes[uID], v, nodes[wID], nodes))
                 {
@@ -59,8 +62,19 @@ uint32_t contractNode(const EdgesTable& edgesTable, EdgesTable& edgesTableOut, c
                     (edgesTableOut)[uID][wID] = (edgesTable)[uID][v.id] + (edgesTable)[v.id][wID];
                     (edgesTableOut)[wID][uID] = (edgesTable)[uID][v.id] + (edgesTable)[v.id][wID];
                     //Jeśli skrót już był to go usuwamy
-                    shorctcutsTable[uID][wID].clear();
-                    shorctcutsTable[wID][uID].clear();
+                    if(edgesTable[uID][wID] < INF)
+                    {
+                        shorctcutsTable[uID][wID].clear();
+                        shorctcutsTable[wID][uID].clear();
+                    }
+                    else
+                    {
+                        assert(!shorctcutsTable[uID][wID].size());
+                        assert(!shorctcutsTable[wID][uID].size());
+
+                        neighboursTable[uID].push_back(wID);
+                        neighboursTable[wID].push_back(uID);
+                    }
 
                     for(auto nodeID : shorctcutsTable[uID][v.id])
                     {
@@ -84,14 +98,15 @@ uint32_t contractNode(const EdgesTable& edgesTable, EdgesTable& edgesTableOut, c
 }
 
 void contract(EdgesTable& edgesTable, Nodes* nodes,
-              ShorctutsTable& shortcutsTable, Order &order)
+              ShorctutsTable& shortcutsTable, Order &order, NeighboursTable &neighboursTable)
 {
     uint32_t shortcuts = 0;
     EdgesTable edge2(edgesTable);
     for(uint32_t i = 0; i < order.size(); ++i)
     {
      std::cout << "Zostalo jeszcze " << order.size() - i << std::endl;
-     shortcuts += contractNode(edgesTable, edge2, (*nodes)[order[i]], *nodes, shortcutsTable, order, i);
+     //order_with_number_of_shorctuts(nodes, &order, edgesTable, 0);
+     shortcuts += contractNode(edgesTable, edge2, (*nodes)[order[i]], *nodes, shortcutsTable, i, neighboursTable);
 
      edgesTable = edge2;
     }

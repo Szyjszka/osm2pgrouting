@@ -8,7 +8,7 @@ namespace RouterCH
 {
 
 void contract(EdgesTable& edgesTable, Nodes *nodes, ShorctutsTable& shortcutsTable,
-              Order& order);
+              Order& order, NeighboursTable& neighboursTable);
 
 }
 #endif // CONTRACTING_HPP

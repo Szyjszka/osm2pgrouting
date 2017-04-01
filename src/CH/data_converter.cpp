@@ -19,7 +19,7 @@ DataConverter::DataConverter(OSMDocument &document)
     order_with_number_of_shorctuts(&nodesWithRoads, &order, edgesTable, 0);
 //    order_with_num_of_roads(&nodesWithRoads, &order);
 
-    contract(edgesTable, &nodesWithRoads, shortcutsTable, order);
+    contract(edgesTable, &nodesWithRoads, shortcutsTable, order, neighboursTable);
 
     upgradeWays(document);
 }
@@ -144,6 +144,7 @@ void DataConverter::convertToInternalFormat(const OSMDocument &document)
 
 DataConverter::NumberOfWaysFromNode DataConverter::getNumberOfWaysFromNode(const DataConverter::SplittedWays &splittedWays)
 {
+    //TODO Here can be just neighbours table
     NumberOfWaysFromNode waysFromNode;
     for(auto& way: splittedWays)
     {
@@ -222,16 +223,23 @@ void DataConverter::fillEdgesTable(const DataConverter::SplittedWays &splittedWa
 {
     edgesTable.resize(numberOfWays, Edges(numberOfWays, std::numeric_limits<double>::max()));
     shortcutsTable.resize(numberOfWays, Shortcuts(numberOfWays));
+    neighboursTable.resize(numberOfWays, Neighbours());
 
     for(auto& way: splittedWays)
     {
         Endpoints endpoints = getEntpoints(way);
-        assert(IDconverter.at(endpoints.start.osm_id()) < numberOfWays);
-        assert(IDconverter.at(endpoints.end.osm_id()) < numberOfWays);
-        edgesTable[IDconverter.at(endpoints.start.osm_id())]
-                [IDconverter.at(endpoints.end.osm_id())] = getWayCost(way);
-
-        edgesTable[IDconverter.at(endpoints.end.osm_id())]
-                [IDconverter.at(endpoints.start.osm_id())]= getWayCost(way);
+        uint32_t u = IDconverter.at(endpoints.start.osm_id());
+        uint32_t w = IDconverter.at(endpoints.end.osm_id());
+        assert(u < numberOfWays);
+        assert(w < numberOfWays);
+        const double wayCost = getWayCost(way);
+        if(u == w)
+        {
+            continue;
+        }
+        edgesTable[u][w] = wayCost;
+        edgesTable[w][u] = wayCost;
+        neighboursTable[u].push_back(w);
+        neighboursTable[w].push_back(u);
     }
 }
