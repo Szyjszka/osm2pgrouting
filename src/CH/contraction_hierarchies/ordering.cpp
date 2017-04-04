@@ -4,6 +4,7 @@
 namespace RouterCH
 {
 
+//TODO can be better - we've got neighbours table
 uint32_t getNumOfWays(const uint32_t nodeID, const EdgesTable& edgesTable)
 {
     uint32_t i = 0;
@@ -79,7 +80,7 @@ uint32_t tryToContractNode(const EdgesTable& edgesTable, const Node& v, const No
             }
             if(((edgesTable)[uID][v.id] < UINT_MAX) && (edgesTable)[v.id][wID] < UINT_MAX && (edgesTable)[uID][wID]>=UINT_MAX)
             {
-
+                //TODO same as contract node - maybe the same func
                 EdgesTable edgesTableForLocalSearch(edgesTable);
                 for(uint32_t i = 0; i < nodes.size(); ++i)
                 {

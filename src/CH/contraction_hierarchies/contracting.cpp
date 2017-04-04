@@ -82,6 +82,7 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
                     edgeWithNodes.cost =  edgeWithNodesTable[i].cost + edgeWithNodesTable[j].cost;
                     edgeWithNodesTable.push_back(edgeWithNodes);
 
+                    //TODO shortcuts recursively from other roads
                     for(auto nodeID : shorctcutsTable[uID][v.id])
                     {
                         (shorctcutsTable)[uID][wID].push_back({nodeID});
