@@ -17,7 +17,7 @@ endif(Boost_INCLUDE_DIRS)
 FIND_PACKAGE(Boost COMPONENTS program_options REQUIRED)
 
 FILE(GLOB SRC "${CMAKE_SOURCE_DIR}/src/*.cpp" "${CMAKE_SOURCE_DIR}/src/*.h"
-    "${CMAKE_SOURCE_DIR}/src/CH/*.cpp" "${CMAKE_SOURCE_DIR}/src/CH/*.h"
+    "${CMAKE_SOURCE_DIR}/src/CH/*.cpp" "${CMAKE_SOURCE_DIR}/src/CH/*.h" "${CMAKE_SOURCE_DIR}/src/CH/*.hpp"
     "${CMAKE_SOURCE_DIR}/src/CH/contraction_hierarchies/*.cpp" "${CMAKE_SOURCE_DIR}/src/CH/contraction_hierarchies/*.hpp"
     "${CMAKE_SOURCE_DIR}/src/CH/shortest_path_algorithms/*.cpp" "${CMAKE_SOURCE_DIR}/src/CH/shortest_path_algorithms/*.hpp")
 

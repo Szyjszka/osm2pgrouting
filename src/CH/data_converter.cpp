@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cassert>
 #include <iostream>
+#include "algorithm_time_measure.hpp"
 #include "contraction_hierarchies/contracting.hpp"
 #include "contraction_hierarchies/ordering.hpp"
 #include "shortest_path_algorithms/dijkstra.hpp"
@@ -13,6 +14,10 @@ using namespace RouterCH;
 
 DataConverter::DataConverter(OSMDocument &document)
 {
+    AlgorithmTimeMeasure atm;
+
+    atm.startMeasurement();
+
     convertToInternalFormat(document);
 
     simple_order(&nodesWithRoads, &order);
@@ -22,6 +27,10 @@ DataConverter::DataConverter(OSMDocument &document)
     contract(edgesTable, &nodesWithRoads, shortcutsTable, order, neighboursTable);
 
     upgradeWays(document);
+
+    atm.stopMeasurement();
+
+    std::cout << "Kontrakcja zajela " << atm.getMeanTime() << "s" << std::endl;
 }
 
 double DataConverter::getWayCost(const std::vector<osm2pgr::Node*> &nodes) const
