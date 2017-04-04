@@ -104,25 +104,11 @@ Route createShortestPath(const EdgesTable &edgesTable, const PathTable& pathTabl
 
 
 
-bool chechIfShortcudNeeded(const EdgesTable& edgesTable, const EdgesTable& edgesTableOut, const Node& u,
-                           const Node& v, const Node& w, const Nodes &nodes)
+bool chechIfShortcudNeeded(const EdgesTable& edgesTable, const Node& u,
+                           const Node& w, const Nodes &nodes, const double cost)
 {
-    //To może być wyżej
-    EdgesTable edgesTableForLocalSearch(edgesTable);
+    Route sh = dijkstra(edgesTable, u.id, w.id, nodes);
 
-    //wstawienie do tabeli duzych wartosci dla poszkiwanego skrótu żeby zobaczyć czy
-    //dijkstra znajdzie inną trasę
-    Route checkedShortctut;
-    checkedShortctut.nodes = Nodes({u, v, w});
-    checkedShortctut.cost = edgesTable[u.id][v.id] + edgesTable[v.id][w.id];
-    for(uint32_t i = 0; i < nodes.size(); ++i)
-    {
-        edgesTableForLocalSearch[nodes[i].id][v.id] = std::numeric_limits<double>::max();
-        edgesTableForLocalSearch[v.id][nodes[i].id] = std::numeric_limits<double>::max();
-    }
-
-    Route sh = dijkstra(edgesTableForLocalSearch, u.id, w.id, nodes);
-
-    return sh.cost > checkedShortctut.cost && (checkedShortctut.cost < edgesTableOut[u.id][w.id] || edgesTableOut[u.id][w.id] >= INF);
+    return sh.cost > cost && (cost < edgesTable[u.id][w.id] || edgesTable[u.id][w.id] >= INF);
 }
 }

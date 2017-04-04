@@ -79,8 +79,16 @@ uint32_t tryToContractNode(const EdgesTable& edgesTable, const Node& v, const No
             }
             if(((edgesTable)[uID][v.id] < UINT_MAX) && (edgesTable)[v.id][wID] < UINT_MAX && (edgesTable)[uID][wID]>=UINT_MAX)
             {
+
+                EdgesTable edgesTableForLocalSearch(edgesTable);
+                for(uint32_t i = 0; i < nodes.size(); ++i)
+                {
+                    edgesTableForLocalSearch[nodes[i].id][v.id] = std::numeric_limits<double>::max();
+                    edgesTableForLocalSearch[v.id][nodes[i].id] = std::numeric_limits<double>::max();
+                }
                 //jeśli (u,v,w) jest unikalną najkrótszą ścieżką
-                if(chechIfShortcudNeeded(edgesTable, edgesTable, nodes[uID], v, nodes[wID], nodes))
+                if(chechIfShortcudNeeded(edgesTableForLocalSearch, nodes[uID], nodes[wID], nodes,
+                                         (edgesTable)[uID][v.id] + (edgesTable)[v.id][wID]))
                 {
                     ++numberOfShortcutsCreated;
                 }

@@ -29,9 +29,15 @@ bool operator ==(Route a, Route b)
 }
 
 
-uint32_t contractNode(const EdgesTable& edgesTable, EdgesTable& edgesTableOut, const Node& v, const Nodes &nodes,
+uint32_t contractNode(EdgesTable& edgesTable, EdgesTable& edgesTableOut, const Node& v, const Nodes &nodes,
                   ShorctutsTable& shorctcutsTable, const uint32_t startOrder, NeighboursTable& neighboursTable)
 {
+    for(uint32_t i = 0; i < neighboursTable[v.id].size(); ++i)
+    {
+        edgesTable[neighboursTable[v.id][i]][v.id] = std::numeric_limits<double>::max();
+        edgesTable[v.id][neighboursTable[v.id][i]] = std::numeric_limits<double>::max();
+    }
+
     uint32_t numberOfShortcutsCreated = 0;
     // dla każdej pary (u, v) i (v,w) z krawędzi
     for(uint32_t i = 0; i < neighboursTable[v.id].size(); ++i)
@@ -53,28 +59,19 @@ uint32_t contractNode(const EdgesTable& edgesTable, EdgesTable& edgesTableOut, c
 
             if((edgesTable)[uID][wID]>=INF)
             {
-                //TODO Inicjalizacja na INF wyzej
-                //jeśli (u,v,w) jest unikalną najkrótszą ścieżką
-                if(chechIfShortcudNeeded(edgesTable, edgesTableOut, nodes[uID], v, nodes[wID], nodes))
+                if(chechIfShortcudNeeded(edgesTable, nodes[uID], nodes[wID], nodes,
+                                         (edgesTableOut)[uID][v.id] + (edgesTableOut)[v.id][wID]))
                 {
                     ++numberOfShortcutsCreated;
 
-                    (edgesTableOut)[uID][wID] = (edgesTable)[uID][v.id] + (edgesTable)[v.id][wID];
-                    (edgesTableOut)[wID][uID] = (edgesTable)[uID][v.id] + (edgesTable)[v.id][wID];
-                    //Jeśli skrót już był to go usuwamy
-                    if(edgesTable[uID][wID] < INF)
-                    {
-                        shorctcutsTable[uID][wID].clear();
-                        shorctcutsTable[wID][uID].clear();
-                    }
-                    else
-                    {
-                        assert(!shorctcutsTable[uID][wID].size());
-                        assert(!shorctcutsTable[wID][uID].size());
+                    shorctcutsTable[uID][wID].clear();
+                    shorctcutsTable[wID][uID].clear();
 
-                        neighboursTable[uID].push_back(wID);
-                        neighboursTable[wID].push_back(uID);
-                    }
+                    neighboursTable[uID].push_back(wID);
+                    neighboursTable[wID].push_back(uID);
+
+                    (edgesTableOut)[uID][wID] = (edgesTableOut)[uID][v.id] + (edgesTableOut)[v.id][wID];
+                    (edgesTableOut)[wID][uID] = (edgesTableOut)[uID][v.id] + (edgesTableOut)[v.id][wID];
 
                     for(auto nodeID : shorctcutsTable[uID][v.id])
                     {
@@ -94,6 +91,13 @@ uint32_t contractNode(const EdgesTable& edgesTable, EdgesTable& edgesTableOut, c
             }
         }
     }
+    for(uint32_t i = 0; i < neighboursTable[v.id].size(); ++i)
+    {
+        edgesTable[neighboursTable[v.id][i]][v.id] = edgesTableOut[neighboursTable[v.id][i]][v.id];
+        edgesTable[v.id][neighboursTable[v.id][i]] = edgesTableOut[v.id][neighboursTable[v.id][i]];
+    }
+
+
     return numberOfShortcutsCreated;
 }
 
