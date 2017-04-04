@@ -22,6 +22,13 @@ typedef std::vector<Node> Nodes;
 typedef std::vector<uint32_t> Order;
 typedef struct { Nodes nodes; double cost; uint32_t id;} Route;
 
+struct EdgeWithNodes{
+    uint32_t A,B;
+    double cost;
+};
+
+typedef std::vector<EdgeWithNodes> EdgeWithNodesTable;
+
 static const uint32_t INF = UINT_MAX;
 static const signed int NO_PRECCESSOR = -1;
 }

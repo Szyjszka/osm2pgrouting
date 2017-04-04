@@ -29,11 +29,19 @@ bool operator ==(Route a, Route b)
 }
 
 
-uint32_t contractNode(EdgesTable& edgesTable, EdgesTable& edgesTableOut, const Node& v, const Nodes &nodes,
+uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
                   ShorctutsTable& shorctcutsTable, const uint32_t startOrder, NeighboursTable& neighboursTable)
 {
+
+    EdgeWithNodesTable edgeWithNodesTable;
+
     for(uint32_t i = 0; i < neighboursTable[v.id].size(); ++i)
     {
+        EdgeWithNodes edgeWithNodes;
+        edgeWithNodes.A = v.id;
+        edgeWithNodes.B = neighboursTable[v.id][i];
+        edgeWithNodes.cost = edgesTable[neighboursTable[v.id][i]][v.id];
+        edgeWithNodesTable.push_back(edgeWithNodes);
         edgesTable[neighboursTable[v.id][i]][v.id] = std::numeric_limits<double>::max();
         edgesTable[v.id][neighboursTable[v.id][i]] = std::numeric_limits<double>::max();
     }
@@ -60,7 +68,7 @@ uint32_t contractNode(EdgesTable& edgesTable, EdgesTable& edgesTableOut, const N
             if((edgesTable)[uID][wID]>=INF)
             {
                 if(chechIfShortcudNeeded(edgesTable, nodes[uID], nodes[wID], nodes,
-                                         (edgesTableOut)[uID][v.id] + (edgesTableOut)[v.id][wID]))
+                                        edgeWithNodesTable[i].cost + edgeWithNodesTable[j].cost))
                 {
                     ++numberOfShortcutsCreated;
 
@@ -70,8 +78,11 @@ uint32_t contractNode(EdgesTable& edgesTable, EdgesTable& edgesTableOut, const N
                     neighboursTable[uID].push_back(wID);
                     neighboursTable[wID].push_back(uID);
 
-                    (edgesTableOut)[uID][wID] = (edgesTableOut)[uID][v.id] + (edgesTableOut)[v.id][wID];
-                    (edgesTableOut)[wID][uID] = (edgesTableOut)[uID][v.id] + (edgesTableOut)[v.id][wID];
+                    EdgeWithNodes edgeWithNodes;
+                    edgeWithNodes.A = uID;
+                    edgeWithNodes.B = wID;
+                    edgeWithNodes.cost =  edgeWithNodesTable[i].cost + edgeWithNodesTable[j].cost;
+                    edgeWithNodesTable.push_back(edgeWithNodes);
 
                     for(auto nodeID : shorctcutsTable[uID][v.id])
                     {
@@ -91,10 +102,10 @@ uint32_t contractNode(EdgesTable& edgesTable, EdgesTable& edgesTableOut, const N
             }
         }
     }
-    for(uint32_t i = 0; i < neighboursTable[v.id].size(); ++i)
+    for(auto edgeWithNodes : edgeWithNodesTable)
     {
-        edgesTable[neighboursTable[v.id][i]][v.id] = edgesTableOut[neighboursTable[v.id][i]][v.id];
-        edgesTable[v.id][neighboursTable[v.id][i]] = edgesTableOut[v.id][neighboursTable[v.id][i]];
+        edgesTable[edgeWithNodes.A][edgeWithNodes.B] = edgeWithNodes.cost;
+        edgesTable[edgeWithNodes.B][edgeWithNodes.A] = edgeWithNodes.cost;
     }
 
 
@@ -105,14 +116,11 @@ void contract(EdgesTable& edgesTable, Nodes* nodes,
               ShorctutsTable& shortcutsTable, Order &order, NeighboursTable &neighboursTable)
 {
     uint32_t shortcuts = 0;
-    EdgesTable edge2(edgesTable);
     for(uint32_t i = 0; i < order.size(); ++i)
     {
      std::cout << "Zostalo jeszcze " << order.size() - i << std::endl;
      //order_with_number_of_shorctuts(nodes, &order, edgesTable, 0);
-     shortcuts += contractNode(edgesTable, edge2, (*nodes)[order[i]], *nodes, shortcutsTable, i, neighboursTable);
-
-     edgesTable = edge2;
+     shortcuts += contractNode(edgesTable, (*nodes)[order[i]], *nodes, shortcutsTable, i, neighboursTable);
     }
 }
 
