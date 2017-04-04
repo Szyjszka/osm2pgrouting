@@ -33,15 +33,13 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
                   ShorctutsTable& shorctcutsTable, const uint32_t startOrder, NeighboursTable& neighboursTable)
 {
 
-    EdgeWithNodesTable edgeWithNodesTable;
+    EdgeWithNodesTable edgeWithNodesTable(neighboursTable[v.id].size());
 
     for(uint32_t i = 0; i < neighboursTable[v.id].size(); ++i)
     {
-        EdgeWithNodes edgeWithNodes;
-        edgeWithNodes.A = v.id;
-        edgeWithNodes.B = neighboursTable[v.id][i];
-        edgeWithNodes.cost = edgesTable[neighboursTable[v.id][i]][v.id];
-        edgeWithNodesTable.push_back(edgeWithNodes);
+        edgeWithNodesTable[i].A = v.id;
+        edgeWithNodesTable[i].B = neighboursTable[v.id][i];
+        edgeWithNodesTable[i].cost = edgesTable[neighboursTable[v.id][i]][v.id];
         edgesTable[neighboursTable[v.id][i]][v.id] = std::numeric_limits<double>::max();
         edgesTable[v.id][neighboursTable[v.id][i]] = std::numeric_limits<double>::max();
     }
