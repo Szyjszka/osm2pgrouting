@@ -30,7 +30,7 @@ bool operator ==(Route a, Route b)
 
 
 uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
-                  ShorctutsTable& shorctcutsTable, const uint32_t startOrder, NeighboursTable& neighboursTable)
+                  ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, bool addNewEdges)
 {
 
     EdgeWithNodesTable edgeWithNodesTable(neighboursTable[v.id].size());
@@ -49,7 +49,6 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
     for(uint32_t i = 0; i < neighboursTable[v.id].size(); ++i)
     {
         uint32_t uID = neighboursTable[v.id][i];
-        assert(startOrder == nodes[v.id].order);
         if(nodes[uID].order <= nodes[v.id].order)
         {
             continue;
@@ -69,6 +68,9 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
                                         edgeWithNodesTable[i].cost + edgeWithNodesTable[j].cost))
                 {
                     ++numberOfShortcutsCreated;
+
+                    if(!addNewEdges)
+                        continue;
 
                     shorctcutsTable[uID][wID].clear();
                     shorctcutsTable[wID][uID].clear();
@@ -120,7 +122,7 @@ void contract(EdgesTable& edgesTable, Nodes* nodes,
      if(!(i%100))
         std::cout << "Zostalo jeszcze " << order.size() - i << std::endl;
      //order_with_number_of_shorctuts(nodes, &order, edgesTable, 0);
-     shortcuts += contractNode(edgesTable, (*nodes)[order[i]], *nodes, shortcutsTable, i, neighboursTable);
+     shortcuts += contractNode(edgesTable, (*nodes)[order[i]], *nodes, shortcutsTable, neighboursTable, true);
     }
 }
 
