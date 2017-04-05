@@ -117,7 +117,8 @@ void contract(EdgesTable& edgesTable, Nodes* nodes,
     uint32_t shortcuts = 0;
     for(uint32_t i = 0; i < order.size(); ++i)
     {
-     std::cout << "Zostalo jeszcze " << order.size() - i << std::endl;
+     if(!(i%100))
+        std::cout << "Zostalo jeszcze " << order.size() - i << std::endl;
      //order_with_number_of_shorctuts(nodes, &order, edgesTable, 0);
      shortcuts += contractNode(edgesTable, (*nodes)[order[i]], *nodes, shortcutsTable, i, neighboursTable);
     }

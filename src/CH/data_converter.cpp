@@ -20,17 +20,28 @@ DataConverter::DataConverter(OSMDocument &document)
 
     convertToInternalFormat(document);
 
+    atm.stopMeasurement();
+    std::cout << "Skonwertowanie na wewnętrzny format zajęło " << atm.getMeanTime() << std::endl;
+    atm.reset();
+    atm.startMeasurement();
+
     simple_order(&nodesWithRoads, &order);
     order_with_number_of_shorctuts(&nodesWithRoads, &order, edgesTable, 0);
 //    order_with_num_of_roads(&nodesWithRoads, &order);
 
+    atm.stopMeasurement();
+    std::cout << "Przyznanie poziomów zajęło  " << atm.getMeanTime() << std::endl;
+    atm.reset();
+    atm.startMeasurement();
+
+    //TODO dodac updatowanie poziomu sasiadow kontraktowanego wierzcholka zamiast wszystkich
     contract(edgesTable, &nodesWithRoads, shortcutsTable, order, neighboursTable);
 
     upgradeWays(document);
 
     atm.stopMeasurement();
 
-    std::cout << "Kontrakcja zajela " << atm.getMeanTime() << "s" << std::endl;
+    std::cout << "Kontrakcja zajęła " << atm.getMeanTime() << "s" << std::endl;
 }
 
 double DataConverter::getWayCost(const std::vector<osm2pgr::Node*> &nodes) const

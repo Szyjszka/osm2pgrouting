@@ -26,6 +26,12 @@ public:
     {
     }
 
+    void reset()
+    {
+        meanTime = std::chrono::duration<double> ();
+        numberOfMeasures = 0;
+    }
+
     void startMeasurement()
     {
         start = std::chrono::system_clock::now();
