@@ -16,9 +16,9 @@ Route dijkstra(const EdgesTable &edgesTable, const uint32_t start,
     CostTable costTable(nodes.size(), std::numeric_limits<double>::max());
     costTable[start] = 0;
     PathTable pathTable(nodes.size(), NO_PRECCESSOR);
-    Route invalidRoute;
-    invalidRoute.cost = std::numeric_limits<double>::max();
-    invalidRoute.id = 0;
+    Route returnedRoute;
+    returnedRoute.cost = std::numeric_limits<double>::max();
+    returnedRoute.id = 0;
     size_t nodesLeft = nodes.size();
     uint32_t indexOfNextElem = start;
 
@@ -27,7 +27,7 @@ Route dijkstra(const EdgesTable &edgesTable, const uint32_t start,
         indexOfNextElem = getIndexOfNextNode(costTable, qsTable);
         if(costTable[indexOfNextElem] > maxCost)
         {
-            return invalidRoute;
+            return returnedRoute;
         }
         qsTable[indexOfNextElem] = false;
         for(uint32_t i = 0; i < nodes.size(); ++i)
@@ -47,10 +47,12 @@ Route dijkstra(const EdgesTable &edgesTable, const uint32_t start,
 
     if(indexOfNextElem != end)
     {
-        return invalidRoute;
+        return returnedRoute;
     }
 
-    return createShortestPath(edgesTable, pathTable, start,end,nodes);
+    returnedRoute.cost = costTable[end];
+    return returnedRoute;
+//    return createShortestPath(edgesTable, pathTable, start,end,nodes);
 }
 
 }
