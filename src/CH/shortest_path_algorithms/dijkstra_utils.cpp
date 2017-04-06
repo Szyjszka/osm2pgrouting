@@ -104,11 +104,11 @@ Route createShortestPath(const EdgesTable &edgesTable, const PathTable& pathTabl
 
 
 
-bool chechIfShortcudNeeded(const EdgesTable& edgesTable, const Node& u,
+bool chechIfShortcudNeeded(const NeighboursTable& neighboursTable, const Node& u,
                            const Node& w, const Nodes &nodes, const double cost)
 {
-    Route sh = dijkstra(edgesTable, u.id, w.id, nodes, cost);
+    Route sh = dijkstra(neighboursTable, u.id, w.id, nodes, cost);
 
-    return sh.cost > cost && (cost < edgesTable[u.id][w.id] || edgesTable[u.id][w.id] >= INF);
+    return sh.cost > cost && (cost < neighboursTable[u.id][w.id].cost || neighboursTable[u.id][w.id].cost >= INF);
 }
 }

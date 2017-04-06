@@ -13,7 +13,7 @@ uint32_t getIndexOfNextNode(CostTable& costTable, const QSTable& qsTable);
 Route createShortestPath(const EdgesTable &edgesTable, const PathTable& pathTable, const uint32_t start,
                          const uint32_t end, const Nodes& nodes, const ShorctutsTable* shortcutsTable = nullptr);
 
-bool chechIfShortcudNeeded(const EdgesTable& edgesTable, const Node& u,
+bool chechIfShortcudNeeded(const NeighboursTable &neighboursTable, const Node& u,
                            const Node& w, const Nodes &nodes, const double cost);
 bool operator==(const Route& a, const Route& b);
 bool operator!=(const Route& a, const Route& b);

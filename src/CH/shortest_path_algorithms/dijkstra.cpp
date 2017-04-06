@@ -8,7 +8,7 @@
 namespace RouterCH
 {
 
-Route dijkstra(const EdgesTable &edgesTable, const uint32_t start,
+Route dijkstra(const NeighboursTable& neighboursTable, const uint32_t start,
                const uint32_t end, const Nodes& nodes, const double maxCost)
 {
 
@@ -30,14 +30,14 @@ Route dijkstra(const EdgesTable &edgesTable, const uint32_t start,
             return returnedRoute;
         }
         qsTable[indexOfNextElem] = false;
-        for(uint32_t i = 0; i < nodes.size(); ++i)
+        for(auto neighbour : neighboursTable[indexOfNextElem])
         {
-            if(qsTable[i] && edgesTable[indexOfNextElem][i] < INF)
+            if(qsTable[neighbour.id] && neighbour.getCost() < INF)
             {
-                if(costTable[i] > costTable[indexOfNextElem] + edgesTable[indexOfNextElem][i])
+                if(costTable[neighbour.id] > costTable[indexOfNextElem] + neighbour.getCost())
                 {
-                    costTable[i] = costTable[indexOfNextElem] + edgesTable[indexOfNextElem][i];
-                    pathTable[i] = indexOfNextElem;
+                    costTable[neighbour.id] = costTable[indexOfNextElem] + neighbour.getCost();
+                    pathTable[neighbour.id] = indexOfNextElem;
                 }
 
             }

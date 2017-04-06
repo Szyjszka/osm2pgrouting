@@ -26,8 +26,8 @@ DataConverter::DataConverter(OSMDocument &document)
     atm.startMeasurement();
 
     simple_order(&nodesWithRoads, &order);
-    order_with_number_of_shorctuts(&nodesWithRoads, &order, edgesTable, 0);
-//    order_with_num_of_roads(&nodesWithRoads, &order);
+//    order_with_number_of_shorctuts(&nodesWithRoads, &order, edgesTable, 0, shortcutsTable, neighboursTable);
+    order_with_num_of_roads(&nodesWithRoads, &order);
 
     atm.stopMeasurement();
     std::cout << "Przyznanie poziomów zajęło  " << atm.getMeanTime() << std::endl;
@@ -141,6 +141,7 @@ void DataConverter::upgradeWays(OSMDocument &document)
 
 void DataConverter::convertToInternalFormat(const OSMDocument &document)
 {
+//    TODO struktura danych w ktorych pamietamy tylko te sasiady do ktorych mamy krawedz
     size_t numberOfNodes = document.nodes().size();
     getTagForNewWays(document);
     nodes.resize(numberOfNodes);
@@ -259,7 +260,7 @@ void DataConverter::fillEdgesTable(const DataConverter::SplittedWays &splittedWa
         }
         edgesTable[u][w] = wayCost;
         edgesTable[w][u] = wayCost;
-        neighboursTable[u].push_back(w);
-        neighboursTable[w].push_back(u);
+        neighboursTable[u].push_back(Neighbour(w, wayCost));
+        neighboursTable[w].push_back(Neighbour(u, wayCost));
     }
 }
