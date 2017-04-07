@@ -11,7 +11,7 @@ uint32_t getNumOfWays(const uint32_t nodeID, const EdgesTable& edgesTable)
     uint32_t i = 0;
     for(auto edge : edgesTable[nodeID])
     {
-        if(edge < INF)
+        if(edge.second < INF)
             ++i;
     }
     return i;

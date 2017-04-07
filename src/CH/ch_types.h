@@ -11,7 +11,7 @@ struct Endpoints{
     osm2pgr::Node start, end;
 };
 
-typedef std::vector<double> Edges;
+typedef std::map<uint32_t, double> Edges;
 typedef std::vector<Edges> EdgesTable;
 typedef std::vector<std::vector<uint32_t> > Shortcuts;
 typedef std::vector<uint32_t> Neighbours;

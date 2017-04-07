@@ -30,13 +30,13 @@ Route dijkstra(const EdgesTable &edgesTable, const uint32_t start,
             return returnedRoute;
         }
         qsTable[indexOfNextElem] = false;
-        for(uint32_t i = 0; i < nodes.size(); ++i)
+        for(uint32_t i = 0; i < edgesTable[indexOfNextElem].size(); ++i)
         {
-            if(qsTable[i] && edgesTable[indexOfNextElem][i] < INF)
+            if(qsTable[i] && edgesTable[indexOfNextElem].at(i)  < INF)
             {
-                if(costTable[i] > costTable[indexOfNextElem] + edgesTable[indexOfNextElem][i])
+                if(costTable[i] > costTable[indexOfNextElem] + edgesTable[indexOfNextElem].at(i))
                 {
-                    costTable[i] = costTable[indexOfNextElem] + edgesTable[indexOfNextElem][i];
+                    costTable[i] = costTable[indexOfNextElem] + edgesTable[indexOfNextElem].at(i);
                     pathTable[i] = indexOfNextElem;
                 }
 

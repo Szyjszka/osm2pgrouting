@@ -89,7 +89,7 @@ Route createShortestPath(const EdgesTable &edgesTable, const PathTable& pathTabl
                 }
             }
         }
-        shortestPath.cost += edgesTable[indexOfNext][pathTable[indexOfNext]];
+        shortestPath.cost += edgesTable[indexOfNext].at(pathTable[indexOfNext]);
 
         indexOfNext = pathTable[indexOfNext];
 
@@ -109,6 +109,6 @@ bool chechIfShortcudNeeded(const EdgesTable& edgesTable, const Node& u,
 {
     Route sh = dijkstra(edgesTable, u.id, w.id, nodes, cost);
 
-    return sh.cost > cost && (cost < edgesTable[u.id][w.id] || edgesTable[u.id][w.id] >= INF);
+    return sh.cost > cost && (cost < edgesTable[u.id].at(w.id) || edgesTable[u.id].at(w.id) >= INF);
 }
 }
