@@ -29,17 +29,14 @@ bool operator ==(Route a, Route b)
 }
 
 
-uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
+uint32_t contractNode(const Node& v, const Nodes &nodes,
                   ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, bool addNewEdges)
 {
 
-    EdgeWithNodesTable edgeWithNodesTable(neighboursTable[v.id].size());
+    EdgeWithNodesTable edgeWithNodesTable;
     Neighbours neighboursOfNode(neighboursTable[v.id]);
     for(auto neighbour : neighboursTable[v.id])
     {
-//        edgeWithNodesTable[i].A = v.id;
-//        edgeWithNodesTable[i].B = neighboursTable[v.id][i].id;
-//        edgeWithNodesTable[i].cost = neighboursTable[v.id][i].getCost();
         neighbour.setCost(std::numeric_limits<double>::max());
         neighbour.setCost(std::numeric_limits<double>::max());
     }
@@ -74,9 +71,6 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
 
                     shorctcutsTable[uID][wID].clear();
                     shorctcutsTable[wID][uID].clear();
-
-                    neighboursTable[uID].push_back(wID);
-                    neighboursTable[wID].push_back(uID);
 
                     EdgeWithNodes edgeWithNodes;
                     edgeWithNodes.A = uID;
@@ -121,7 +115,7 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
     return numberOfShortcutsCreated;
 }
 
-void contract(EdgesTable& edgesTable, Nodes* nodes,
+void contract(Nodes* nodes,
               ShorctutsTable& shortcutsTable, Order &order, NeighboursTable &neighboursTable)
 {
     uint32_t shortcuts = 0;
@@ -132,7 +126,7 @@ void contract(EdgesTable& edgesTable, Nodes* nodes,
 //     if(!(i%5))
 //         order_with_num_of_roads(nodes, &order, edgesTable, i);
 //        order_with_number_of_shorctuts(nodes, &order, edgesTable, 0, shortcutsTable, neighboursTable);
-     shortcuts += contractNode(edgesTable, (*nodes)[order[i]], *nodes, shortcutsTable, neighboursTable, true);
+     shortcuts += contractNode((*nodes)[order[i]], *nodes, shortcutsTable, neighboursTable, true);
     }
 }
 
