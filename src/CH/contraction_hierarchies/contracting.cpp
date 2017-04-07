@@ -39,7 +39,7 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
     {
         edgeWithNodesTable[i].A = v.id;
         edgeWithNodesTable[i].B = neighboursTable[v.id][i];
-        edgeWithNodesTable[i].cost = edgesTable[neighboursTable[v.id][i]][v.id];
+        edgeWithNodesTable[i].cost = edgesTable[neighboursTable[v.id][i]].at(v.id);
         edgesTable[neighboursTable[v.id][i]][v.id] = std::numeric_limits<double>::max();
         edgesTable[v.id][neighboursTable[v.id][i]] = std::numeric_limits<double>::max();
     }
@@ -62,7 +62,7 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
                 continue;
             }
 
-            if((edgesTable)[uID][wID]>=INF)
+            if((edgesTable)[uID].at(wID)>=INF)
             {
                 if(chechIfShortcudNeeded(edgesTable, nodes[uID], nodes[wID], nodes,
                                         edgeWithNodesTable[i].cost + edgeWithNodesTable[j].cost))
@@ -121,7 +121,7 @@ void contract(EdgesTable& edgesTable, Nodes* nodes,
     {
      if(!(i%100))
         std::cout << "Zostalo jeszcze " << order.size() - i << std::endl;
-     //order_with_number_of_shorctuts(nodes, &order, edgesTable, 0);
+     order_with_number_of_shorctuts(nodes, &order, edgesTable, 0, shortcutsTable, neighboursTable);
      shortcuts += contractNode(edgesTable, (*nodes)[order[i]], *nodes, shortcutsTable, neighboursTable, true);
     }
 }

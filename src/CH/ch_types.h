@@ -11,7 +11,22 @@ struct Endpoints{
     osm2pgr::Node start, end;
 };
 
-typedef std::map<uint32_t, double> Edges;
+struct Edges : std::map<uint32_t, double>
+{
+    double at(uint32_t key) const{
+        if(find(key)==end()){
+            return std::numeric_limits<double>::max();
+        }
+        else return std::map<uint32_t, double>::at(key);
+    }
+//    double operator [](uint32_t key){
+//        if(find(key)==end()){
+//            return std::numeric_limits<double>::max();
+//        }
+//        else return std::map<uint32_t, double>::operator [](key);
+//    }
+};
+//typedef std::map<uint32_t, double> Edges;
 typedef std::vector<Edges> EdgesTable;
 typedef std::vector<std::vector<uint32_t> > Shortcuts;
 typedef std::vector<uint32_t> Neighbours;
