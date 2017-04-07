@@ -26,7 +26,7 @@ DataConverter::DataConverter(OSMDocument &document)
     atm.startMeasurement();
 
     simple_order(&nodesWithRoads, &order);
-    order_with_number_of_shorctuts(&nodesWithRoads, &order, edgesTable, 0);
+    order_with_number_of_shorctuts(&nodesWithRoads, &order, edgesTable, 0, shortcutsTable, neighboursTable);
 //    order_with_num_of_roads(&nodesWithRoads, &order);
 
     atm.stopMeasurement();
@@ -241,7 +241,7 @@ void DataConverter::groupNodesWithRoads(const DataConverter::NumberOfWaysFromNod
 
 void DataConverter::fillEdgesTable(const DataConverter::SplittedWays &splittedWays, const size_t numberOfWays)
 {
-    edgesTable.resize(numberOfWays, Edges(numberOfWays, std::numeric_limits<double>::max()));
+    edgesTable.resize(numberOfWays);
     shortcutsTable.resize(numberOfWays, Shortcuts(numberOfWays));
     neighboursTable.resize(numberOfWays, Neighbours());
 
