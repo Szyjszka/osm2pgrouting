@@ -37,11 +37,16 @@ DataConverter::DataConverter(OSMDocument &document)
     //TODO dodac updatowanie poziomu sasiadow kontraktowanego wierzcholka zamiast wszystkich
     contract(edgesTable, &nodesWithRoads, shortcutsTable, order, neighboursTable);
 
+    atm.stopMeasurement();
+    std::cout << "Kontrakcja zajęła " << atm.getMeanTime() << "s" << std::endl;
+
+    atm.reset();
+    atm.startMeasurement();
+
     upgradeWays(document);
 
     atm.stopMeasurement();
-
-    std::cout << "Kontrakcja zajęła " << atm.getMeanTime() << "s" << std::endl;
+    std::cout << "Dodanie dróg zajęło" << atm.getMeanTime() << "s" << std::endl;
 }
 
 double DataConverter::getWayCost(const std::vector<osm2pgr::Node*> &nodes) const
@@ -70,26 +75,36 @@ Tag DataConverter::getTagForNewWays(const OSMDocument &document)
 
 DataConverter::Osm2pgrWays DataConverter::createNewWays(const osm2pgr::OSMDocument& document)
 {
+    //These things are no longer needed
+    nodes.clear();
+    splittedWays.clear();
+    edgesTable.clear();
+    neighboursTable.clear();
+    IDconverterBack.clear();
+
     osm2pgr::Tag tagForNewWays = getTagForNewWays(document);
     Osm2pgrWays newWays;
+    //TODO by iter over shortcuts
     for(uint32_t n = 0; n < nodesWithRoads.size(); ++n )
         for(uint32_t m = n+1; m < nodesWithRoads.size(); ++m ){
-            if(shortcutsTable[n][m].size()){
-                Way newWay;
-                newWay.add_node(&(osm2pgrNodes[n]));
-                for(uint32_t i = 0; i < shortcutsTable[n][m].size(); ++i){
-                    assert(shortcutsTable[n][m][i] < nodesWithRoads.size());
-                    newWay.add_node(&(osm2pgrNodes[shortcutsTable[n][m][i]]));
+            if(shortcutsTable[n].find(m) != shortcutsTable[n].end()){
+                if(shortcutsTable[n].at(m).size()){
+                    Way newWay;
+                    newWay.add_node(&(osm2pgrNodes[n]));
+                    for(uint32_t i = 0; i < shortcutsTable[n][m].size(); ++i){
+                        assert(shortcutsTable[n][m][i] < nodesWithRoads.size());
+                        newWay.add_node(&(osm2pgrNodes[shortcutsTable[n][m][i]]));
+                    }
+                    newWay.add_node(&(osm2pgrNodes[m]));
+                    newWay.setID(nextWayID++);
+                    newWay.maxspeed_backward(51);
+                    newWay.maxspeed_forward(51);
+                    assert(nodesWithRoads[n].order != nodesWithRoads[m].order);
+                    newWay.increasingOrder = nodesWithRoads[m].order > nodesWithRoads[n].order;
+                    newWay.shortcut = 0;
+                    newWay.tag_config(tagForNewWays);
+                    newWays.push_back(newWay);
                 }
-                newWay.add_node(&(osm2pgrNodes[m]));
-                newWay.setID(nextWayID++);
-                newWay.maxspeed_backward(51);
-                newWay.maxspeed_forward(51);
-                assert(nodesWithRoads[n].order != nodesWithRoads[m].order);
-                newWay.increasingOrder = nodesWithRoads[m].order > nodesWithRoads[n].order;
-                newWay.shortcut = 0;
-                newWay.tag_config(tagForNewWays);
-                newWays.push_back(newWay);
             }
         }
     return newWays;
@@ -101,6 +116,8 @@ void DataConverter::upgradeWays(OSMDocument &document)
     Osm2pgrWays newWays = createNewWays(document);
 
     std::cout << " TYLE SKROTOW POWSTALO " << newWays.size() << std::endl;
+
+    shortcutsTable.clear();
 
     std::map<int64_t, Way> copyOfWays(document.ways());
     document.clear();
