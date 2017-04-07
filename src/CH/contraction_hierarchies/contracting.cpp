@@ -121,7 +121,7 @@ void contract(EdgesTable& edgesTable, Nodes* nodes,
     {
      if(!(i%100))
         std::cout << "Zostalo jeszcze " << order.size() - i << std::endl;
-     order_with_number_of_shorctuts(nodes, &order, edgesTable, i, shortcutsTable, neighboursTable);
+//     order_with_number_of_shorctuts(nodes, &order, edgesTable, i, shortcutsTable, neighboursTable);
      shortcuts += contractNode(edgesTable, (*nodes)[order[i]], *nodes, shortcutsTable, neighboursTable, true);
     }
 }
