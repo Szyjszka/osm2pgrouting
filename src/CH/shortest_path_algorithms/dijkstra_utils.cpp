@@ -80,12 +80,12 @@ Route createShortestPath(const EdgesTable &edgesTable, const PathTable& pathTabl
         shortestPath.nodes.push_back(nodes[indexOfNext]);
         if(shortcutsTable)
         {
-            size_t shortcutSize = (*shortcutsTable)[indexOfNext][pathTable[indexOfNext]].size();
+            size_t shortcutSize = (*shortcutsTable)[indexOfNext].at(pathTable[indexOfNext]).size();
             if(shortcutSize)
             {
                 for(uint32_t j = 0; j < shortcutSize; ++j)
                 {
-                    shortestPath.nodes.push_back(nodes[(*shortcutsTable)[indexOfNext][pathTable[indexOfNext]][shortcutSize-j-1]]);
+                    shortestPath.nodes.push_back(nodes[(*shortcutsTable)[indexOfNext].at(pathTable[indexOfNext])[shortcutSize-j-1]]);
                 }
             }
         }

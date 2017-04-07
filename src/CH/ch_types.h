@@ -26,9 +26,8 @@ struct Edges : std::map<uint32_t, double>
 //        else return std::map<uint32_t, double>::operator [](key);
 //    }
 };
-//typedef std::map<uint32_t, double> Edges;
 typedef std::vector<Edges> EdgesTable;
-typedef std::vector<std::vector<uint32_t> > Shortcuts;
+typedef std::map<uint32_t, std::vector<uint32_t> > Shortcuts;
 typedef std::vector<uint32_t> Neighbours;
 typedef std::vector<Neighbours> NeighboursTable;
 typedef std::vector<Shortcuts> ShorctutsTable;

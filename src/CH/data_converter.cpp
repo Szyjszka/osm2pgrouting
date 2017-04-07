@@ -242,7 +242,7 @@ void DataConverter::groupNodesWithRoads(const DataConverter::NumberOfWaysFromNod
 void DataConverter::fillEdgesTable(const DataConverter::SplittedWays &splittedWays, const size_t numberOfWays)
 {
     edgesTable.resize(numberOfWays);
-    shortcutsTable.resize(numberOfWays, Shortcuts(numberOfWays));
+    shortcutsTable.resize(numberOfWays);
     neighboursTable.resize(numberOfWays, Neighbours());
 
     for(auto& way: splittedWays)
