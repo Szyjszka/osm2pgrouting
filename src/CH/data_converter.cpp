@@ -270,7 +270,7 @@ void DataConverter::fillEdgesTable(const DataConverter::SplittedWays &splittedWa
         assert(u < numberOfWays);
         assert(w < numberOfWays);
         const double wayCost = getWayCost(way);
-        if(u == w)
+        if(u == w || edgesTable[u].find(w) != edgesTable[u].end())
         {
             continue;
         }

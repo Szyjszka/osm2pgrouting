@@ -5,16 +5,9 @@
 namespace RouterCH
 {
 
-//TODO can be better - we've got neighbours table
 uint32_t getNumOfWays(const uint32_t nodeID, const EdgesTable& edgesTable)
 {
-    uint32_t i = 0;
-    for(auto edge : edgesTable[nodeID])
-    {
-        if(edge.second < INF)
-            ++i;
-    }
-    return i;
+    return edgesTable[nodeID].size();
 }
 
 void simple_order(Nodes* nodes, Order *order)
