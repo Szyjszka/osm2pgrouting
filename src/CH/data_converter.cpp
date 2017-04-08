@@ -26,8 +26,8 @@ DataConverter::DataConverter(OSMDocument &document)
     atm.startMeasurement();
 
     simple_order(&nodesWithRoads, &order);
-    order_with_number_of_shorctuts(&nodesWithRoads, &order, edgesTable, 0, shortcutsTable, neighboursTable);
-//    order_with_num_of_roads(&nodesWithRoads, &order);
+//    order_with_number_of_shorctuts(&nodesWithRoads, &order, edgesTable, 0, shortcutsTable, neighboursTable);
+    order_with_num_of_roads(&nodesWithRoads, &order);
 
     atm.stopMeasurement();
     std::cout << "Przyznanie poziomów zajęło  " << atm.getMeanTime() << std::endl;
