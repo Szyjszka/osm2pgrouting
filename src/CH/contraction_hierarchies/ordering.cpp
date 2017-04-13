@@ -60,7 +60,6 @@ void order_with_number_of_shorctuts(Nodes *nodes, Order *order, EdgesTable &edge
     for(size_t i = start; i < order->size(); ++i)
     {
         assert((*nodes)[(*order)[i]].order >= start);
-        (*nodes)[(*order)[i]].order = INF;
         (*nodes)[(*order)[i]].numOfWays = contractNode(edgesTable, (*nodes)[(*order)[i]], *nodes, shorctcutsTable, neighboursTable, false);
         copyOfNodes.push_back((*nodes)[(*order)[i]]);
     }
