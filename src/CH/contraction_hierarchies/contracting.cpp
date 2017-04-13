@@ -75,9 +75,6 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
                     shorctcutsTable[uID][wID].clear();
                     shorctcutsTable[wID][uID].clear();
 
-                    neighboursTable[uID].push_back(wID);
-                    neighboursTable[wID].push_back(uID);
-
                     EdgeWithNodes edgeWithNodes;
                     edgeWithNodes.A = uID;
                     edgeWithNodes.B = wID;
@@ -96,6 +93,9 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
                     }
                     shorctcutsTable[wID][uID] = shorctcutsTable[uID][wID];
                     std::reverse(std::begin(shorctcutsTable[wID][uID]), std::end(shorctcutsTable[wID][uID]));
+
+                    neighboursTable[uID].push_back(wID);
+                    neighboursTable[wID].push_back(uID);
 //                    std::reverse_copy(std::begin((shorctcutsTable)[uID][wID]),
 //                                      std::end((shorctcutsTable)[uID][wID]),
 //                                      std::begin((shorctcutsTable)[wID][uID]));
