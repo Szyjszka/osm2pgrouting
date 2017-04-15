@@ -60,7 +60,10 @@ void order_with_number_of_shorctuts(Nodes *nodes, Order *order, EdgesTable &edge
     for(size_t i = start; i < order->size(); ++i)
     {
         assert((*nodes)[(*order)[i]].order >= start);
+        uint32_t actualOrder = (*nodes)[(*order)[i]].order;
+        (*nodes)[(*order)[i]].order = 0;
         (*nodes)[(*order)[i]].numOfWays = contractNode(edgesTable, (*nodes)[(*order)[i]], *nodes, shorctcutsTable, neighboursTable, false);
+       (*nodes)[(*order)[i]].order = actualOrder;
         copyOfNodes.push_back((*nodes)[(*order)[i]]);
     }
     std::sort(copyOfNodes.begin(), copyOfNodes.end(), [](Node a, Node b) {return a.numOfWays < b.numOfWays;});
