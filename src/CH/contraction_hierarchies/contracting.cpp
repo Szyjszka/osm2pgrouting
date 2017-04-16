@@ -113,17 +113,17 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
     return numberOfShortcutsCreated;
 }
 
-void contract(EdgesTable& edgesTable, Nodes* nodes,
+void contract(EdgesTable& edgesTable, Nodes& nodes,
               ShorctutsTable& shortcutsTable, Order &order, NeighboursTable &neighboursTable)
 {
-    uint32_t shortcuts = 0;
     for(uint32_t i = 0; i < order.size(); ++i)
     {
-     if(!(i%100))
-        std::cout << "Zostalo jeszcze " << order.size() - i << std::endl;
-//        order_with_number_of_shorctuts(nodes, &order, edgesTable, i, shortcutsTable, neighboursTable);
-        order_with_num_of_roads(nodes, &order, edgesTable, i);
-     shortcuts += contractNode(edgesTable, (*nodes)[order[i]], *nodes, shortcutsTable, neighboursTable, true);
+        if(!(i%100))
+        {
+            std::cout << "Zostalo jeszcze " << order.size() - i << std::endl;
+        }
+        orderNodes(OrderCriterium::Ways, nodes, order, edgesTable, i, shortcutsTable, neighboursTable);
+        contractNode(edgesTable, nodes[order[i]], nodes, shortcutsTable, neighboursTable, true);
     }
 }
 

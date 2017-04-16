@@ -6,9 +6,15 @@
 
 namespace RouterCH
 {
+    enum class OrderCriterium
+    {
+        Ways,
+        Shortcuts,
+        EdgeDifference,
+    };
+
     void simple_order(Nodes* nodes, Order* order);
-    void order_with_number_of_shorctuts(Nodes *nodes, Order* order, EdgesTable &edgesTable, const uint32_t start, ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable);
-    void order_with_num_of_roads(Nodes* nodes, Order* order);
-    void order_with_num_of_roads(Nodes *nodes, Order* order, const EdgesTable &edgesTable, const uint32_t start);
+    void orderNodes(OrderCriterium criterium, Nodes& nodes, Order& order, EdgesTable &edgesTable, const uint32_t start,
+               ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable);
 }
 #endif // ORDERING_HPP

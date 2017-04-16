@@ -8,7 +8,7 @@ namespace RouterCH
 
 bool operator==(const Node& a, const Node& b)
 {
-    return a.id == b.id && a.order == b.order && a.numOfWays == b.numOfWays;
+    return a.id == b.id && a.order == b.order && a.pointsForOrder == b.pointsForOrder;
 }
 
 bool operator !=(const Node& a, const Node& b)

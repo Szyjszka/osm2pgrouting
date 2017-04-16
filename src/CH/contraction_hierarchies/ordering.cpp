@@ -5,10 +5,17 @@
 namespace RouterCH
 {
 
-uint32_t getNumOfWays(const uint32_t nodeID, const EdgesTable& edgesTable)
+static uint32_t getNumOfWays(EdgesTable& edgesTable, const Node& v)
 {
-    return edgesTable[nodeID].size();
+    return edgesTable[v.id].size();
 }
+
+//static uint32_t getEdgeDifference(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
+//                           ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable)
+//{
+
+//}
+
 
 void simple_order(Nodes* nodes, Order *order)
 {
@@ -22,57 +29,44 @@ void simple_order(Nodes* nodes, Order *order)
     //    std::sort(nodes->begin(), nodes->end());
 }
 
-void order_with_num_of_roads(Nodes *nodes, Order *order)
+uint32_t getOrderPoints(OrderCriterium criterium, EdgesTable& edgesTable, const Node& v, Nodes &nodes,
+                        ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable)
 {
-    Nodes copyOfNodes(*nodes);
-//    std::copy(nodes->begin(), nodes->end(), copyOfNodes.begin());
-    std::sort(copyOfNodes.begin(), copyOfNodes.end(), [](Node a, Node b) {return a.numOfWays < b.numOfWays;});
-    for(uint32_t i = 0; i <copyOfNodes.size(); ++i)
-    {
-        (*order)[i] = copyOfNodes[i].id;
-        (*nodes)[copyOfNodes[i].id].order = i;
-    }
+        if(criterium == OrderCriterium::Ways)
+        {
+            return getNumOfWays(edgesTable, v);
+        }
+        else if(criterium == OrderCriterium::Shortcuts)
+        {
+            const uint32_t actualOrder = nodes[v.id].order;
+            nodes[v.id].order = 0;
+            const uint32_t orderPoints = contractNode(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, false);
+            nodes[v.id].order = actualOrder;
+            return orderPoints;
+        }
+        assert(false);
+        return 0;
 }
 
-void order_with_num_of_roads(Nodes *nodes, Order *order, const EdgesTable &edgesTable, const uint32_t start)
+
+void orderNodes(OrderCriterium criterium, Nodes& nodes, Order& order, EdgesTable &edgesTable, const uint32_t start,
+                ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable)
 {
     Nodes copyOfNodes;
-    for(size_t i = start; i < order->size(); ++i)
+    for(size_t i = start; i < order.size(); ++i)
     {
-        assert((*nodes)[(*order)[i]].order >= start);
-        (*nodes)[(*order)[i]].order = INF;
-        (*nodes)[(*order)[i]].numOfWays = getNumOfWays((*nodes)[(*order)[i]].id, edgesTable);
-        copyOfNodes.push_back((*nodes)[(*order)[i]]);
+        assert((nodes)[(order)[i]].order >= start);
+        (nodes)[(order)[i]].pointsForOrder = getOrderPoints(criterium, edgesTable, nodes[order[i]], nodes,
+                shorctcutsTable, neighboursTable);
+        copyOfNodes.push_back(nodes[order[i]]);
     }
-    std::sort(copyOfNodes.begin(), copyOfNodes.end(), [](Node a, Node b) {return a.numOfWays < b.numOfWays;});
+    std::sort(copyOfNodes.begin(), copyOfNodes.end(), [](Node a, Node b) {return a.pointsForOrder < b.pointsForOrder;});
 
-    for(uint32_t i = start; i <nodes->size(); ++i)
+    for(uint32_t i = start; i <nodes.size(); ++i)
     {
-        (*order)[i] = copyOfNodes[i-start].id;
-        assert((*nodes)[copyOfNodes[i-start].id].order >= start);
-        (*nodes)[copyOfNodes[i-start].id].order = i;
-    }
-}
-
-void order_with_number_of_shorctuts(Nodes *nodes, Order *order, EdgesTable &edgesTable, const uint32_t start, ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable)
-{
-    Nodes copyOfNodes;
-    for(size_t i = start; i < order->size(); ++i)
-    {
-        assert((*nodes)[(*order)[i]].order >= start);
-        uint32_t actualOrder = (*nodes)[(*order)[i]].order;
-        (*nodes)[(*order)[i]].order = 0;
-        (*nodes)[(*order)[i]].numOfWays = contractNode(edgesTable, (*nodes)[(*order)[i]], *nodes, shorctcutsTable, neighboursTable, false);
-       (*nodes)[(*order)[i]].order = actualOrder;
-        copyOfNodes.push_back((*nodes)[(*order)[i]]);
-    }
-    std::sort(copyOfNodes.begin(), copyOfNodes.end(), [](Node a, Node b) {return a.numOfWays < b.numOfWays;});
-
-    for(uint32_t i = start; i <nodes->size(); ++i)
-    {
-        (*order)[i] = copyOfNodes[i-start].id;
-        assert((*nodes)[copyOfNodes[i-start].id].order >= start);
-        (*nodes)[copyOfNodes[i-start].id].order = i;
+        (order)[i] = copyOfNodes[i-start].id;
+        assert(nodes[copyOfNodes[i-start].id].order >= start);
+        (nodes)[copyOfNodes[i-start].id].order = i;
     }
 }
 

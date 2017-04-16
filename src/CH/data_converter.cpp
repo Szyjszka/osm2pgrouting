@@ -26,16 +26,14 @@ DataConverter::DataConverter(OSMDocument &document)
     atm.startMeasurement();
 
     simple_order(&nodesWithRoads, &order);
-//    order_with_number_of_shorctuts(&nodesWithRoads, &order, edgesTable, 0, shortcutsTable, neighboursTable);
-    order_with_num_of_roads(&nodesWithRoads, &order);
-
+    orderNodes(OrderCriterium::Ways, nodesWithRoads, order, edgesTable, 0, shortcutsTable, neighboursTable);
     atm.stopMeasurement();
     std::cout << "Przyznanie poziomów zajęło  " << atm.getMeanTime() << std::endl;
     atm.reset();
     atm.startMeasurement();
 
     //TODO dodac updatowanie poziomu sasiadow kontraktowanego wierzcholka zamiast wszystkich
-    contract(edgesTable, &nodesWithRoads, shortcutsTable, order, neighboursTable);
+    contract(edgesTable, nodesWithRoads, shortcutsTable, order, neighboursTable);
 
     atm.stopMeasurement();
     std::cout << "Kontrakcja zajęła " << atm.getMeanTime() << "s" << std::endl;
@@ -232,7 +230,7 @@ void DataConverter::groupNodesWithRoads(const DataConverter::NumberOfWaysFromNod
         {
             assert(IDWithRoads < numberOfWaysFromNode.size());
             nodes[IDWithRoads].id = IDWithRoads;
-            nodes[IDWithRoads].numOfWays = numberOfWaysFromNode.at(node.osm_id());
+            nodes[IDWithRoads].pointsForOrder = numberOfWaysFromNode.at(node.osm_id());
             IDconverter[node.osm_id()] = nodes[IDWithRoads].id;
             IDconverterBack[nodes[IDWithRoads].id] = node.osm_id();
             ++IDWithRoads;
@@ -242,7 +240,7 @@ void DataConverter::groupNodesWithRoads(const DataConverter::NumberOfWaysFromNod
 
             assert(IDWithoutRoads < osm2pgrNodes.size());
             nodes[IDWithoutRoads].id = IDWithoutRoads;
-            nodes[IDWithRoads].numOfWays = 0;
+            nodes[IDWithRoads].pointsForOrder = 0;
             IDconverter[node.osm_id()] = nodes[IDWithoutRoads].id;
             IDconverterBack[nodes[IDWithoutRoads].id] = node.osm_id();
             ++IDWithoutRoads;
