@@ -1,7 +1,6 @@
 #include "ordering.hpp"
 #include "contracting.hpp"
 
-//using namespace RouterCH;
 namespace RouterCH
 {
 
@@ -10,13 +9,24 @@ static int32_t getNumOfWays(EdgesTable& edgesTable, const Node& v)
     return edgesTable[v.id].size();
 }
 
-static int32_t getEdgeDifference(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
+
+static int32_t getNumOfShortcuts(EdgesTable& edgesTable, const Node& v, Nodes &nodes,
                            ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable)
 {
-    return static_cast<int64_t>(contractNode(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, false)) -
-           static_cast<int64_t>(getNumOfWays(edgesTable,  nodes[v.id]));
+
+    const int32_t actualOrder = nodes[v.id].order;
+    nodes[v.id].order = 0;
+    const int32_t orderPoints = contractNode(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, false);
+    nodes[v.id].order = actualOrder;
+    return orderPoints;
 }
 
+static int32_t getEdgeDifference(EdgesTable& edgesTable, const Node& v, Nodes &nodes,
+                           ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable)
+{
+    return getNumOfShortcuts(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable) -
+           static_cast<int64_t>(getNumOfWays(edgesTable,  nodes[v.id]));
+}
 
 void simple_order(Nodes* nodes, Order *order)
 {
@@ -25,36 +35,26 @@ void simple_order(Nodes* nodes, Order *order)
         (*order)[i] = (*nodes)[i].id;
         (*nodes)[i].order = i;
     }
-
-    //W zasadzie niepotrzebne w tym wypadku :) ale zeby potem nei zapomnieć
-    //    std::sort(nodes->begin(), nodes->end());
 }
 
 int32_t getOrderPoints(OrderCriterium criterium, EdgesTable& edgesTable, const Node& v, Nodes &nodes,
                         ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable)
 {
-        if(criterium == OrderCriterium::Ways)
-        {
-            return getNumOfWays(edgesTable, v);
-        }
-        else if(criterium == OrderCriterium::Shortcuts)
-        {
-            const int32_t actualOrder = nodes[v.id].order;
-            nodes[v.id].order = 0;
-            const int32_t orderPoints = contractNode(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, false);
-            nodes[v.id].order = actualOrder;
-            return orderPoints;
-        }
-        else if(criterium == OrderCriterium::EdgeDifference)
-        {
-            const int32_t actualOrder = nodes[v.id].order;
-            nodes[v.id].order = 0;
-            const int32_t orderPoints = getEdgeDifference(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable);
-            nodes[v.id].order = actualOrder;
-            return orderPoints;
-        }
-        assert(false);
-        return 0;
+    switch (criterium) {
+    case OrderCriterium::Ways:
+        return getNumOfWays(edgesTable, v);
+        break;
+    case OrderCriterium::Shortcuts:
+        return getNumOfShortcuts(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable);
+        break;
+    case OrderCriterium::EdgeDifference:
+        return getEdgeDifference(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable);
+        break;
+    default:
+        break;
+    }
+    assert(false);
+    return 0;
 }
 
 
