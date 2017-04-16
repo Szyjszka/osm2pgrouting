@@ -230,7 +230,7 @@ void DataConverter::groupNodesWithRoads(const DataConverter::NumberOfWaysFromNod
         {
             assert(IDWithRoads < numberOfWaysFromNode.size());
             nodes[IDWithRoads].id = IDWithRoads;
-            nodes[IDWithRoads].pointsForOrder = numberOfWaysFromNode.at(node.osm_id());
+            nodes[IDWithRoads].orderPoints = numberOfWaysFromNode.at(node.osm_id());
             IDconverter[node.osm_id()] = nodes[IDWithRoads].id;
             IDconverterBack[nodes[IDWithRoads].id] = node.osm_id();
             ++IDWithRoads;
@@ -240,7 +240,7 @@ void DataConverter::groupNodesWithRoads(const DataConverter::NumberOfWaysFromNod
 
             assert(IDWithoutRoads < osm2pgrNodes.size());
             nodes[IDWithoutRoads].id = IDWithoutRoads;
-            nodes[IDWithRoads].pointsForOrder = 0;
+            nodes[IDWithRoads].orderPoints = 0;
             IDconverter[node.osm_id()] = nodes[IDWithoutRoads].id;
             IDconverterBack[nodes[IDWithoutRoads].id] = node.osm_id();
             ++IDWithoutRoads;

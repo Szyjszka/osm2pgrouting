@@ -8,7 +8,7 @@ namespace RouterCH
 
 bool operator==(const Node& a, const Node& b)
 {
-    return a.id == b.id && a.order == b.order && a.pointsForOrder == b.pointsForOrder;
+    return a.id == b.id && a.order == b.order && a.orderPoints == b.orderPoints;
 }
 
 bool operator !=(const Node& a, const Node& b)
@@ -38,6 +38,8 @@ bool operator!=(const Route& a, const Route& b)
     return !(a==b);
 }
 
+
+//TODO To jest bardzo slabe
 uint32_t getIndexOfNextNode(CostTable& costTable, const QSTable& qsTable)
 {
     double minDistance = std::numeric_limits<double>::max();

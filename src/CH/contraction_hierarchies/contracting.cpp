@@ -116,14 +116,20 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
 void contract(EdgesTable& edgesTable, Nodes& nodes,
               ShorctutsTable& shortcutsTable, Order &order, NeighboursTable &neighboursTable)
 {
+    int32_t actualOrderPoints = nodes[order[0]].orderPoints;
     for(uint32_t i = 0; i < order.size(); ++i)
     {
         if(!(i%100))
         {
             std::cout << "Zostalo jeszcze " << order.size() - i << std::endl;
         }
-        orderNodes(OrderCriterium::Ways, nodes, order, edgesTable, i, shortcutsTable, neighboursTable);
+//        if(nodes[order[i]].orderPoints > actualOrderPoints)
+        {
+            orderNodes(OrderCriterium::EdgeDifference, nodes, order, edgesTable, i, shortcutsTable, neighboursTable);
+            actualOrderPoints = nodes[order[i]].orderPoints;
+        }
         contractNode(edgesTable, nodes[order[i]], nodes, shortcutsTable, neighboursTable, true);
+        //TODO Lazy update
     }
 }
 

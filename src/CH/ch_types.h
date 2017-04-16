@@ -31,7 +31,7 @@ typedef std::map<uint32_t, std::vector<uint32_t> > Shortcuts;
 typedef std::vector<uint32_t> Neighbours;
 typedef std::vector<Neighbours> NeighboursTable;
 typedef std::vector<Shortcuts> ShorctutsTable;
-typedef struct{uint32_t id; uint32_t order; uint32_t pointsForOrder;} Node;
+typedef struct{uint32_t id; uint32_t order; int32_t orderPoints;} Node;
 typedef std::vector<Node> Nodes;
 typedef std::vector<uint32_t> Order;
 typedef struct { Nodes nodes; double cost; uint32_t id;} Route;

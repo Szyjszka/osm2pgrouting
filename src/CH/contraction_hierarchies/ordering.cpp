@@ -5,16 +5,17 @@
 namespace RouterCH
 {
 
-static uint32_t getNumOfWays(EdgesTable& edgesTable, const Node& v)
+static int32_t getNumOfWays(EdgesTable& edgesTable, const Node& v)
 {
     return edgesTable[v.id].size();
 }
 
-//static uint32_t getEdgeDifference(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
-//                           ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable)
-//{
-
-//}
+static int32_t getEdgeDifference(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
+                           ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable)
+{
+    return static_cast<int64_t>(contractNode(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, false)) -
+           static_cast<int64_t>(getNumOfWays(edgesTable,  nodes[v.id]));
+}
 
 
 void simple_order(Nodes* nodes, Order *order)
@@ -29,7 +30,7 @@ void simple_order(Nodes* nodes, Order *order)
     //    std::sort(nodes->begin(), nodes->end());
 }
 
-uint32_t getOrderPoints(OrderCriterium criterium, EdgesTable& edgesTable, const Node& v, Nodes &nodes,
+int32_t getOrderPoints(OrderCriterium criterium, EdgesTable& edgesTable, const Node& v, Nodes &nodes,
                         ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable)
 {
         if(criterium == OrderCriterium::Ways)
@@ -38,9 +39,17 @@ uint32_t getOrderPoints(OrderCriterium criterium, EdgesTable& edgesTable, const 
         }
         else if(criterium == OrderCriterium::Shortcuts)
         {
-            const uint32_t actualOrder = nodes[v.id].order;
+            const int32_t actualOrder = nodes[v.id].order;
             nodes[v.id].order = 0;
-            const uint32_t orderPoints = contractNode(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, false);
+            const int32_t orderPoints = contractNode(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, false);
+            nodes[v.id].order = actualOrder;
+            return orderPoints;
+        }
+        else if(criterium == OrderCriterium::EdgeDifference)
+        {
+            const int32_t actualOrder = nodes[v.id].order;
+            nodes[v.id].order = 0;
+            const int32_t orderPoints = getEdgeDifference(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable);
             nodes[v.id].order = actualOrder;
             return orderPoints;
         }
@@ -56,11 +65,11 @@ void orderNodes(OrderCriterium criterium, Nodes& nodes, Order& order, EdgesTable
     for(size_t i = start; i < order.size(); ++i)
     {
         assert((nodes)[(order)[i]].order >= start);
-        (nodes)[(order)[i]].pointsForOrder = getOrderPoints(criterium, edgesTable, nodes[order[i]], nodes,
+        (nodes)[(order)[i]].orderPoints = getOrderPoints(criterium, edgesTable, nodes[order[i]], nodes,
                 shorctcutsTable, neighboursTable);
         copyOfNodes.push_back(nodes[order[i]]);
     }
-    std::sort(copyOfNodes.begin(), copyOfNodes.end(), [](Node a, Node b) {return a.pointsForOrder < b.pointsForOrder;});
+    std::sort(copyOfNodes.begin(), copyOfNodes.end(), [](Node a, Node b) {return a.orderPoints < b.orderPoints;});
 
     for(uint32_t i = start; i <nodes.size(); ++i)
     {
