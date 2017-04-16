@@ -6,7 +6,7 @@ namespace RouterCH
 
 static int32_t getNumOfWays(EdgesTable& edgesTable, const Node& v)
 {
-    return edgesTable[v.id].size();
+    return static_cast<int32_t>(edgesTable[v.id].size());
 }
 
 
@@ -25,7 +25,7 @@ static int32_t getEdgeDifference(EdgesTable& edgesTable, const Node& v, Nodes &n
                            ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable)
 {
     return getNumOfShortcuts(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable) -
-           static_cast<int64_t>(getNumOfWays(edgesTable,  nodes[v.id]));
+           static_cast<int32_t>(getNumOfWays(edgesTable,  nodes[v.id]));
 }
 
 void simple_order(Nodes* nodes, Order *order)
