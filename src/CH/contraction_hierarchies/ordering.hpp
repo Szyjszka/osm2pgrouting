@@ -16,5 +16,8 @@ namespace RouterCH
     void simple_order(Nodes* nodes, Order* order);
     void orderNodes(OrderCriterium criterium, Nodes& nodes, Order& order, EdgesTable &edgesTable, const uint32_t start,
                ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable);
+
+    void lazyUpdate(OrderCriterium criterium, Nodes& nodes, Order& order, EdgesTable &edgesTable, const uint32_t start,
+                    ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const Nodes& nodesThatChanged);
 }
 #endif // ORDERING_HPP

@@ -16,7 +16,8 @@ static int32_t getNumOfShortcuts(EdgesTable& edgesTable, const Node& v, Nodes &n
 
     const int32_t actualOrder = nodes[v.id].order;
     nodes[v.id].order = 0;
-    const int32_t orderPoints = contractNode(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, false);
+    Nodes nodesThatChanged; // unused
+    const int32_t orderPoints = contractNode(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, false, nodesThatChanged);
     nodes[v.id].order = actualOrder;
     return orderPoints;
 }
@@ -67,13 +68,30 @@ void applyOrderPoints(Nodes& nodes, Order& order, const uint32_t start)
     }
 }
 
+void lazyUpdate(OrderCriterium criterium, Nodes& nodes, Order& order, EdgesTable &edgesTable, const uint32_t start,
+                ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const Nodes& nodesThatChanged)
+{
+    if(!nodesThatChanged.size())
+    {
+        return;
+    }
+
+    for(size_t i = 0; i < nodesThatChanged.size(); ++i)
+    {
+        assert(nodes[nodesThatChanged[i].id].order >= start);
+        nodes[nodesThatChanged[i].id].orderPoints = getOrderPoints(criterium, edgesTable, nodes[nodesThatChanged[i].id], nodes,
+                shorctcutsTable, neighboursTable);
+    }
+    applyOrderPoints(nodes, order, start);
+}
+
 void orderNodes(OrderCriterium criterium, Nodes& nodes, Order& order, EdgesTable &edgesTable, const uint32_t start,
                 ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable)
 {
     for(size_t i = start; i < order.size(); ++i)
     {
-        assert((nodes)[(order)[i]].order >= start);
-        (nodes)[(order)[i]].orderPoints = getOrderPoints(criterium, edgesTable, nodes[order[i]], nodes,
+        assert((nodes)[order[i]].order >= start);
+        (nodes)[order[i]].orderPoints = getOrderPoints(criterium, edgesTable, nodes[order[i]], nodes,
                 shorctcutsTable, neighboursTable);
     }
     applyOrderPoints(nodes, order, start);

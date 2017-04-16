@@ -30,7 +30,8 @@ bool operator ==(Route a, Route b)
 
 
 uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
-                  ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, bool addNewEdges)
+                  ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, bool addNewEdges,
+                  Nodes& nodesThatChanged)
 {
 
     EdgeWithNodesTable edgeWithNodesTable(neighboursTable[v.id].size());
@@ -71,6 +72,9 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
 
                     if(!addNewEdges)
                         continue;
+
+                    nodesThatChanged.push_back(nodes[uID]);
+                    nodesThatChanged.push_back(nodes[wID]);
 
                     shorctcutsTable[uID][wID].clear();
                     shorctcutsTable[wID][uID].clear();
@@ -116,20 +120,16 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
 void contract(EdgesTable& edgesTable, Nodes& nodes,
               ShorctutsTable& shortcutsTable, Order &order, NeighboursTable &neighboursTable)
 {
-    int32_t actualOrderPoints = nodes[order[0]].orderPoints;
     for(uint32_t i = 0; i < order.size(); ++i)
     {
+        Nodes nodesThatChanged;
         if(!(i%100))
         {
             std::cout << "Zostalo jeszcze " << order.size() - i << std::endl;
         }
-//        if(nodes[order[i]].orderPoints > actualOrderPoints)
-        {
-            orderNodes(OrderCriterium::EdgeDifference, nodes, order, edgesTable, i, shortcutsTable, neighboursTable);
-            actualOrderPoints = nodes[order[i]].orderPoints;
-        }
-        contractNode(edgesTable, nodes[order[i]], nodes, shortcutsTable, neighboursTable, true);
-        //TODO Lazy update
+        contractNode(edgesTable, nodes[order[i]], nodes, shortcutsTable, neighboursTable, true, nodesThatChanged);
+
+        lazyUpdate(OrderCriterium::Shortcuts, nodes, order, edgesTable, i+1, shortcutsTable, neighboursTable, nodesThatChanged);
     }
 }
 
