@@ -57,26 +57,26 @@ int32_t getOrderPoints(OrderCriterium criterium, EdgesTable& edgesTable, const N
     return 0;
 }
 
+void applyOrderPoints(Nodes& nodes, Order& order, const uint32_t start)
+{
+    std::sort(order.begin() + start, order.end(), [nodes](uint32_t a, uint32_t b)
+        {return nodes[a].orderPoints < nodes[b].orderPoints;});
+    for(unsigned int i = start; i < order.size(); ++i)
+    {
+        nodes[order[i]].order = i;
+    }
+}
 
 void orderNodes(OrderCriterium criterium, Nodes& nodes, Order& order, EdgesTable &edgesTable, const uint32_t start,
                 ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable)
 {
-    Nodes copyOfNodes;
     for(size_t i = start; i < order.size(); ++i)
     {
         assert((nodes)[(order)[i]].order >= start);
         (nodes)[(order)[i]].orderPoints = getOrderPoints(criterium, edgesTable, nodes[order[i]], nodes,
                 shorctcutsTable, neighboursTable);
-        copyOfNodes.push_back(nodes[order[i]]);
     }
-    std::sort(copyOfNodes.begin(), copyOfNodes.end(), [](Node a, Node b) {return a.orderPoints < b.orderPoints;});
-
-    for(uint32_t i = start; i <nodes.size(); ++i)
-    {
-        (order)[i] = copyOfNodes[i-start].id;
-        assert(nodes[copyOfNodes[i-start].id].order >= start);
-        (nodes)[copyOfNodes[i-start].id].order = i;
-    }
+    applyOrderPoints(nodes, order, start);
 }
 
 }
