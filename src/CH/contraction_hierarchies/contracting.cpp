@@ -120,16 +120,18 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
 void contract(EdgesTable& edgesTable, Nodes& nodes,
               ShorctutsTable& shortcutsTable, Order &order, NeighboursTable &neighboursTable)
 {
+    uint32_t shortcuts = 0;
     for(uint32_t i = 0; i < order.size(); ++i)
     {
+        //TODO order w priority que zeby nie trzeba bylo sortowac
         Nodes nodesThatChanged;
         if(!(i%100))
         {
-            std::cout << "Zostalo jeszcze " << order.size() - i << std::endl;
+            std::cout << "Zostalo jeszcze " << order.size() - i << " Utworzono "<< shortcuts << " skrotow" << std::endl;
         }
-        contractNode(edgesTable, nodes[order[i]], nodes, shortcutsTable, neighboursTable, true, nodesThatChanged);
+        shortcuts += contractNode(edgesTable, nodes[order[i]], nodes, shortcutsTable, neighboursTable, true, nodesThatChanged);
 
-        lazyUpdate(OrderCriterium::Shortcuts, nodes, order, edgesTable, i+1, shortcutsTable, neighboursTable, nodesThatChanged);
+        lazyUpdate(OrderCriterium::Ways, nodes, order, edgesTable, i+1, shortcutsTable, neighboursTable, nodesThatChanged);
     }
 }
 

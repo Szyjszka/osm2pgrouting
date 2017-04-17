@@ -11,7 +11,7 @@ namespace RouterCH
 Route dijkstra(const EdgesTable &edgesTable, const uint32_t start,
                const uint32_t end, const Nodes& nodes, const double maxCost)
 {
-
+    //TODO Zeby to nie bylo za kazdym razem
     QSTable qsTable(nodes.size(),true);
     CostTable costTable(nodes.size(), std::numeric_limits<double>::max());
     costTable[start] = 0;

@@ -32,7 +32,6 @@ DataConverter::DataConverter(OSMDocument &document)
     atm.reset();
     atm.startMeasurement();
 
-    //TODO dodac updatowanie poziomu sasiadow kontraktowanego wierzcholka zamiast wszystkich
     contract(edgesTable, nodesWithRoads, shortcutsTable, order, neighboursTable);
 
     atm.stopMeasurement();
