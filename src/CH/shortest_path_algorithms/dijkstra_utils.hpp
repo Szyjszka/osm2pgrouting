@@ -14,7 +14,6 @@ typedef std::vector<int32_t> PathTable;
 typedef std::pair<double, uint32_t> PDI;
 typedef std::priority_queue<PDI, std::vector<PDI>, std::greater<PDI> > CostQue;
 
-uint32_t getIndexOfNextNode(CostTable& costTable, const QSTable& qsTable);
 Route createShortestPath(const EdgesTable &edgesTable, const PathTable& pathTable, const uint32_t start,
                          const uint32_t end, const Nodes& nodes, const ShorctutsTable* shortcutsTable = nullptr);
 

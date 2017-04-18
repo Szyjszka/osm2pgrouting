@@ -40,7 +40,6 @@ private:
     RouterCH::Nodes nodesWithRoads;
     std::map<int64_t, uint32_t> IDconverter;
     std::map<uint32_t, int64_t> IDconverterBack;
-    Order order;
 };
 
 }

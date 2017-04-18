@@ -38,27 +38,6 @@ bool operator!=(const Route& a, const Route& b)
     return !(a==b);
 }
 
-
-//TODO To jest bardzo slabe
-uint32_t getIndexOfNextNode(CostTable& costTable, const QSTable& qsTable)
-{
-    double minDistance = std::numeric_limits<double>::max();
-    uint32_t indexOfMinDistance = 0;
-
-    for(uint32_t i = 0; i < costTable.size(); ++i)
-    {
-        if(qsTable[i])
-        {
-            if(minDistance > costTable[i])
-            {
-                minDistance = costTable[i];
-                indexOfMinDistance = i;
-            }
-        }
-    }
-    return indexOfMinDistance;
-}
-
 Route createShortestPath(const EdgesTable &edgesTable, const PathTable& pathTable, const uint32_t start,
                          const uint32_t end, const Nodes& nodes, const ShorctutsTable* shortcutsTable)
 {

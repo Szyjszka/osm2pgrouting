@@ -3,6 +3,7 @@
 
 #include <map>
 #include <vector>
+#include <queue>
 #include "Node.h"
 #include "Way.h"
 
@@ -34,6 +35,8 @@ typedef std::vector<Shortcuts> ShorctutsTable;
 typedef struct{uint32_t id; uint32_t order; int32_t orderPoints;} Node;
 typedef std::vector<Node> Nodes;
 typedef std::vector<uint32_t> Order;
+typedef std::pair<int32_t, uint32_t> OrderElem;
+typedef std::priority_queue<OrderElem, std::vector<OrderElem> , std::greater<OrderElem> > OrderQue;
 typedef struct { Nodes nodes; double cost; uint32_t id;} Route;
 
 struct EdgeWithNodes{

@@ -37,8 +37,10 @@ Route modified_bidirectional_dijkstra(const EdgesTable &edgesTable, const uint32
     while(((costTableUp[indexOfNextElemUp] + costTableDown[indexOfNextElemDown]) <= shortestPathLength) &&
           nodesLefDown && nodesLefUp)
     {
-        uint32_t indexOfNextElemUpExp = getIndexOfNextNode(costTableUp, qsTableUp);
-        uint32_t indexOfNextElemDownExp = getIndexOfNextNode(costTableDown, qsTableDown);
+        //TO be fixed with priority que
+        assert(false);
+        uint32_t indexOfNextElemUpExp = 0;//getIndexOfNextNode(costTableUp, qsTableUp);
+        uint32_t indexOfNextElemDownExp = 0;//getIndexOfNextNode(costTableDown, qsTableDown);
         bool Up = costTableDown[indexOfNextElemDownExp] > costTableUp[indexOfNextElemUpExp];
         if(Up){
         --nodesLefUp;

@@ -16,8 +16,7 @@ static int32_t getNumOfShortcuts(EdgesTable& edgesTable, const Node& v, Nodes &n
 
     const int32_t actualOrder = nodes[v.id].order;
     nodes[v.id].order = 0;
-    Nodes nodesThatChanged; // unused
-    const int32_t orderPoints = contractNode(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, false, nodesThatChanged);
+    const int32_t orderPoints = contractNode(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, false);
     nodes[v.id].order = actualOrder;
     return orderPoints;
 }
@@ -58,9 +57,9 @@ int32_t getOrderPoints(OrderCriterium criterium, EdgesTable& edgesTable, const N
     return 0;
 }
 
-void applyOrderPoints(Nodes& nodes, Order& order, const uint32_t start)
+void applyOrderPoints(Nodes& nodes, Order& order, const uint32_t start, const uint32_t end)
 {
-    std::sort(order.begin() + start, order.end(), [nodes](uint32_t a, uint32_t b)
+    std::sort(order.begin() + start, order.begin() + end, [nodes](uint32_t a, uint32_t b)
         {return nodes[a].orderPoints < nodes[b].orderPoints;});
     for(unsigned int i = start; i < order.size(); ++i)
     {
@@ -68,21 +67,23 @@ void applyOrderPoints(Nodes& nodes, Order& order, const uint32_t start)
     }
 }
 
-void lazyUpdate(OrderCriterium criterium, Nodes& nodes, Order& order, EdgesTable &edgesTable, const uint32_t start,
-                ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const Nodes& nodesThatChanged)
+void updateNeighbours(OrderCriterium criterium, Nodes& nodes, Order& order, EdgesTable &edgesTable, const uint32_t start,
+                ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const Neighbours& nodesThatChanged)
 {
     if(!nodesThatChanged.size())
     {
         return;
     }
 
+    uint32_t end = 0;
     for(size_t i = 0; i < nodesThatChanged.size(); ++i)
     {
-        assert(nodes[nodesThatChanged[i].id].order >= start);
-        nodes[nodesThatChanged[i].id].orderPoints = getOrderPoints(criterium, edgesTable, nodes[nodesThatChanged[i].id], nodes,
+        assert(nodes[nodesThatChanged[i]].order >= start);
+        nodes[nodesThatChanged[i]].orderPoints = getOrderPoints(criterium, edgesTable, nodes[nodesThatChanged[i]], nodes,
                 shorctcutsTable, neighboursTable);
+        end = std::max(nodes[nodesThatChanged[i]].order, end);
     }
-    applyOrderPoints(nodes, order, start);
+    applyOrderPoints(nodes, order, start, end);
 }
 
 void orderNodes(OrderCriterium criterium, Nodes& nodes, Order& order, EdgesTable &edgesTable, const uint32_t start,
@@ -94,7 +95,18 @@ void orderNodes(OrderCriterium criterium, Nodes& nodes, Order& order, EdgesTable
         (nodes)[order[i]].orderPoints = getOrderPoints(criterium, edgesTable, nodes[order[i]], nodes,
                 shorctcutsTable, neighboursTable);
     }
-    applyOrderPoints(nodes, order, start);
+    applyOrderPoints(nodes, order, start, order.size());
+}
+
+void orderNodes(OrderCriterium criterium, Nodes& nodes, OrderQue& orderQue, EdgesTable &edgesTable,
+                ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable)
+{
+    for(size_t i = 0; i < nodes.size(); ++i)
+    {
+        (nodes)[i].orderPoints = getOrderPoints(criterium, edgesTable, nodes[i], nodes,
+                shorctcutsTable, neighboursTable);
+        orderQue.push(std::make_pair((nodes)[i].orderPoints, i));
+    }
 }
 
 }

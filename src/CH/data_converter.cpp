@@ -25,14 +25,8 @@ DataConverter::DataConverter(OSMDocument &document)
     atm.reset();
     atm.startMeasurement();
 
-    simple_order(&nodesWithRoads, &order);
-    orderNodes(OrderCriterium::Ways, nodesWithRoads, order, edgesTable, 0, shortcutsTable, neighboursTable);
-    atm.stopMeasurement();
-    std::cout << "Przyznanie poziomów zajęło  " << atm.getMeanTime() << std::endl;
-    atm.reset();
-    atm.startMeasurement();
 
-    contract(edgesTable, nodesWithRoads, shortcutsTable, order, neighboursTable);
+    contract(edgesTable, nodesWithRoads, shortcutsTable, neighboursTable);
 
     atm.stopMeasurement();
     std::cout << "Kontrakcja zajęła " << atm.getMeanTime() << "s" << std::endl;
@@ -171,7 +165,7 @@ void DataConverter::convertToInternalFormat(const OSMDocument &document)
     fillEdgesTable(splittedWays, numberOfWaysFromNode.size());
 
     nodesWithRoads = std::vector<Node>(nodes.begin(), nodes.begin() + numberOfWaysFromNode.size());
-    order.resize(numberOfWaysFromNode.size());
+//    order.resize(numberOfWaysFromNode.size());
 
     nextWayID = (document.ways().rbegin()->first)+1;
 }

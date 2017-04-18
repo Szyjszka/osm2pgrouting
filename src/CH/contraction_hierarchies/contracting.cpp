@@ -2,7 +2,7 @@
 #include <climits>
 #include <iostream>
 #include "contracting.hpp"
-#include "ordering.hpp"
+#include "ordersupervisor.hpp"
 #include "CH/shortest_path_algorithms/dijkstra.hpp"
 
 namespace RouterCH
@@ -30,8 +30,7 @@ bool operator ==(Route a, Route b)
 
 
 uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
-                  ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, bool addNewEdges,
-                  Nodes& nodesThatChanged)
+                  ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, bool addNewEdges)
 {
 
     EdgeWithNodesTable edgeWithNodesTable(neighboursTable[v.id].size());
@@ -72,9 +71,6 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
 
                     if(!addNewEdges)
                         continue;
-
-                    nodesThatChanged.push_back(nodes[uID]);
-                    nodesThatChanged.push_back(nodes[wID]);
 
                     shorctcutsTable[uID][wID].clear();
                     shorctcutsTable[wID][uID].clear();
@@ -118,20 +114,22 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
 }
 
 void contract(EdgesTable& edgesTable, Nodes& nodes,
-              ShorctutsTable& shortcutsTable, Order &order, NeighboursTable &neighboursTable)
+              ShorctutsTable& shortcutsTable, NeighboursTable &neighboursTable)
 {
     uint32_t shortcuts = 0;
-    for(uint32_t i = 0; i < order.size(); ++i)
+    OrderSupervisor orderSupervisor(OrderSupervisor::Strategy::UpdateEveryRound, OrderCriterium::Shortcuts,
+                                    nodes, edgesTable, neighboursTable, shortcutsTable);
+    for(uint32_t i = 0; i < nodes.size(); ++i)
     {
-        //TODO order w priority que zeby nie trzeba bylo sortowac
-        Nodes nodesThatChanged;
+        uint32_t nextNode = orderSupervisor.getIndexOfNextNode();
         if(!(i%100))
         {
-            std::cout << "Zostalo jeszcze " << order.size() - i << " Utworzono "<< shortcuts << " skrotow" << std::endl;
+            std::cout << "Zostalo jeszcze " << nodes.size() - i << " Utworzono "<< shortcuts << " skrotow" << std::endl;
         }
-        shortcuts += contractNode(edgesTable, nodes[order[i]], nodes, shortcutsTable, neighboursTable, true, nodesThatChanged);
+        shortcuts += contractNode(edgesTable, nodes[nextNode], nodes, shortcutsTable, neighboursTable, true);
 
-        lazyUpdate(OrderCriterium::Ways, nodes, order, edgesTable, i+1, shortcutsTable, neighboursTable, nodesThatChanged);
+        orderSupervisor.updateOrder(nodes, edgesTable, neighboursTable, shortcutsTable);
+
     }
 }
 
