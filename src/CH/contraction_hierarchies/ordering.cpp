@@ -78,12 +78,17 @@ void updateNeighbours(OrderCriterium criterium, Nodes& nodes, Order& order, Edge
     uint32_t end = 0;
     for(size_t i = 0; i < nodesThatChanged.size(); ++i)
     {
-        assert(nodes[nodesThatChanged[i]].order >= start);
-        nodes[nodesThatChanged[i]].orderPoints = getOrderPoints(criterium, edgesTable, nodes[nodesThatChanged[i]], nodes,
-                shorctcutsTable, neighboursTable);
-        end = std::max(nodes[nodesThatChanged[i]].order, end);
+        if(nodes[nodesThatChanged[i]].order >= start)
+        {
+            nodes[nodesThatChanged[i]].orderPoints = getOrderPoints(criterium, edgesTable, nodes[nodesThatChanged[i]], nodes,
+                    shorctcutsTable, neighboursTable);
+            end = std::max(nodes[nodesThatChanged[i]].order, end);
+        }
     }
-    applyOrderPoints(nodes, order, start, end);
+    if(end > start)
+    {
+        applyOrderPoints(nodes, order, start, end);
+    }
 }
 
 void orderNodes(OrderCriterium criterium, Nodes& nodes, Order& order, EdgesTable &edgesTable, const uint32_t start,
