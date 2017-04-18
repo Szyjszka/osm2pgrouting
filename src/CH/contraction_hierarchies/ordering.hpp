@@ -22,5 +22,8 @@ namespace RouterCH
 
     void updateNeighbours(OrderCriterium criterium, Nodes& nodes, Order& order, EdgesTable &edgesTable, const uint32_t start,
                     ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const Neighbours& nodesThatChanged);
+
+    int32_t getOrderPoints(OrderCriterium criterium, EdgesTable& edgesTable, const Node& v, Nodes &nodes,
+                            ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable);
 }
 #endif // ORDERING_HPP

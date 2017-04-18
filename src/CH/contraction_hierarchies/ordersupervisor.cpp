@@ -24,18 +24,6 @@ OrderSupervisor::OrderSupervisor(const OrderSupervisor::Strategy strategy_, cons
 
 uint32_t OrderSupervisor::getIndexOfNextNode()
 {
-    if(strategy != Strategy::LazyUpdate)
-    {
-        assert(counter < orderTable.size());
-        actualNode = orderTable[counter];
-    }
-    else
-    {
-        assert(orderQue.size());
-        actualNode = orderQue.top().second;
-        orderQue.pop();
-    }
-    ++counter;
     return actualNode;
 }
 
@@ -43,6 +31,7 @@ void OrderSupervisor::updateOrder(Nodes &nodes, EdgesTable &edgesTable, Neighbou
 {
     if(strategy != Strategy::LazyUpdate)
     {
+        actualNode = orderTable[counter];
         if(strategy == Strategy::UpdateEveryRound)
         {
             orderNodes(orderCriterium, nodes, orderTable, edgesTable, counter,
@@ -56,8 +45,23 @@ void OrderSupervisor::updateOrder(Nodes &nodes, EdgesTable &edgesTable, Neighbou
     }
     else
     {
-        OrderElem orderElem = orderQue.top();
+        bool notBestSolution = true;
+        OrderElem orderElem;
+        do
+        {
+            assert(orderQue.size());
+            orderElem = orderQue.top();
+            orderQue.pop();
+            orderElem.first = getOrderPoints(orderCriterium, edgesTable, nodes[orderElem.second],
+                    nodes, shortcutsTable, neighboursTable);
+            notBestSolution = orderElem.first > orderQue.top().first;
+            if(notBestSolution)
+                orderQue.push(orderElem);
+        }while(notBestSolution);
+        actualNode = orderElem.second;
+        nodes[actualNode].order = counter;
     }
+    ++counter;
 }
 
 }

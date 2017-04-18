@@ -49,6 +49,9 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
     for(uint32_t i = 0; i < neighboursTable[v.id].size(); ++i)
     {
         uint32_t uID = neighboursTable[v.id][i];
+        //TODO shouldn't this order set be -1 ?
+        //order 0 for shortcut ordering
+        assert(nodes[uID].order != nodes[v.id].order ||  nodes[v.id].order==0);
         if(nodes[uID].order <= nodes[v.id].order)
         {
             continue;
@@ -57,7 +60,8 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
         for(uint32_t j = i + 1; j < neighboursTable[v.id].size(); ++j)
         {
             uint32_t wID = neighboursTable[v.id][j];
-            if(nodes[wID].order <= nodes[v.id].order)
+            assert(nodes[wID].order != nodes[v.id].order ||  nodes[v.id].order==0);
+            if(nodes[wID].order < nodes[v.id].order)
             {
                 continue;
             }
@@ -117,10 +121,11 @@ void contract(EdgesTable& edgesTable, Nodes& nodes,
               ShorctutsTable& shortcutsTable, NeighboursTable &neighboursTable)
 {
     uint32_t shortcuts = 0;
-    OrderSupervisor orderSupervisor(OrderSupervisor::Strategy::UpdateEveryRound, OrderCriterium::Shortcuts,
+    OrderSupervisor orderSupervisor(OrderSupervisor::Strategy::LazyUpdate, OrderCriterium::Shortcuts,
                                     nodes, edgesTable, neighboursTable, shortcutsTable);
     for(uint32_t i = 0; i < nodes.size(); ++i)
     {
+        orderSupervisor.updateOrder(nodes, edgesTable, neighboursTable, shortcutsTable);
         uint32_t nextNode = orderSupervisor.getIndexOfNextNode();
         if(!(i%100))
         {
@@ -128,7 +133,6 @@ void contract(EdgesTable& edgesTable, Nodes& nodes,
         }
         shortcuts += contractNode(edgesTable, nodes[nextNode], nodes, shortcutsTable, neighboursTable, true);
 
-        orderSupervisor.updateOrder(nodes, edgesTable, neighboursTable, shortcutsTable);
 
     }
 }

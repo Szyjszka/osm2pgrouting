@@ -108,9 +108,10 @@ void orderNodes(OrderCriterium criterium, Nodes& nodes, OrderQue& orderQue, Edge
 {
     for(size_t i = 0; i < nodes.size(); ++i)
     {
-        (nodes)[i].orderPoints = getOrderPoints(criterium, edgesTable, nodes[i], nodes,
+        nodes[i].orderPoints = getOrderPoints(criterium, edgesTable, nodes[i], nodes,
                 shorctcutsTable, neighboursTable);
         orderQue.push(std::make_pair((nodes)[i].orderPoints, i));
+        nodes[i].order = std::numeric_limits<uint32_t>::max(); //order in this method is given when returning
     }
 }
 
