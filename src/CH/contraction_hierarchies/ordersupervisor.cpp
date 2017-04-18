@@ -42,6 +42,7 @@ void OrderSupervisor::updateOrder(Nodes &nodes, EdgesTable &edgesTable, Neighbou
             updateNeighbours(orderCriterium, nodes, orderTable, edgesTable, counter,
                              shortcutsTable, neighboursTable, neighboursTable[nodes[actualNode].id]);
         }
+        actualNode = orderTable[counter];
     }
     else
     {

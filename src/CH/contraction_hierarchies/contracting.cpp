@@ -61,7 +61,7 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
         {
             uint32_t wID = neighboursTable[v.id][j];
             assert(nodes[wID].order != nodes[v.id].order ||  nodes[v.id].order==0);
-            if(nodes[wID].order < nodes[v.id].order)
+            if(nodes[wID].order <= nodes[v.id].order)
             {
                 continue;
             }
