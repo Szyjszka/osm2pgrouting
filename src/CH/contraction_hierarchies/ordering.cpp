@@ -16,7 +16,8 @@ static int32_t getNumOfShortcuts(EdgesTable& edgesTable, const Node& v, Nodes &n
 
     const int32_t actualOrder = nodes[v.id].order;
     nodes[v.id].order = 0;
-    const int32_t orderPoints = contractNode(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, false);
+    ShorctutsInfoTable unused;
+    const int32_t orderPoints = contractNode(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, false, unused);
     nodes[v.id].order = actualOrder;
     return orderPoints;
 }

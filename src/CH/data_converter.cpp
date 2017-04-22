@@ -26,7 +26,7 @@ DataConverter::DataConverter(OSMDocument &document)
     atm.startMeasurement();
 
 
-    contract(edgesTable, nodesWithRoads, shortcutsTable, neighboursTable);
+    contract(edgesTable, nodesWithRoads, shortcutsTable, neighboursTable, shortcutInfos);
 
     atm.stopMeasurement();
     std::cout << "Kontrakcja zajęła " << atm.getMeanTime() << "s" << std::endl;
@@ -86,6 +86,9 @@ DataConverter::Osm2pgrWays DataConverter::createNewWays(const osm2pgr::OSMDocume
                         assert(shortcutsTable[n][m][i] < nodesWithRoads.size());
                         newWay.add_node(&(osm2pgrNodes[shortcutsTable[n][m][i]]));
                     }
+                    newWay.shortcutID = shortcutInfos[n][m].id;
+                    newWay.shA = shortcutInfos[n][m].shA;
+                    newWay.shB = shortcutInfos[n][m].shB;
                     newWay.add_node(&(osm2pgrNodes[m]));
                     newWay.setID(nextWayID++);
                     newWay.maxspeed_backward(51);
@@ -136,6 +139,9 @@ void DataConverter::upgradeWays(OSMDocument &document)
         assert( nodesWithRoads[aID].order !=  nodesWithRoads[bID].order || aID == bID);
         newWay.increasingOrder = nodesWithRoads[aID].order > nodesWithRoads[bID].order;
         newWay.shortcut = -1;
+        newWay.shortcutID = aID*nodesWithRoads.size() + bID;
+        newWay.shA = -1;
+        newWay.shB = -1;
         newWay.setID(nextWayID++);
         document.AddWay(newWay);
         }
@@ -252,6 +258,7 @@ void DataConverter::fillEdgesTable(const DataConverter::SplittedWays &splittedWa
     edgesTable.resize(numberOfWays);
     shortcutsTable.resize(numberOfWays);
     neighboursTable.resize(numberOfWays, Neighbours());
+    shortcutInfos.resize(numberOfWays);
 
     for(auto& way: splittedWays)
     {

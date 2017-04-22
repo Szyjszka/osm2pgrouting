@@ -102,6 +102,9 @@ Export2DB::Export2DB(const  po::variables_map &vm) :
                 " rule text,"
                 " incOrder boolean,"
                 " shortcut bigint, "
+                " shortcutID bigint, "
+                " shA bigint, "
+                " shB bigint, "
                 " one_way int, "  //  0 unknown, 1 yes(normal direction), 2 (2 way),
                 //  -1 reversed (1 way but geometry is reversed)
                 //  3 - reversible (one way street but direction chnges on time)
@@ -652,6 +655,9 @@ void Export2DB::exportWays(const std::map<int64_t, Way> &ways, const Configurati
             " osm_id, "
             " maxspeed_forward, maxspeed_backward, "
             " incOrder,"
+            " shortcutID,"
+            " shA,"
+            " shB,"
             " one_way, "
             " priority, "
 
@@ -701,6 +707,9 @@ void Export2DB::exportWays(const std::map<int64_t, Way> &ways, const Configurati
             + way.maxspeed_backward_str() + "\t"
             // CH increasing order bool
             + TO_STR(way.increasingOrder) + "\t"
+            + TO_STR(way.shortcutID) + "\t"
+            + TO_STR(way.shA) + "\t"
+            + TO_STR(way.shB) + "\t"
             // one_way
             + way.oneWayType_str() + "\t"
             // priority
@@ -729,7 +738,7 @@ void Export2DB::exportWays(const std::map<int64_t, Way> &ways, const Configurati
                 length_of_shortcut += way.length(splits[i]);
             }
             length_shortcut_str = boost::lexical_cast<std::string>(length_of_shortcut);
-//            splits.clear(); //This is to commented
+            //splits.clear(); //This is to commented
             splits.insert(splits.begin(), wholeShortcut);
         }
         split_count +=  splits.size();

@@ -27,11 +27,20 @@ struct Edges : std::map<uint32_t, double>
 //        else return std::map<uint32_t, double>::operator [](key);
 //    }
 };
+
+struct ShInfo
+{
+    int64_t shA, shB;
+    int64_t id;
+};
+
 typedef std::vector<Edges> EdgesTable;
 typedef std::map<uint32_t, std::vector<uint32_t> > Shortcuts;
+typedef std::map<uint32_t, ShInfo > ShortcutInfos;
 typedef std::vector<uint32_t> Neighbours;
 typedef std::vector<Neighbours> NeighboursTable;
 typedef std::vector<Shortcuts> ShorctutsTable;
+typedef std::vector<ShortcutInfos> ShorctutsInfoTable;
 typedef struct{uint32_t id; uint32_t order; int32_t orderPoints;} Node;
 typedef std::vector<Node> Nodes;
 typedef std::vector<uint32_t> Order;

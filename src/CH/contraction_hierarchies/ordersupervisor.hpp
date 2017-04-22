@@ -22,7 +22,7 @@ public:
 
     OrderSupervisor(const Strategy strategy_, const OrderCriterium orderCriterium_, Nodes& nodes,
                     EdgesTable& edgesTable, NeighboursTable& neighboursTable, ShorctutsTable& shortcutsTable);
-    uint32_t getIndexOfNextNode();
+    uint32_t getIndexOfNextNode() const;
     void updateOrder(Nodes& nodes, EdgesTable& edgesTable, NeighboursTable& neighbours, ShorctutsTable& shortcutsTable);
 private:
     Strategy strategy;

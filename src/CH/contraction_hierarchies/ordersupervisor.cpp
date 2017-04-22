@@ -22,7 +22,7 @@ OrderSupervisor::OrderSupervisor(const OrderSupervisor::Strategy strategy_, cons
 
 }
 
-uint32_t OrderSupervisor::getIndexOfNextNode()
+uint32_t OrderSupervisor::getIndexOfNextNode() const
 {
     return actualNode;
 }

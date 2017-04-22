@@ -8,8 +8,8 @@ namespace RouterCH
 {
 
 void contract(EdgesTable& edgesTable, Nodes& nodes, ShorctutsTable& shortcutsTable,
-              NeighboursTable& neighboursTable);
+              NeighboursTable& neighboursTable, ShorctutsInfoTable &shortcutInfos);
 uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
-                  ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, bool addNewEdges);
+                  ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, bool addNewEdges, ShorctutsInfoTable &shortcutInfos);
 }
 #endif // CONTRACTING_HPP
