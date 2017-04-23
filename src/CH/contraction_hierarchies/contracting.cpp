@@ -73,11 +73,9 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
                 {
                     ++numberOfShortcutsCreated;
 
-                    if(!addNewEdges)
+                    if(!addNewEdges || shorctcutsTable[uID][wID].size())
                         continue;
 
-                    shorctcutsTable[uID][wID].clear();
-                    shorctcutsTable[wID][uID].clear();
 
                     EdgeWithNodes edgeWithNodes;
                     edgeWithNodes.A = uID;
@@ -92,8 +90,10 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
                     }
                     else
                     {
-                        shortcutInfos[uID][wID].shA = uID*nodes.size() + wID;
-                        shortcutInfos[wID][uID].shB = uID*nodes.size() + wID;
+                        uint32_t a = std::max(uID, v.id);
+                        uint32_t b = std::min(uID, v.id);
+                        shortcutInfos[uID][wID].shA = a*nodes.size() + b;
+                        shortcutInfos[wID][uID].shB = a*nodes.size() + b;
                     }
 
                     if(shortcutInfos[wID].find(v.id) != shortcutInfos[wID].end())
@@ -103,8 +103,10 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
                     }
                     else
                     {
-                        shortcutInfos[uID][wID].shB = wID*nodes.size() + uID;
-                        shortcutInfos[wID][uID].shA = wID*nodes.size() + uID;
+                        uint32_t a = std::max(v.id, wID);
+                        uint32_t b = std::min(v.id, wID);
+                        shortcutInfos[uID][wID].shB = a*nodes.size() + b;
+                        shortcutInfos[wID][uID].shA = a*nodes.size() + b;
                     }
 
                     shortcutInfos[uID][wID].id = shortcutID;

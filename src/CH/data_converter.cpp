@@ -139,7 +139,9 @@ void DataConverter::upgradeWays(OSMDocument &document)
         assert( nodesWithRoads[aID].order !=  nodesWithRoads[bID].order || aID == bID);
         newWay.increasingOrder = nodesWithRoads[aID].order > nodesWithRoads[bID].order;
         newWay.shortcut = -1;
-        newWay.shortcutID = aID*nodesWithRoads.size() + bID;
+        uint32_t a = std::max(aID, bID);
+        uint32_t b = std::min(aID, bID);
+        newWay.shortcutID = a*nodesWithRoads.size() + b;
         newWay.shA = -1;
         newWay.shB = -1;
         newWay.setID(nextWayID++);

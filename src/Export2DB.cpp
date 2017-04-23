@@ -738,7 +738,7 @@ void Export2DB::exportWays(const std::map<int64_t, Way> &ways, const Configurati
                 length_of_shortcut += way.length(splits[i]);
             }
             length_shortcut_str = boost::lexical_cast<std::string>(length_of_shortcut);
-            //splits.clear(); //This is to commented
+            splits.clear(); //This is to commented
             splits.insert(splits.begin(), wholeShortcut);
         }
         split_count +=  splits.size();
