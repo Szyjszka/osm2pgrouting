@@ -22,6 +22,7 @@ static int32_t getNumOfShortcuts(EdgesTable& edgesTable, const Node& v, Nodes &n
     return orderPoints;
 }
 
+//To powinno byc shortcuts - edges DELETED
 static int32_t getEdgeDifference(EdgesTable& edgesTable, const Node& v, Nodes &nodes,
                            ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, uint32_t starting_order)
 {
@@ -47,6 +48,9 @@ int32_t getOrderPoints(OrderCriterium criterium, EdgesTable& edgesTable, const N
         break;
     case OrderCriterium::Shortcuts:
         return getNumOfShortcuts(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, actualIter);
+        break;
+    case OrderCriterium::Ways_Plus_Shortcuts:
+        return (getNumOfWays(edgesTable, v) + getNumOfShortcuts(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, actualIter));
         break;
     case OrderCriterium::EdgeDifference:
         return getEdgeDifference(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, actualIter);

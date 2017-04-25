@@ -10,6 +10,7 @@ namespace RouterCH
     {
         Ways,
         Shortcuts,
+        Ways_Plus_Shortcuts,
         EdgeDifference,
     };
 
