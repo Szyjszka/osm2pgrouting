@@ -51,7 +51,6 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
         uint32_t uID = neighboursTable[v.id][i];
         //TODO shouldn't this order set be -1 ?
         //order 0 for shortcut ordering
-        assert(nodes[uID].order != nodes[v.id].order ||  nodes[v.id].order==0);
         if(nodes[uID].order <= nodes[v.id].order)
         {
             continue;
@@ -60,7 +59,6 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
         for(uint32_t j = i + 1; j < neighboursTable[v.id].size(); ++j)
         {
             uint32_t wID = neighboursTable[v.id][j];
-            assert(nodes[wID].order != nodes[v.id].order ||  nodes[v.id].order==0);
             if(nodes[wID].order <= nodes[v.id].order)
             {
                 continue;

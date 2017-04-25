@@ -24,6 +24,6 @@ namespace RouterCH
                     ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const Neighbours& nodesThatChanged);
 
     int32_t getOrderPoints(OrderCriterium criterium, EdgesTable& edgesTable, const Node& v, Nodes &nodes,
-                            ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable);
+                            ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const uint32_t actualIter);
 }
 #endif // ORDERING_HPP

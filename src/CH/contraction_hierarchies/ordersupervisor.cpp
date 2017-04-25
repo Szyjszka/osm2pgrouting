@@ -54,7 +54,7 @@ void OrderSupervisor::updateOrder(Nodes &nodes, EdgesTable &edgesTable, Neighbou
             orderElem = orderQue.top();
             orderQue.pop();
             orderElem.first = getOrderPoints(orderCriterium, edgesTable, nodes[orderElem.second],
-                    nodes, shortcutsTable, neighboursTable);
+                    nodes, shortcutsTable, neighboursTable, counter);
             notBestSolution = orderElem.first > orderQue.top().first;
             if(notBestSolution)
                 orderQue.push(orderElem);
