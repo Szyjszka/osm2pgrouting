@@ -1,5 +1,6 @@
 #include "ordering.hpp"
 #include "contracting.hpp"
+#include "../algorithm_time_measure.hpp"
 
 namespace RouterCH
 {
@@ -18,6 +19,60 @@ static int32_t getNumOfShortcuts(EdgesTable& edgesTable, const Node& v, Nodes &n
     nodes[v.id].order = std::max<int>(0, starting_order-1);
     ShorctutsInfoTable unused;
     const int32_t orderPoints = contractNode(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, false, unused);
+    nodes[v.id].order = actualOrder;
+    return orderPoints;
+}
+
+static int32_t getNumOfAlreadyContractedNeighbours(const Node& v, const Nodes &nodes,
+                const NeighboursTable& neighboursTable, const uint32_t starting_order)
+{
+    int32_t orderPoints = 0;
+    for(auto neighbour : neighboursTable[v.id])
+    {
+        if(nodes[neighbour].order < starting_order)
+        {
+            ++orderPoints;
+        }
+    }
+    return orderPoints;
+}
+
+static int32_t getVoronaiRegion(const EdgesTable& edgesTable, const Node& v,
+                const NeighboursTable& neighboursTable)
+{
+    int32_t orderPoints = 0;
+    for(auto neighbour : neighboursTable[v.id])
+    {
+        auto closestNode = neighbour;
+        auto closestDistance = std::numeric_limits<double>::max();
+        for(auto edge : edgesTable.at(neighbour))
+        {
+            if(edge.second < closestDistance)
+            {
+                closestDistance = edge.second;
+                closestNode = edge.first;
+            }
+        }
+        if(closestNode == v.id)
+        {
+            ++orderPoints;
+        }
+    }
+    return orderPoints;
+}
+
+static int32_t getTimeOfContraction(EdgesTable& edgesTable, const Node& v, Nodes &nodes,
+                           ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const uint32_t starting_order)
+{
+    static const double TIME_MULTIPLIER = 1e8;
+    const int32_t actualOrder = nodes[v.id].order;
+    nodes[v.id].order = std::max<int>(0, starting_order-1);
+    ShorctutsInfoTable unused;
+    AlgorithmTimeMeasure atm;
+    atm.startMeasurement();
+    contractNode(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, false, unused);
+    atm.stopMeasurement();
+    const int32_t orderPoints = static_cast<int32_t>(std::ceil(atm.getMeanTime()*TIME_MULTIPLIER));
     nodes[v.id].order = actualOrder;
     return orderPoints;
 }

@@ -12,6 +12,9 @@ namespace RouterCH
         Shortcuts,
         Ways_Plus_Shortcuts,
         EdgeDifference,
+        ContractedNeighbours,
+        VoronoiRegion,
+        TimeOfContraction
     };
 
     void simple_order(Nodes* nodes, Order* order);
