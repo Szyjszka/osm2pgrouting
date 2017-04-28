@@ -232,6 +232,8 @@ void DataConverter::groupNodesWithRoads(const DataConverter::NumberOfWaysFromNod
             assert(IDWithRoads < numberOfWaysFromNode.size());
             nodes[IDWithRoads].id = IDWithRoads;
             nodes[IDWithRoads].orderPoints = numberOfWaysFromNode.at(node.osm_id());
+            nodes[IDWithRoads].lat = boost::lexical_cast<double>(node.get_attribute("lat"));
+            nodes[IDWithRoads].lon = boost::lexical_cast<double>(node.get_attribute("lon"));
             IDconverter[node.osm_id()] = nodes[IDWithRoads].id;
             IDconverterBack[nodes[IDWithRoads].id] = node.osm_id();
             ++IDWithRoads;
@@ -244,6 +246,8 @@ void DataConverter::groupNodesWithRoads(const DataConverter::NumberOfWaysFromNod
             nodes[IDWithRoads].orderPoints = 0;
             IDconverter[node.osm_id()] = nodes[IDWithoutRoads].id;
             IDconverterBack[nodes[IDWithoutRoads].id] = node.osm_id();
+            nodes[IDWithoutRoads].lat = boost::lexical_cast<double>(node.get_attribute("lat"));
+            nodes[IDWithoutRoads].lon = boost::lexical_cast<double>(node.get_attribute("lon"));
             ++IDWithoutRoads;
         }
     }

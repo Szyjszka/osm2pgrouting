@@ -77,7 +77,13 @@ static int32_t getTimeOfContraction(EdgesTable& edgesTable, const Node& v, Nodes
     return orderPoints;
 }
 
-//To powinno byc shortcuts - edges DELETED
+static int32_t getGeoPoints(const Node& v, Nodes &nodes)
+{
+    //TODO better
+    return (static_cast<int32_t>(nodes[v.id].lat * 1e6) + static_cast<int32_t>(nodes[v.id].lat * 1e6));
+}
+
+//TODO To powinno byc shortcuts - edges DELETED
 static int32_t getEdgeDifference(EdgesTable& edgesTable, const Node& v, Nodes &nodes,
                            ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, uint32_t starting_order)
 {
@@ -109,6 +115,18 @@ int32_t getOrderPoints(OrderCriterium criterium, EdgesTable& edgesTable, const N
         break;
     case OrderCriterium::EdgeDifference:
         return getEdgeDifference(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, actualIter);
+        break;
+    case OrderCriterium::TimeOfContraction:
+        return getTimeOfContraction(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, actualIter);
+        break;
+    case OrderCriterium::VoronoiRegion:
+        return getVoronaiRegion(edgesTable, v, neighboursTable);
+        break;
+    case OrderCriterium::ContractedNeighbours:
+        return getNumOfAlreadyContractedNeighbours(v, nodes, neighboursTable, actualIter);
+        break;
+    case OrderCriterium::Geo:
+        return getGeoPoints(v, nodes);
         break;
     default:
         break;
@@ -160,7 +178,7 @@ void orderNodes(OrderCriterium criterium, Nodes& nodes, Order& order, EdgesTable
         (nodes)[order[i]].orderPoints = getOrderPoints(criterium, edgesTable, nodes[order[i]], nodes,
                 shorctcutsTable, neighboursTable, start);
     }
-    applyOrderPoints(nodes, order, start, order.size());
+    applyOrderPoints(nodes, order, start, static_cast<uint32_t>(order.size()));
 }
 
 void orderNodes(OrderCriterium criterium, Nodes& nodes, OrderQue& orderQue, EdgesTable &edgesTable,

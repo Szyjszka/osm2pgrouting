@@ -14,7 +14,8 @@ namespace RouterCH
         EdgeDifference,
         ContractedNeighbours,
         VoronoiRegion,
-        TimeOfContraction
+        TimeOfContraction,
+        Geo
     };
 
     void simple_order(Nodes* nodes, Order* order);

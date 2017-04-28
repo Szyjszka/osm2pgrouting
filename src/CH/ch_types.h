@@ -41,7 +41,7 @@ typedef std::vector<uint32_t> Neighbours;
 typedef std::vector<Neighbours> NeighboursTable;
 typedef std::vector<Shortcuts> ShorctutsTable;
 typedef std::vector<ShortcutInfos> ShorctutsInfoTable;
-typedef struct{uint32_t id; uint32_t order; int32_t orderPoints;} Node;
+typedef struct{uint32_t id; uint32_t order; int32_t orderPoints; double lat; double lon;} Node;
 typedef std::vector<Node> Nodes;
 typedef std::vector<uint32_t> Order;
 typedef std::pair<int32_t, uint32_t> OrderElem;
