@@ -34,7 +34,7 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
 {
 
     EdgeWithNodesTable edgeWithNodesTable(neighboursTable[v.id].size());
-    static uint32_t shortcutID = edgesTable.size()*edgesTable.size();
+    static uint64_t shortcutID = edgesTable.size()*edgesTable.size();
     for(uint32_t i = 0; i < neighboursTable[v.id].size(); ++i)
     {
         edgeWithNodesTable[i].A = v.id;
@@ -141,7 +141,8 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
 }
 
 void contract(EdgesTable& edgesTable, Nodes& nodes,
-              ShorctutsTable& shortcutsTable, NeighboursTable &neighboursTable, ShorctutsInfoTable &shortcutInfos)
+              ShorctutsTable& shortcutsTable, NeighboursTable &neighboursTable, ShorctutsInfoTable &shortcutInfos,
+              OrderCriterium orderCriterium, OrderSupervisor::Strategy strategy)
 {
     uint32_t shortcuts = 0;
     OrderSupervisor orderSupervisor(OrderSupervisor::Strategy::LazyUpdate, OrderCriterium::Ways_Plus_Shortcuts,

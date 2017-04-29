@@ -3,6 +3,24 @@
 namespace RouterCH
 {
 
+OrderSupervisor::Strategy OrderSupervisor::getOrderStrategyFromString(const std::string &string)
+{
+    if(string == "UpdateEveryRound")
+        return OrderSupervisor::Strategy::UpdateEveryRound;
+    if(string == "UpdateEvery10Round")
+        return OrderSupervisor::Strategy::UpdateEvery10Round;
+    if(string == "UpdateEvery50Round")
+        return OrderSupervisor::Strategy::UpdateEvery50Round;
+    if(string == "UpdateEvery100Round")
+        return OrderSupervisor::Strategy::UpdateEvery100Round;
+    if(string == "LazyUpdate")
+        return OrderSupervisor::Strategy::LazyUpdate;
+    if(string == "UpdateNeighbours")
+        return OrderSupervisor::Strategy::UpdateNeighbours;
+
+    assert(false);
+}
+
 OrderSupervisor::OrderSupervisor(const OrderSupervisor::Strategy strategy_, const OrderCriterium orderCriterium_,
                                  Nodes &nodes, EdgesTable &edgesTable, NeighboursTable &neighboursTable, ShorctutsTable &shortcutsTable)
     : strategy(strategy_)

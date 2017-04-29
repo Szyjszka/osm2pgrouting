@@ -12,7 +12,7 @@
 using namespace osm2pgr;
 using namespace RouterCH;
 
-DataConverter::DataConverter(OSMDocument &document)
+DataConverter::DataConverter(OSMDocument &document, OrderCriterium orderCriterium, OrderSupervisor::Strategy strategy)
 {
     AlgorithmTimeMeasure atm;
 
@@ -26,7 +26,7 @@ DataConverter::DataConverter(OSMDocument &document)
     atm.startMeasurement();
 
 
-    contract(edgesTable, nodesWithRoads, shortcutsTable, neighboursTable, shortcutInfos);
+    contract(edgesTable, nodesWithRoads, shortcutsTable, neighboursTable, shortcutInfos, orderCriterium, strategy);
 
     atm.stopMeasurement();
     std::cout << "Kontrakcja zajęła " << atm.getMeanTime() << "s" << std::endl;

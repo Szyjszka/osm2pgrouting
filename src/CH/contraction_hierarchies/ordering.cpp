@@ -193,4 +193,25 @@ void orderNodes(OrderCriterium criterium, Nodes& nodes, OrderQue& orderQue, Edge
     }
 }
 
+OrderCriterium getOrderCriteriumFromString(const std::string &string)
+{
+    if(string == "Ways")
+        return OrderCriterium::Ways;
+    if(string == "Shortcuts")
+        return OrderCriterium::Shortcuts;
+    if(string == "Ways_Plus_Shortcuts")
+        return OrderCriterium::Ways_Plus_Shortcuts;
+    if(string == "EdgeDifference")
+        return OrderCriterium::EdgeDifference;
+    if(string == "ContractedNeighbours")
+        return OrderCriterium::ContractedNeighbours;
+    if(string == "VoronoiRegion")
+        return OrderCriterium::VoronoiRegion;
+    if(string == "TimeOfContraction")
+        return OrderCriterium::TimeOfContraction;
+    if(string == "Geo")
+        return OrderCriterium::Geo;
+    assert(false);
+}
+
 }

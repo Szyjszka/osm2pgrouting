@@ -18,9 +18,12 @@ namespace RouterCH
         Geo
     };
 
+    OrderCriterium getOrderCriteriumFromString(const std::string& string);
+
     void simple_order(Nodes* nodes, Order* order);
     void orderNodes(OrderCriterium criterium, Nodes& nodes, Order& order, EdgesTable &edgesTable, const uint32_t start,
                ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable);
+
 
     void orderNodes(OrderCriterium criterium, Nodes& nodes, OrderQue& orderQue, EdgesTable &edgesTable,
                ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable);
