@@ -25,7 +25,7 @@ DataConverter::DataConverter(OSMDocument &document, OrderCriterium orderCriteriu
     contract(edgesTable, nodesWithRoads, shortcutsTable, neighboursTable, shortcutInfos, orderCriterium, strategy);
 
     atm.stopMeasurement();
-    measureFile << atm.getMeanTime() << std::endl;
+    measureFile << nodesWithRoads.size() << " " << splittedWays.size() << " " << atm.getMeanTime() << std::endl;
 
     upgradeWays(document);
 
