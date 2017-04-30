@@ -96,7 +96,8 @@ OSMDocumentParserCallback::StartElement(
         }
         if (strcmp(name, "tag") == 0) {
             auto tag = last_way->add_tag(Tag(atts));
-            m_rDocument.add_config(*last_way, tag);
+            if(tag.key() == "highway" || tag.key() == "maxspeed")
+                m_rDocument.add_config(*last_way, tag);
         }
 
         if (strcmp(name, "nd") == 0) {
@@ -133,20 +134,20 @@ OSMDocumentParserCallback::StartElement(
 
             return;
         }
-        if (strcmp(name, "tag") == 0) {
-            if (atts != NULL) {
-                auto tag = last_relation->add_tag(Tag(atts));
-                if (!tag.key().empty()) {
-                    if ((last_relation->tag_config().key() == "" && last_relation->tag_config().value() == "")
-                            || (m_rDocument.has_class(tag)
-                                && m_rDocument.has_class(last_relation->tag_config())
-                                && (m_rDocument.class_priority(tag)
-                                    < m_rDocument.class_priority(last_relation->tag_config())))) {
-                        last_relation->tag_config(tag);
-                    }
-                }
-            }
-        }
+//        if (strcmp(name, "tag") == 0) {
+//            if (atts != NULL) {
+//                auto tag = last_relation->add_tag(Tag(atts));
+//                if (!tag.key().empty()) {
+//                    if ((last_relation->tag_config().key() == "" && last_relation->tag_config().value() == "")
+//                            || (m_rDocument.has_class(tag)
+//                                && m_rDocument.has_class(last_relation->tag_config())
+//                                && (m_rDocument.class_priority(tag)
+//                                    < m_rDocument.class_priority(last_relation->tag_config())))) {
+//                        last_relation->tag_config(tag);
+//                    }
+//                }
+//            }
+//        }
     } else if (strcmp(name, "osm") == 0) {
     }
 }

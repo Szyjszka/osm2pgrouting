@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cassert>
 #include <iostream>
+#include <fstream>
 #include "algorithm_time_measure.hpp"
 #include "contraction_hierarchies/contracting.hpp"
 #include "contraction_hierarchies/ordering.hpp"
@@ -12,32 +13,23 @@
 using namespace osm2pgr;
 using namespace RouterCH;
 
-DataConverter::DataConverter(OSMDocument &document, OrderCriterium orderCriterium, OrderSupervisor::Strategy strategy)
+DataConverter::DataConverter(OSMDocument &document, OrderCriterium orderCriterium, OrderSupervisor::Strategy strategy, const std::__cxx11::string &measureFileName)
 {
+    std::ofstream measureFile(measureFileName, std::ofstream::out | std::ofstream::app);
     AlgorithmTimeMeasure atm;
-
-    atm.startMeasurement();
 
     convertToInternalFormat(document);
 
-    atm.stopMeasurement();
-    std::cout << "Skonwertowanie na wewnętrzny format zajęło " << atm.getMeanTime() << std::endl;
-    atm.reset();
     atm.startMeasurement();
-
 
     contract(edgesTable, nodesWithRoads, shortcutsTable, neighboursTable, shortcutInfos, orderCriterium, strategy);
 
     atm.stopMeasurement();
-    std::cout << "Kontrakcja zajęła " << atm.getMeanTime() << "s" << std::endl;
-
-    atm.reset();
-    atm.startMeasurement();
+    measureFile << atm.getMeanTime() << std::endl;
 
     upgradeWays(document);
 
-    atm.stopMeasurement();
-    std::cout << "Dodanie dróg zajęło" << atm.getMeanTime() << "s" << std::endl;
+    measureFile.close();
 }
 
 double DataConverter::getWayCost(const std::vector<osm2pgr::Node*> &nodes) const
@@ -185,6 +177,7 @@ DataConverter::NumberOfWaysFromNode DataConverter::getNumberOfWaysFromNode(const
     for(auto& way: splittedWays)
     {
         Endpoints endpoints = getEntpoints(way);
+
         if(waysFromNode.find(endpoints.start.osm_id()) == waysFromNode.end())
         {
             waysFromNode[endpoints.start.osm_id()] = 1;

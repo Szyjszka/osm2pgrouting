@@ -51,9 +51,9 @@ void get_option_description(po::options_description &od_desc) {
         ("schema", po::value<std::string>()->default_value(""), "Database schema to put tables.\n  blank:\t defaults to default schema dictated by PostgreSQL search_path.")
         ("prefix", po::value<std::string>()->default_value(""), "Prefix added at the beginning of the table names.")
         ("suffix", po::value<std::string>()->default_value(""), "Suffix added at the end of the table names.")
-        ("measure", po::value<std::string>()->default_value(""), "Name of file in which contraction measures are put")
-        ("OrderUpdate", po::value<std::string>()->default_value(""), "Update method for order - lazy contraction, all ...")
-        ("OrderStrategy", po::value<std::string>()->default_value(""), "Order - Voronai, ED...")
+        ("measure", po::value<std::string>()->required(), "Name of file in which contraction measures are put")
+        ("OrderUpdate", po::value<std::string>()->required(), "Order - Voronai, ED...")
+        ("OrderStrategy", po::value<std::string>()->required(), "Update method for order - lazy contraction, all ...")
         ("addnodes", "Import the osm_nodes table.")
         ("clean", "Drop previously created tables.");
 
