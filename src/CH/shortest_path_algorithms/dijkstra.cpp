@@ -8,51 +8,55 @@
 namespace RouterCH
 {
 
-Route dijkstra(const NeighboursTable& neighboursTable, const uint32_t start,
+Route dijkstra(const EdgesTable &edgesTable, const uint32_t start,
                const uint32_t end, const Nodes& nodes, const double maxCost)
 {
-
     QSTable qsTable(nodes.size(),true);
+    CostQue costQue;
+    costQue.push(std::make_pair(0.0, start));
     CostTable costTable(nodes.size(), std::numeric_limits<double>::max());
     costTable[start] = 0;
-    PathTable pathTable(nodes.size(), NO_PRECCESSOR);
     Route returnedRoute;
     returnedRoute.cost = std::numeric_limits<double>::max();
     returnedRoute.id = 0;
-    size_t nodesLeft = nodes.size();
-    uint32_t indexOfNextElem = start;
+    PDI nextElem = costQue.top();
 
-    while(nodesLeft && indexOfNextElem != end )
+    while(costQue.size() && nextElem.second != end)
     {
-        indexOfNextElem = getIndexOfNextNode(costTable, qsTable);
-        if(costTable[indexOfNextElem] > maxCost)
+        do{
+            nextElem = costQue.top();
+            costQue.pop();
+        }while(!qsTable[nextElem.second] && costQue.size());
+
+        if(nextElem.first > maxCost)
         {
             return returnedRoute;
         }
-        qsTable[indexOfNextElem] = false;
-        for(auto neighbour : neighboursTable[indexOfNextElem])
+        qsTable[nextElem.second] = false;
+        for(auto edge : edgesTable[nextElem.second])
         {
-            if(qsTable[neighbour.id] && neighbour.getCost() < INF)
-            {
-                if(costTable[neighbour.id] > costTable[indexOfNextElem] + neighbour.getCost())
+                if(qsTable[edge.first] && edge.second  < INF)
                 {
-                    costTable[neighbour.id] = costTable[indexOfNextElem] + neighbour.getCost();
-                    pathTable[neighbour.id] = indexOfNextElem;
-                }
+                    if(costTable[edge.first] > costTable[nextElem.second] + edge.second)
+                    {
+                        costTable[edge.first] = costTable[nextElem.second] + edge.second;
+                        if(qsTable[edge.first])
+                        {
+                            costQue.push(std::make_pair(costTable[edge.first], edge.first));
+                        }
+                    }
 
-            }
+                }
         }
-        --nodesLeft;
     }
 
-    if(indexOfNextElem != end)
+    if(nextElem.second != end)
     {
         return returnedRoute;
     }
 
     returnedRoute.cost = costTable[end];
     return returnedRoute;
-//    return createShortestPath(edgesTable, pathTable, start,end,nodes);
 }
 
 }

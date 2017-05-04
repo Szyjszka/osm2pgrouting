@@ -39,7 +39,8 @@
 #include "./prog_options.h"
 
 #include "CH/data_converter.h"
-
+#include "CH/contraction_hierarchies/ordering.hpp"
+#include "CH/contraction_hierarchies/ordersupervisor.hpp"
 
 int main(int argc, char* argv[]) {
 #ifdef WITH_TIME
@@ -136,7 +137,9 @@ int main(int argc, char* argv[]) {
         // CH PART
 
         //1) Create edges table
-        RouterCH::DataConverter dataForCH(document);
+        RouterCH::OrderCriterium orderCriterium = RouterCH::getOrderCriteriumFromString(vm["OrderUpdate"].as<string>());
+        RouterCH::OrderSupervisor::Strategy orderStrategy = RouterCH::OrderSupervisor::getOrderStrategyFromString(vm["OrderStrategy"].as<string>());
+        RouterCH::DataConverter dataForCH(document, orderCriterium, orderStrategy, vm["measure"].as<string>());
 
         // END OF CH PART
 

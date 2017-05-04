@@ -3,6 +3,8 @@
 
 #include "ch_types.h"
 #include "Way.h"
+#include "contraction_hierarchies/ordering.hpp"
+#include "contraction_hierarchies/ordersupervisor.hpp"
 #include "OSMDocument.h"
 #include "osm_tag.h"
 
@@ -11,7 +13,8 @@ namespace RouterCH {
 class DataConverter
 {
 public:
-    DataConverter(osm2pgr::OSMDocument& document);
+    DataConverter(osm2pgr::OSMDocument& document, OrderCriterium orderCriterium,
+                  OrderSupervisor::Strategy strategy, const std::string& measureFileName);
 
     typedef std::vector<std::vector<osm2pgr::Node *> > SplittedWays;
     typedef std::vector<osm2pgr::Way> Osm2pgrWays;
@@ -38,9 +41,9 @@ private:
     Osm2pgrNodes osm2pgrNodes;
     NeighboursTable neighboursTable;
     RouterCH::Nodes nodesWithRoads;
+    ShorctutsInfoTable shortcutInfos;
     std::map<int64_t, uint32_t> IDconverter;
     std::map<uint32_t, int64_t> IDconverterBack;
-    Order order;
 };
 
 }

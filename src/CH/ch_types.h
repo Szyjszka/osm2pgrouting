@@ -3,6 +3,7 @@
 
 #include <map>
 #include <vector>
+#include <queue>
 #include "Node.h"
 #include "Way.h"
 
@@ -11,56 +12,40 @@ struct Endpoints{
     osm2pgr::Node start, end;
 };
 
-struct Neighbour{
-    Neighbour(uint32_t ID_ = std::numeric_limits<uint32_t>::max(),
-              double cost_ = std::numeric_limits<double>::max())
-        : id(ID_)
-        , cost(cost_) {}
-    bool operator == (uint32_t ID) const{
-        return id == ID;
-    }
-
-    double getCost() const{
-        return cost;
-    }
-
-    void setCost(double newCost){
-        cost = newCost;
-    }
-
-    uint32_t id;
-    double cost;
-};
-
-struct Neighbours : std::vector<Neighbour>{
-public:
-    Neighbour operator [] (const uint32_t id) const{
-        if(std::find(begin(), end(), id) == end()){
-            return Neighbour();
+struct Edges : std::map<uint32_t, double>
+{
+    double at(uint32_t key) const{
+        if(find(key)==end()){
+            return std::numeric_limits<double>::max();
         }
-        else
-            return std::vector<Neighbour>::operator [](id);
+        else return std::map<uint32_t, double>::at(key);
     }
-//    void push_back(const Neighbour& neighbour)
-//    {
-//        if(std::find(begin(), end(), neighbour.id) == end()){
-//            std::vector<Neighbour>::push_back(neighbour);
+//    double operator [](uint32_t key){
+//        if(find(key)==end()){
+//            return std::numeric_limits<double>::max();
 //        }
-//        else{
-//            std::vector<Neighbour>::operator [](neighbour.id) = neighbour;
-//        }
+//        else return std::map<uint32_t, double>::operator [](key);
 //    }
 };
 
-typedef std::vector<double> Edges;
+struct ShInfo
+{
+    int64_t shA, shB;
+    int64_t id;
+};
+
 typedef std::vector<Edges> EdgesTable;
-typedef std::vector<std::vector<uint32_t> > Shortcuts;
-//typedef std::vector<Neighbour> Neighbours;
+typedef std::map<uint32_t, std::vector<uint32_t> > Shortcuts;
+typedef std::map<uint32_t, ShInfo > ShortcutInfos;
+typedef std::vector<uint32_t> Neighbours;
 typedef std::vector<Neighbours> NeighboursTable;
 typedef std::vector<Shortcuts> ShorctutsTable;
-typedef struct{uint32_t id; uint32_t order; uint32_t numOfWays;} Node;
+typedef std::vector<ShortcutInfos> ShorctutsInfoTable;
+typedef struct{uint32_t id; uint32_t order; int32_t orderPoints; double lat; double lon;} Node;
 typedef std::vector<Node> Nodes;
 typedef std::vector<uint32_t> Order;
+typedef std::pair<int32_t, uint32_t> OrderElem;
+typedef std::priority_queue<OrderElem, std::vector<OrderElem> , std::greater<OrderElem> > OrderQue;
 typedef struct { Nodes nodes; double cost; uint32_t id;} Route;
 
 struct EdgeWithNodes{

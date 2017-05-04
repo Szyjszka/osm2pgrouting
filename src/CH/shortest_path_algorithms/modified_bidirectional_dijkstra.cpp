@@ -37,8 +37,10 @@ Route modified_bidirectional_dijkstra(const EdgesTable &edgesTable, const uint32
     while(((costTableUp[indexOfNextElemUp] + costTableDown[indexOfNextElemDown]) <= shortestPathLength) &&
           nodesLefDown && nodesLefUp)
     {
-        uint32_t indexOfNextElemUpExp = getIndexOfNextNode(costTableUp, qsTableUp);
-        uint32_t indexOfNextElemDownExp = getIndexOfNextNode(costTableDown, qsTableDown);
+        //TO be fixed with priority que
+        assert(false);
+        uint32_t indexOfNextElemUpExp = 0;//getIndexOfNextNode(costTableUp, qsTableUp);
+        uint32_t indexOfNextElemDownExp = 0;//getIndexOfNextNode(costTableDown, qsTableDown);
         bool Up = costTableDown[indexOfNextElemDownExp] > costTableUp[indexOfNextElemUpExp];
         if(Up){
         --nodesLefUp;
@@ -48,12 +50,12 @@ Route modified_bidirectional_dijkstra(const EdgesTable &edgesTable, const uint32
             qsTableUp[indexOfNextElemUp] = false;
             for(uint32_t i = 0; i < nodes.size(); ++i)
             {
-                if(qsTableUp[i] && (edgesTable[indexOfNextElemUp][i] < INF) &&
+                if(qsTableUp[i] && (edgesTable[indexOfNextElemUp].at(i) < INF) &&
                         (nodes[i].order > nodes[indexOfNextElemUp].order))
                 {
-                        if(costTableUp[i] > costTableUp[indexOfNextElemUp] + edgesTable[indexOfNextElemUp][i])
+                        if(costTableUp[i] > costTableUp[indexOfNextElemUp] + edgesTable[indexOfNextElemUp].at(i) )
                         {
-                            costTableUp[i] = costTableUp[indexOfNextElemUp] + edgesTable[indexOfNextElemUp][i];
+                            costTableUp[i] = costTableUp[indexOfNextElemUp] + edgesTable[indexOfNextElemUp].at(i) ;
                             prevTable[i] = indexOfNextElemUp;
                             if(costTableDown[i] < INF)
                             {
@@ -77,12 +79,12 @@ Route modified_bidirectional_dijkstra(const EdgesTable &edgesTable, const uint32
             qsTableDown[indexOfNextElemDown] = false;
             for(uint32_t i = 0; i < nodes.size(); ++i)
             {
-                if(qsTableDown[i] && (edgesTable[indexOfNextElemDown][i] < INF) &&
+                if(qsTableDown[i] && (edgesTable[indexOfNextElemDown].at(i)  < INF) &&
                         (nodes[i].order > nodes[indexOfNextElemDown].order))
                 {
-                    if(costTableDown[i] > costTableDown[indexOfNextElemDown] + edgesTable[indexOfNextElemDown][i])
+                    if(costTableDown[i] > costTableDown[indexOfNextElemDown] + edgesTable[indexOfNextElemDown].at(i))
                     {
-                        costTableDown[i] = costTableDown[indexOfNextElemDown] + edgesTable[indexOfNextElemDown][i];
+                        costTableDown[i] = costTableDown[indexOfNextElemDown] + edgesTable[indexOfNextElemDown].at(i);
                         nextTable[i] = indexOfNextElemDown;
                         if(costTableUp[i] < INF)
                         {

@@ -8,7 +8,7 @@ namespace RouterCH
 
 bool operator==(const Node& a, const Node& b)
 {
-    return a.id == b.id;
+    return a.id == b.id && a.order == b.order && a.orderPoints == b.orderPoints;
 }
 
 bool operator !=(const Node& a, const Node& b)
@@ -38,25 +38,6 @@ bool operator!=(const Route& a, const Route& b)
     return !(a==b);
 }
 
-uint32_t getIndexOfNextNode(CostTable& costTable, const QSTable& qsTable)
-{
-    double minDistance = std::numeric_limits<double>::max();
-    uint32_t indexOfMinDistance = 0;
-
-    for(uint32_t i = 0; i < costTable.size(); ++i)
-    {
-        if(qsTable[i])
-        {
-            if(minDistance > costTable[i])
-            {
-                minDistance = costTable[i];
-                indexOfMinDistance = i;
-            }
-        }
-    }
-    return indexOfMinDistance;
-}
-
 Route createShortestPath(const EdgesTable &edgesTable, const PathTable& pathTable, const uint32_t start,
                          const uint32_t end, const Nodes& nodes, const ShorctutsTable* shortcutsTable)
 {
@@ -80,16 +61,16 @@ Route createShortestPath(const EdgesTable &edgesTable, const PathTable& pathTabl
         shortestPath.nodes.push_back(nodes[indexOfNext]);
         if(shortcutsTable)
         {
-            size_t shortcutSize = (*shortcutsTable)[indexOfNext][pathTable[indexOfNext]].size();
+            size_t shortcutSize = (*shortcutsTable)[indexOfNext].at(pathTable[indexOfNext]).size();
             if(shortcutSize)
             {
                 for(uint32_t j = 0; j < shortcutSize; ++j)
                 {
-                    shortestPath.nodes.push_back(nodes[(*shortcutsTable)[indexOfNext][pathTable[indexOfNext]][shortcutSize-j-1]]);
+                    shortestPath.nodes.push_back(nodes[(*shortcutsTable)[indexOfNext].at(pathTable[indexOfNext])[shortcutSize-j-1]]);
                 }
             }
         }
-        shortestPath.cost += edgesTable[indexOfNext][pathTable[indexOfNext]];
+        shortestPath.cost += edgesTable[indexOfNext].at(pathTable[indexOfNext]);
 
         indexOfNext = pathTable[indexOfNext];
 
@@ -104,11 +85,11 @@ Route createShortestPath(const EdgesTable &edgesTable, const PathTable& pathTabl
 
 
 
-bool chechIfShortcudNeeded(const NeighboursTable& neighboursTable, const Node& u,
+bool chechIfShortcudNeeded(const EdgesTable& edgesTable, const Node& u,
                            const Node& w, const Nodes &nodes, const double cost)
 {
-    Route sh = dijkstra(neighboursTable, u.id, w.id, nodes, cost);
+    Route sh = dijkstra(edgesTable, u.id, w.id, nodes, cost);
 
-    return sh.cost > cost && (cost < neighboursTable[u.id][w.id].cost || neighboursTable[u.id][w.id].cost >= INF);
+    return sh.cost > cost && (cost < edgesTable[u.id].at(w.id) || edgesTable[u.id].at(w.id) >= INF);
 }
 }

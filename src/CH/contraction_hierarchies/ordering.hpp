@@ -6,9 +6,32 @@
 
 namespace RouterCH
 {
+    enum class OrderCriterium
+    {
+        Ways,
+        Shortcuts,
+        Ways_Plus_Shortcuts,
+        EdgeDifference,
+        ContractedNeighbours,
+        VoronoiRegion,
+        TimeOfContraction,
+        Geo
+    };
+
+    OrderCriterium getOrderCriteriumFromString(const std::string& string);
+
     void simple_order(Nodes* nodes, Order* order);
-    void order_with_number_of_shorctuts(Nodes *nodes, Order* order, EdgesTable &edgesTable, const uint32_t start, ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable);
-    void order_with_num_of_roads(Nodes* nodes, Order* order);
-    void order_with_num_of_roads(Nodes *nodes, Order* order, const EdgesTable &edgesTable, const uint32_t start);
+    void orderNodes(OrderCriterium criterium, Nodes& nodes, Order& order, EdgesTable &edgesTable, const uint32_t start,
+               ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable);
+
+
+    void orderNodes(OrderCriterium criterium, Nodes& nodes, OrderQue& orderQue, EdgesTable &edgesTable,
+               ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable);
+
+    void updateNeighbours(OrderCriterium criterium, Nodes& nodes, Order& order, EdgesTable &edgesTable, const uint32_t start,
+                    ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const Neighbours& nodesThatChanged);
+
+    int32_t getOrderPoints(OrderCriterium criterium, EdgesTable& edgesTable, const Node& v, Nodes &nodes,
+                            ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const uint32_t actualIter);
 }
 #endif // ORDERING_HPP

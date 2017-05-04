@@ -1,7 +1,9 @@
 #include <algorithm>
 #include <climits>
+#include <iostream>
 #include "contracting.hpp"
-#include "shortest_path_algorithms/dijkstra.hpp"
+#include "ordersupervisor.hpp"
+#include "CH/shortest_path_algorithms/dijkstra.hpp"
 
 namespace RouterCH
 {
@@ -22,73 +24,188 @@ bool operator ==(Route a, Route b)
         {
             return false;
         }
-        if(a.nodes[i].coord != b.nodes[i].coord)
-        {
-            return false;
-        }
     }
     return true;
 }
 
-bool chechIfShortcudNeeded(const EdgesTable& edgesTable, const Node& u,
-                           const Node& v, const Node& w, const Nodes &nodes)
+
+<<<<<<< HEAD
+uint32_t contractNode(const Node& v, const Nodes &nodes,
+                  ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, bool addNewEdges)
 {
-    EdgesTable edgesTableForLocalSearch(edgesTable);
 
-    //wstawienie do tabeli duzych wartosci dla poszkiwanego skrótu żeby zobaczyć czy
-    //dijkstra znajdzie inną trasę
-    Route checkedShortctut;
-    checkedShortctut.nodes = Nodes({u, v, w});
-    checkedShortctut.cost = edgesTable[u.id][v.id] + edgesTable[v.id][w.id];
-//    for(unsigned int i = 0; i < nodes.size(); ++i)
-//    {
-//        edgesTableForLocalSearch[nodes[i].id][v.id] = INF;
-//        edgesTableForLocalSearch[v.id][nodes[i].id] = INF;
-//    }
-
-    Route sh = dijkstra(edgesTableForLocalSearch, u.id, w.id, nodes);
-
-    return sh.cost > checkedShortctut.cost;
-}
-
-void contractNode(EdgesTable *edgesTable, const Node& v, const Nodes &nodes, ShorctutsTable *shorctcutsTable)
-{
-    // dla każdej pary (u, v) i (v,w) z krawędzi
-    for(unsigned int uID = 0; uID < (*edgesTable)[0].size(); ++uID)
+    EdgeWithNodesTable edgeWithNodesTable;
+    Neighbours neighboursOfNode(neighboursTable[v.id]);
+    for(auto neighbour : neighboursTable[v.id])
     {
-        if(uID == v.id)
+        neighbour.setCost(std::numeric_limits<double>::max());
+        neighbour.setCost(std::numeric_limits<double>::max());
+=======
+uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
+                  ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, bool addNewEdges,  ShorctutsInfoTable& shortcutInfos)
+{
+
+    EdgeWithNodesTable edgeWithNodesTable(neighboursTable[v.id].size());
+    static uint64_t shortcutID = edgesTable.size()*edgesTable.size();
+    for(uint32_t i = 0; i < neighboursTable[v.id].size(); ++i)
+    {
+        edgeWithNodesTable[i].A = v.id;
+        edgeWithNodesTable[i].B = neighboursTable[v.id][i];
+        edgeWithNodesTable[i].cost = edgesTable[neighboursTable[v.id][i]].at(v.id);
+        edgesTable[neighboursTable[v.id][i]][v.id] = std::numeric_limits<double>::max();
+        edgesTable[v.id][neighboursTable[v.id][i]] = std::numeric_limits<double>::max();
+>>>>>>> temporary_branch
+    }
+
+    uint32_t numberOfShortcutsCreated = 0;
+    // dla każdej pary (u, v) i (v,w) z krawędzi
+    for(auto u : neighboursOfNode)
+    {
+<<<<<<< HEAD
+        uint32_t uID = u.id;
+=======
+        uint32_t uID = neighboursTable[v.id][i];
+        //TODO shouldn't this order set be -1 ?
+        //order 0 for shortcut ordering
+>>>>>>> temporary_branch
+        if(nodes[uID].order <= nodes[v.id].order)
         {
             continue;
         }
-        for(unsigned int wID = uID+1; wID < (*edgesTable)[0].size(); ++wID)
+
+        for(auto w : neighboursOfNode)
         {
-            if(wID == v.id)
+            uint32_t wID = w.id;
+            if(nodes[wID].order <= nodes[v.id].order)
             {
                 continue;
             }
-            if(((*edgesTable)[uID][v.id] < INF) && (*edgesTable)[v.id][wID] < INF)
+
+<<<<<<< HEAD
+            if((neighboursTable)[uID][wID].cost >=INF)
+=======
+            if((edgesTable)[uID].at(wID)>=INF)
+>>>>>>> temporary_branch
             {
-                //jeśli (u,v,w) jest unikalną najkrótszą ścieżką
-                if(chechIfShortcudNeeded(*edgesTable, nodes[uID], v, nodes[wID], nodes))
+                if(chechIfShortcudNeeded(neighboursTable, nodes[uID], nodes[wID], nodes,
+                                        neighboursOfNode[wID].cost + neighboursOfNode[uID].cost))
                 {
-                //dodaj skrót (u,v,w)
-                    (*edgesTable)[uID][wID] = (*edgesTable)[uID][v.id] + (*edgesTable)[v.id][wID];
-                    (*edgesTable)[wID][uID] = (*edgesTable)[uID][v.id] + (*edgesTable)[v.id][wID];
-                    (*shorctcutsTable)[uID][wID].push_back({v.id});
-                    (*shorctcutsTable)[wID][uID].push_back({v.id});
+                    ++numberOfShortcutsCreated;
+
+                    if(!addNewEdges || shorctcutsTable[uID][wID].size())
+                        continue;
+
+<<<<<<< HEAD
+                    shorctcutsTable[uID][wID].clear();
+                    shorctcutsTable[wID][uID].clear();
+=======
+>>>>>>> temporary_branch
+
+                    EdgeWithNodes edgeWithNodes;
+                    edgeWithNodes.A = uID;
+                    edgeWithNodes.B = wID;
+                    edgeWithNodes.cost =  neighboursOfNode[wID].cost + neighboursOfNode[uID].cost;
+                    edgeWithNodesTable.push_back(edgeWithNodes);
+
+                    if(shortcutInfos[uID].find(v.id) != shortcutInfos[uID].end())
+                    {
+                        shortcutInfos[uID][wID].shA =shortcutInfos[uID][v.id].id;
+                        shortcutInfos[wID][uID].shB =shortcutInfos[uID][v.id].id;
+                    }
+                    else
+                    {
+                        uint32_t a = std::max(uID, v.id);
+                        uint32_t b = std::min(uID, v.id);
+                        shortcutInfos[uID][wID].shA = a*nodes.size() + b;
+                        shortcutInfos[wID][uID].shB = a*nodes.size() + b;
+                    }
+
+                    if(shortcutInfos[wID].find(v.id) != shortcutInfos[wID].end())
+                    {
+                        shortcutInfos[uID][wID].shB =shortcutInfos[wID][v.id].id;
+                        shortcutInfos[wID][uID].shA =shortcutInfos[wID][v.id].id;
+                    }
+                    else
+                    {
+                        uint32_t a = std::max(v.id, wID);
+                        uint32_t b = std::min(v.id, wID);
+                        shortcutInfos[uID][wID].shB = a*nodes.size() + b;
+                        shortcutInfos[wID][uID].shA = a*nodes.size() + b;
+                    }
+
+                    shortcutInfos[uID][wID].id = shortcutID;
+                    shortcutInfos[wID][uID].id = shortcutID;
+                    ++shortcutID;
+
+                    //TODO shortcuts recursively from other roads
+                    for(auto nodeID : shorctcutsTable[uID][v.id])
+                    {
+                        (shorctcutsTable)[uID][wID].push_back({nodeID});
+                    }
+                    (shorctcutsTable)[uID][wID].push_back({v.id});
+                    for(auto nodeID : (shorctcutsTable)[v.id][wID])
+                    {
+                        (shorctcutsTable)[uID][wID].push_back({nodeID});
+                    }
+                    shorctcutsTable[wID][uID] = shorctcutsTable[uID][wID];
+                    std::reverse(std::begin(shorctcutsTable[wID][uID]), std::end(shorctcutsTable[wID][uID]));
+
+                    neighboursTable[uID].push_back(wID);
+                    neighboursTable[wID].push_back(uID);
                 }
             }
         }
     }
 
+    for(auto neighbours : neighboursOfNode)
+    {
+         neighboursTable[v.id][neighbours.id].setCost(neighbours.getCost());
+         neighboursTable[neighbours.id][v.id].setCost(neighbours.getCost());
+    }
+    for(auto edgeWithNodes : edgeWithNodesTable)
+    {
+//        edgesTable[edgeWithNodes.A][edgeWithNodes.B] = edgeWithNodes.cost;
+//        edgesTable[edgeWithNodes.B][edgeWithNodes.A] = edgeWithNodes.cost;
+        neighboursTable[edgeWithNodes.A].push_back(Neighbour(edgeWithNodes.B, edgeWithNodes.cost));
+        neighboursTable[edgeWithNodes.B].push_back(Neighbour(edgeWithNodes.A, edgeWithNodes.cost));
+    }
+
+
+    return numberOfShortcutsCreated;
 }
 
-void contract(EdgesTable* edgesTable, const Nodes& nodes, ShorctutsTable *shortcutsTable)
+<<<<<<< HEAD
+void contract(Nodes* nodes,
+              ShorctutsTable& shortcutsTable, Order &order, NeighboursTable &neighboursTable)
+=======
+void contract(EdgesTable& edgesTable, Nodes& nodes,
+              ShorctutsTable& shortcutsTable, NeighboursTable &neighboursTable, ShorctutsInfoTable &shortcutInfos,
+              OrderCriterium orderCriterium, OrderSupervisor::Strategy strategy)
+>>>>>>> temporary_branch
 {
-    //zakłada że nodes są w rosnącej kolejności po order
-    for(unsigned int i = 0; i < nodes.size(); ++i)
+    uint32_t shortcuts = 0;
+    OrderSupervisor orderSupervisor(OrderSupervisor::Strategy::LazyUpdate, OrderCriterium::Ways_Plus_Shortcuts,
+                                    nodes, edgesTable, neighboursTable, shortcutsTable);
+    for(uint32_t i = 0; i < nodes.size(); ++i)
     {
-        contractNode(edgesTable,nodes[i], nodes, shortcutsTable);
+<<<<<<< HEAD
+//     if(!(i%100))
+        std::cout << "Zostalo jeszcze " << order.size() - i << std::endl;
+//     if(!(i%5))
+//         order_with_num_of_roads(nodes, &order, edgesTable, i);
+//        order_with_number_of_shorctuts(nodes, &order, edgesTable, 0, shortcutsTable, neighboursTable);
+     shortcuts += contractNode((*nodes)[order[i]], *nodes, shortcutsTable, neighboursTable, true);
+=======
+        orderSupervisor.updateOrder(nodes, edgesTable, neighboursTable, shortcutsTable);
+        uint32_t nextNode = orderSupervisor.getIndexOfNextNode();
+        if(!(i%100))
+        {
+            std::cout << "Zostalo jeszcze " << nodes.size() - i << " Utworzono "<< shortcuts << " skrotow" << std::endl;
+        }
+        shortcuts += contractNode(edgesTable, nodes[nextNode], nodes, shortcutsTable, neighboursTable, true, shortcutInfos);
+
+
+>>>>>>> temporary_branch
     }
 }
 

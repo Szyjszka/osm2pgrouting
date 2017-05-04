@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cassert>
 #include <iostream>
+#include <fstream>
 #include "algorithm_time_measure.hpp"
 #include "contraction_hierarchies/contracting.hpp"
 #include "contraction_hierarchies/ordering.hpp"
@@ -12,36 +13,23 @@
 using namespace osm2pgr;
 using namespace RouterCH;
 
-DataConverter::DataConverter(OSMDocument &document)
+DataConverter::DataConverter(OSMDocument &document, OrderCriterium orderCriterium, OrderSupervisor::Strategy strategy, const std::__cxx11::string &measureFileName)
 {
+    std::ofstream measureFile(measureFileName, std::ofstream::out | std::ofstream::app);
     AlgorithmTimeMeasure atm;
-
-    atm.startMeasurement();
 
     convertToInternalFormat(document);
 
-    atm.stopMeasurement();
-    std::cout << "Skonwertowanie na wewnętrzny format zajęło " << atm.getMeanTime() << std::endl;
-    atm.reset();
     atm.startMeasurement();
 
-    simple_order(&nodesWithRoads, &order);
-//    order_with_number_of_shorctuts(&nodesWithRoads, &order, edgesTable, 0, shortcutsTable, neighboursTable);
-    order_with_num_of_roads(&nodesWithRoads, &order);
+    contract(edgesTable, nodesWithRoads, shortcutsTable, neighboursTable, shortcutInfos, orderCriterium, strategy);
 
     atm.stopMeasurement();
-    std::cout << "Przyznanie poziomów zajęło  " << atm.getMeanTime() << std::endl;
-    atm.reset();
-    atm.startMeasurement();
-
-    //TODO dodac updatowanie poziomu sasiadow kontraktowanego wierzcholka zamiast wszystkich
-    contract(edgesTable, &nodesWithRoads, shortcutsTable, order, neighboursTable);
+    measureFile << nodesWithRoads.size() << " " << splittedWays.size() << " " << atm.getMeanTime() << std::endl;
 
     upgradeWays(document);
 
-    atm.stopMeasurement();
-
-    std::cout << "Kontrakcja zajęła " << atm.getMeanTime() << "s" << std::endl;
+    measureFile.close();
 }
 
 double DataConverter::getWayCost(const std::vector<osm2pgr::Node*> &nodes) const
@@ -70,26 +58,39 @@ Tag DataConverter::getTagForNewWays(const OSMDocument &document)
 
 DataConverter::Osm2pgrWays DataConverter::createNewWays(const osm2pgr::OSMDocument& document)
 {
+    //These things are no longer needed
+    nodes.clear();
+    splittedWays.clear();
+    edgesTable.clear();
+    neighboursTable.clear();
+    IDconverterBack.clear();
+
     osm2pgr::Tag tagForNewWays = getTagForNewWays(document);
     Osm2pgrWays newWays;
+    //TODO by iter over shortcuts
     for(uint32_t n = 0; n < nodesWithRoads.size(); ++n )
         for(uint32_t m = n+1; m < nodesWithRoads.size(); ++m ){
-            if(shortcutsTable[n][m].size()){
-                Way newWay;
-                newWay.add_node(&(osm2pgrNodes[n]));
-                for(uint32_t i = 0; i < shortcutsTable[n][m].size(); ++i){
-                    assert(shortcutsTable[n][m][i] < nodesWithRoads.size());
-                    newWay.add_node(&(osm2pgrNodes[shortcutsTable[n][m][i]]));
+            if(shortcutsTable[n].find(m) != shortcutsTable[n].end()){
+                if(shortcutsTable[n].at(m).size()){
+                    Way newWay;
+                    newWay.add_node(&(osm2pgrNodes[n]));
+                    for(uint32_t i = 0; i < shortcutsTable[n][m].size(); ++i){
+                        assert(shortcutsTable[n][m][i] < nodesWithRoads.size());
+                        newWay.add_node(&(osm2pgrNodes[shortcutsTable[n][m][i]]));
+                    }
+                    newWay.shortcutID = shortcutInfos[n][m].id;
+                    newWay.shA = shortcutInfos[n][m].shA;
+                    newWay.shB = shortcutInfos[n][m].shB;
+                    newWay.add_node(&(osm2pgrNodes[m]));
+                    newWay.setID(nextWayID++);
+                    newWay.maxspeed_backward(51);
+                    newWay.maxspeed_forward(51);
+                    assert(nodesWithRoads[n].order != nodesWithRoads[m].order);
+                    newWay.increasingOrder = nodesWithRoads[m].order > nodesWithRoads[n].order;
+                    newWay.shortcut = 0;
+                    newWay.tag_config(tagForNewWays);
+                    newWays.push_back(newWay);
                 }
-                newWay.add_node(&(osm2pgrNodes[m]));
-                newWay.setID(nextWayID++);
-                newWay.maxspeed_backward(51);
-                newWay.maxspeed_forward(51);
-                assert(nodesWithRoads[n].order != nodesWithRoads[m].order);
-                newWay.increasingOrder = nodesWithRoads[m].order > nodesWithRoads[n].order;
-                newWay.shortcut = 0;
-                newWay.tag_config(tagForNewWays);
-                newWays.push_back(newWay);
             }
         }
     return newWays;
@@ -101,6 +102,8 @@ void DataConverter::upgradeWays(OSMDocument &document)
     Osm2pgrWays newWays = createNewWays(document);
 
     std::cout << " TYLE SKROTOW POWSTALO " << newWays.size() << std::endl;
+
+    shortcutsTable.clear();
 
     std::map<int64_t, Way> copyOfWays(document.ways());
     document.clear();
@@ -128,6 +131,11 @@ void DataConverter::upgradeWays(OSMDocument &document)
         assert( nodesWithRoads[aID].order !=  nodesWithRoads[bID].order || aID == bID);
         newWay.increasingOrder = nodesWithRoads[aID].order > nodesWithRoads[bID].order;
         newWay.shortcut = -1;
+        uint32_t a = std::max(aID, bID);
+        uint32_t b = std::min(aID, bID);
+        newWay.shortcutID = a*nodesWithRoads.size() + b;
+        newWay.shA = -1;
+        newWay.shB = -1;
         newWay.setID(nextWayID++);
         document.AddWay(newWay);
         }
@@ -141,7 +149,6 @@ void DataConverter::upgradeWays(OSMDocument &document)
 
 void DataConverter::convertToInternalFormat(const OSMDocument &document)
 {
-//    TODO struktura danych w ktorych pamietamy tylko te sasiady do ktorych mamy krawedz
     size_t numberOfNodes = document.nodes().size();
     getTagForNewWays(document);
     nodes.resize(numberOfNodes);
@@ -158,7 +165,7 @@ void DataConverter::convertToInternalFormat(const OSMDocument &document)
     fillEdgesTable(splittedWays, numberOfWaysFromNode.size());
 
     nodesWithRoads = std::vector<Node>(nodes.begin(), nodes.begin() + numberOfWaysFromNode.size());
-    order.resize(numberOfWaysFromNode.size());
+//    order.resize(numberOfWaysFromNode.size());
 
     nextWayID = (document.ways().rbegin()->first)+1;
 }
@@ -170,6 +177,7 @@ DataConverter::NumberOfWaysFromNode DataConverter::getNumberOfWaysFromNode(const
     for(auto& way: splittedWays)
     {
         Endpoints endpoints = getEntpoints(way);
+
         if(waysFromNode.find(endpoints.start.osm_id()) == waysFromNode.end())
         {
             waysFromNode[endpoints.start.osm_id()] = 1;
@@ -216,7 +224,9 @@ void DataConverter::groupNodesWithRoads(const DataConverter::NumberOfWaysFromNod
         {
             assert(IDWithRoads < numberOfWaysFromNode.size());
             nodes[IDWithRoads].id = IDWithRoads;
-            nodes[IDWithRoads].numOfWays = numberOfWaysFromNode.at(node.osm_id());
+            nodes[IDWithRoads].orderPoints = numberOfWaysFromNode.at(node.osm_id());
+            nodes[IDWithRoads].lat = boost::lexical_cast<double>(node.get_attribute("lat"));
+            nodes[IDWithRoads].lon = boost::lexical_cast<double>(node.get_attribute("lon"));
             IDconverter[node.osm_id()] = nodes[IDWithRoads].id;
             IDconverterBack[nodes[IDWithRoads].id] = node.osm_id();
             ++IDWithRoads;
@@ -226,9 +236,11 @@ void DataConverter::groupNodesWithRoads(const DataConverter::NumberOfWaysFromNod
 
             assert(IDWithoutRoads < osm2pgrNodes.size());
             nodes[IDWithoutRoads].id = IDWithoutRoads;
-            nodes[IDWithRoads].numOfWays = 0;
+            nodes[IDWithRoads].orderPoints = 0;
             IDconverter[node.osm_id()] = nodes[IDWithoutRoads].id;
             IDconverterBack[nodes[IDWithoutRoads].id] = node.osm_id();
+            nodes[IDWithoutRoads].lat = boost::lexical_cast<double>(node.get_attribute("lat"));
+            nodes[IDWithoutRoads].lon = boost::lexical_cast<double>(node.get_attribute("lon"));
             ++IDWithoutRoads;
         }
     }
@@ -242,9 +254,10 @@ void DataConverter::groupNodesWithRoads(const DataConverter::NumberOfWaysFromNod
 
 void DataConverter::fillEdgesTable(const DataConverter::SplittedWays &splittedWays, const size_t numberOfWays)
 {
-    edgesTable.resize(numberOfWays, Edges(numberOfWays, std::numeric_limits<double>::max()));
-    shortcutsTable.resize(numberOfWays, Shortcuts(numberOfWays));
+    edgesTable.resize(numberOfWays);
+    shortcutsTable.resize(numberOfWays);
     neighboursTable.resize(numberOfWays, Neighbours());
+    shortcutInfos.resize(numberOfWays);
 
     for(auto& way: splittedWays)
     {
@@ -254,13 +267,13 @@ void DataConverter::fillEdgesTable(const DataConverter::SplittedWays &splittedWa
         assert(u < numberOfWays);
         assert(w < numberOfWays);
         const double wayCost = getWayCost(way);
-        if(u == w)
+        if(u == w || edgesTable[u].find(w) != edgesTable[u].end())
         {
             continue;
         }
         edgesTable[u][w] = wayCost;
         edgesTable[w][u] = wayCost;
-        neighboursTable[u].push_back(Neighbour(w, wayCost));
-        neighboursTable[w].push_back(Neighbour(u, wayCost));
+        neighboursTable[u].push_back(w);
+        neighboursTable[w].push_back(u);
     }
 }

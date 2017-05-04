@@ -2,7 +2,7 @@
 #include <climits>
 #include <iostream>
 #include "contracting.hpp"
-#include "ordering.hpp"
+#include "ordersupervisor.hpp"
 #include "CH/shortest_path_algorithms/dijkstra.hpp"
 
 namespace RouterCH
@@ -29,54 +29,87 @@ bool operator ==(Route a, Route b)
 }
 
 
-uint32_t contractNode(const Node& v, const Nodes &nodes,
-                  ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, bool addNewEdges)
+uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
+                  ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, bool addNewEdges,  ShorctutsInfoTable& shortcutInfos)
 {
 
-    EdgeWithNodesTable edgeWithNodesTable;
-    Neighbours neighboursOfNode(neighboursTable[v.id]);
-    for(auto neighbour : neighboursTable[v.id])
+    EdgeWithNodesTable edgeWithNodesTable(neighboursTable[v.id].size());
+    static uint64_t shortcutID = edgesTable.size()*edgesTable.size();
+    for(uint32_t i = 0; i < neighboursTable[v.id].size(); ++i)
     {
-        neighbour.setCost(std::numeric_limits<double>::max());
-        neighbour.setCost(std::numeric_limits<double>::max());
+        edgeWithNodesTable[i].A = v.id;
+        edgeWithNodesTable[i].B = neighboursTable[v.id][i];
+        edgeWithNodesTable[i].cost = edgesTable[neighboursTable[v.id][i]].at(v.id);
+        edgesTable[neighboursTable[v.id][i]][v.id] = std::numeric_limits<double>::max();
+        edgesTable[v.id][neighboursTable[v.id][i]] = std::numeric_limits<double>::max();
     }
 
     uint32_t numberOfShortcutsCreated = 0;
     // dla każdej pary (u, v) i (v,w) z krawędzi
-    for(auto u : neighboursOfNode)
+    for(uint32_t i = 0; i < neighboursTable[v.id].size(); ++i)
     {
-        uint32_t uID = u.id;
+        uint32_t uID = neighboursTable[v.id][i];
+        //TODO shouldn't this order set be -1 ?
+        //order 0 for shortcut ordering
         if(nodes[uID].order <= nodes[v.id].order)
         {
             continue;
         }
 
-        for(auto w : neighboursOfNode)
+        for(uint32_t j = i + 1; j < neighboursTable[v.id].size(); ++j)
         {
-            uint32_t wID = w.id;
+            uint32_t wID = neighboursTable[v.id][j];
             if(nodes[wID].order <= nodes[v.id].order)
             {
                 continue;
             }
 
-            if((neighboursTable)[uID][wID].cost >=INF)
+            if((edgesTable)[uID].at(wID)>=INF)
             {
-                if(chechIfShortcudNeeded(neighboursTable, nodes[uID], nodes[wID], nodes,
-                                        neighboursOfNode[wID].cost + neighboursOfNode[uID].cost))
+                if(chechIfShortcudNeeded(edgesTable, nodes[uID], nodes[wID], nodes,
+                                        edgeWithNodesTable[i].cost + edgeWithNodesTable[j].cost))
                 {
                     ++numberOfShortcutsCreated;
 
-                    if(!addNewEdges)
+                    if(!addNewEdges || shorctcutsTable[uID][wID].size())
                         continue;
 
-                    shorctcutsTable[uID][wID].clear();
-                    shorctcutsTable[wID][uID].clear();
 
                     EdgeWithNodes edgeWithNodes;
                     edgeWithNodes.A = uID;
                     edgeWithNodes.B = wID;
-                    edgeWithNodes.cost =  neighboursOfNode[wID].cost + neighboursOfNode[uID].cost;
+                    edgeWithNodes.cost =  edgeWithNodesTable[i].cost + edgeWithNodesTable[j].cost;
                     edgeWithNodesTable.push_back(edgeWithNodes);
+
+                    if(shortcutInfos[uID].find(v.id) != shortcutInfos[uID].end())
+                    {
+                        shortcutInfos[uID][wID].shA =shortcutInfos[uID][v.id].id;
+                        shortcutInfos[wID][uID].shB =shortcutInfos[uID][v.id].id;
+                    }
+                    else
+                    {
+                        uint32_t a = std::max(uID, v.id);
+                        uint32_t b = std::min(uID, v.id);
+                        shortcutInfos[uID][wID].shA = a*nodes.size() + b;
+                        shortcutInfos[wID][uID].shB = a*nodes.size() + b;
+                    }
+
+                    if(shortcutInfos[wID].find(v.id) != shortcutInfos[wID].end())
+                    {
+                        shortcutInfos[uID][wID].shB =shortcutInfos[wID][v.id].id;
+                        shortcutInfos[wID][uID].shA =shortcutInfos[wID][v.id].id;
+                    }
+                    else
+                    {
+                        uint32_t a = std::max(v.id, wID);
+                        uint32_t b = std::min(v.id, wID);
+                        shortcutInfos[uID][wID].shB = a*nodes.size() + b;
+                        shortcutInfos[wID][uID].shA = a*nodes.size() + b;
+                    }
+
+                    shortcutInfos[uID][wID].id = shortcutID;
+                    shortcutInfos[wID][uID].id = shortcutID;
+                    ++shortcutID;
 
                     //TODO shortcuts recursively from other roads
                     for(auto nodeID : shorctcutsTable[uID][v.id])
@@ -90,43 +123,41 @@ uint32_t contractNode(const Node& v, const Nodes &nodes,
                     }
                     shorctcutsTable[wID][uID] = shorctcutsTable[uID][wID];
                     std::reverse(std::begin(shorctcutsTable[wID][uID]), std::end(shorctcutsTable[wID][uID]));
-//                    std::reverse_copy(std::begin((shorctcutsTable)[uID][wID]),
-//                                      std::end((shorctcutsTable)[uID][wID]),
-//                                      std::begin((shorctcutsTable)[wID][uID]));
+
+                    neighboursTable[uID].push_back(wID);
+                    neighboursTable[wID].push_back(uID);
                 }
             }
         }
     }
-
-    for(auto neighbours : neighboursOfNode)
-    {
-         neighboursTable[v.id][neighbours.id].setCost(neighbours.getCost());
-         neighboursTable[neighbours.id][v.id].setCost(neighbours.getCost());
-    }
     for(auto edgeWithNodes : edgeWithNodesTable)
     {
-//        edgesTable[edgeWithNodes.A][edgeWithNodes.B] = edgeWithNodes.cost;
-//        edgesTable[edgeWithNodes.B][edgeWithNodes.A] = edgeWithNodes.cost;
-        neighboursTable[edgeWithNodes.A].push_back(Neighbour(edgeWithNodes.B, edgeWithNodes.cost));
-        neighboursTable[edgeWithNodes.B].push_back(Neighbour(edgeWithNodes.A, edgeWithNodes.cost));
+        edgesTable[edgeWithNodes.A][edgeWithNodes.B] = edgeWithNodes.cost;
+        edgesTable[edgeWithNodes.B][edgeWithNodes.A] = edgeWithNodes.cost;
     }
 
 
     return numberOfShortcutsCreated;
 }
 
-void contract(Nodes* nodes,
-              ShorctutsTable& shortcutsTable, Order &order, NeighboursTable &neighboursTable)
+void contract(EdgesTable& edgesTable, Nodes& nodes,
+              ShorctutsTable& shortcutsTable, NeighboursTable &neighboursTable, ShorctutsInfoTable &shortcutInfos,
+              OrderCriterium orderCriterium, OrderSupervisor::Strategy strategy)
 {
     uint32_t shortcuts = 0;
-    for(uint32_t i = 0; i < order.size(); ++i)
+    OrderSupervisor orderSupervisor(OrderSupervisor::Strategy::LazyUpdate, OrderCriterium::Ways_Plus_Shortcuts,
+                                    nodes, edgesTable, neighboursTable, shortcutsTable);
+    for(uint32_t i = 0; i < nodes.size(); ++i)
     {
-//     if(!(i%100))
-        std::cout << "Zostalo jeszcze " << order.size() - i << std::endl;
-//     if(!(i%5))
-//         order_with_num_of_roads(nodes, &order, edgesTable, i);
-//        order_with_number_of_shorctuts(nodes, &order, edgesTable, 0, shortcutsTable, neighboursTable);
-     shortcuts += contractNode((*nodes)[order[i]], *nodes, shortcutsTable, neighboursTable, true);
+        orderSupervisor.updateOrder(nodes, edgesTable, neighboursTable, shortcutsTable);
+        uint32_t nextNode = orderSupervisor.getIndexOfNextNode();
+        if(!(i%100))
+        {
+            std::cout << "Zostalo jeszcze " << nodes.size() - i << " Utworzono "<< shortcuts << " skrotow" << std::endl;
+        }
+        shortcuts += contractNode(edgesTable, nodes[nextNode], nodes, shortcutsTable, neighboursTable, true, shortcutInfos);
+
+
     }
 }
 
