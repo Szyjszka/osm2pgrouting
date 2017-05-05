@@ -145,7 +145,7 @@ void contract(EdgesTable& edgesTable, Nodes& nodes,
               OrderCriterium orderCriterium, OrderSupervisor::Strategy strategy)
 {
     uint32_t shortcuts = 0;
-    OrderSupervisor orderSupervisor(OrderSupervisor::Strategy::LazyUpdate, OrderCriterium::Ways_Plus_Shortcuts,
+    OrderSupervisor orderSupervisor(strategy, orderCriterium,
                                     nodes, edgesTable, neighboursTable, shortcutsTable);
     for(uint32_t i = 0; i < nodes.size(); ++i)
     {
