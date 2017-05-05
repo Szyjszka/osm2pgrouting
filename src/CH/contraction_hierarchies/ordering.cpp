@@ -10,6 +10,20 @@ static int32_t getNumOfWays(EdgesTable& edgesTable, const Node& v)
     return static_cast<int32_t>(edgesTable[v.id].size());
 }
 
+static int32_t getDeletedWays(EdgesTable& edgesTable, const Node& v, Nodes &nodes, const uint32_t starting_order)
+{
+    uint32_t deletedWays = 0;
+    for(auto edge : edgesTable[v.id])
+    {
+        // ?
+        if(nodes[edge.first].order < starting_order)
+        {
+            ++deletedWays;
+        }
+    }
+    return deletedWays;
+}
+
 
 static int32_t getNumOfShortcuts(EdgesTable& edgesTable, const Node& v, Nodes &nodes,
                            ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const uint32_t starting_order)
@@ -79,16 +93,15 @@ static int32_t getTimeOfContraction(EdgesTable& edgesTable, const Node& v, Nodes
 
 static int32_t getGeoPoints(const Node& v, Nodes &nodes)
 {
-    //TODO better
     return (static_cast<int32_t>(nodes[v.id].lat * 1e6) + static_cast<int32_t>(nodes[v.id].lat * 1e6));
 }
 
-//TODO To powinno byc shortcuts - edges DELETED
 static int32_t getEdgeDifference(EdgesTable& edgesTable, const Node& v, Nodes &nodes,
                            ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, uint32_t starting_order)
 {
     return getNumOfShortcuts(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, starting_order) -
-           static_cast<int32_t>(getNumOfWays(edgesTable,  nodes[v.id]));
+           getNumOfWays(edgesTable, v);
+            //static_cast<int32_t>(getDeletedWays(edgesTable,  nodes[v.id], nodes, starting_order));
 }
 
 void simple_order(Nodes* nodes, Order *order)
