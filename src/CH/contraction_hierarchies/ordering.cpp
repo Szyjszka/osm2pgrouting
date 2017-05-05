@@ -15,8 +15,7 @@ static int32_t getDeletedWays(EdgesTable& edgesTable, const Node& v, Nodes &node
     uint32_t deletedWays = 0;
     for(auto edge : edgesTable[v.id])
     {
-        // ?
-        if(nodes[edge.first].order < starting_order)
+        if(nodes[edge.first].order >= starting_order)
         {
             ++deletedWays;
         }
@@ -100,8 +99,7 @@ static int32_t getEdgeDifference(EdgesTable& edgesTable, const Node& v, Nodes &n
                            ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, uint32_t starting_order)
 {
     return getNumOfShortcuts(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, starting_order) -
-           getNumOfWays(edgesTable, v);
-            //static_cast<int32_t>(getDeletedWays(edgesTable,  nodes[v.id], nodes, starting_order));
+           getDeletedWays(edgesTable,  nodes[v.id], nodes, starting_order);
 }
 
 void simple_order(Nodes* nodes, Order *order)
