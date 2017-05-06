@@ -152,18 +152,13 @@ void DataConverter::convertToInternalFormat(const OSMDocument &document)
 {
 
     std::cout <<"convert to internal format" << std::endl;
-    size_t numberOfNodes = document.nodes().size();
     getTagForNewWays(document);
-    nodes.resize(numberOfNodes);
-    for(auto& node : document.nodes())
-    {
-        osm2pgrNodes.push_back(node.second);
-    }
 
     std::cout <<"create splitted ways" << std::endl;
     splittedWays = createSplittedWays(document);
     NumberOfWaysFromNode numberOfWaysFromNode = getNumberOfWaysFromNode(splittedWays);
     size_t numberOfWays = numberOfWaysFromNode.size();
+    nodes.resize(numberOfWays);
     groupNodesWithRoads(numberOfWaysFromNode, document);
     numberOfWaysFromNode.clear();
 
@@ -227,25 +222,25 @@ void DataConverter::groupNodesWithRoads(const DataConverter::NumberOfWaysFromNod
     uint32_t IDWithRoads = 0;
     nodes.resize(numberOfWaysFromNode.size());
     std::map<uint32_t, int64_t> IDconverterBack;
-    for(auto& node : osm2pgrNodes)
+    for(auto& node : document.nodes())
     {
-        if(numberOfWaysFromNode.find(node.osm_id()) != numberOfWaysFromNode.end())
+        if(numberOfWaysFromNode.find(node.first) != numberOfWaysFromNode.end())
         {
             assert(IDWithRoads < numberOfWaysFromNode.size());
             nodes[IDWithRoads].id = IDWithRoads;
-            nodes[IDWithRoads].orderPoints = numberOfWaysFromNode.at(node.osm_id());
-            nodes[IDWithRoads].lat = boost::lexical_cast<double>(node.get_attribute("lat"));
-            nodes[IDWithRoads].lon = boost::lexical_cast<double>(node.get_attribute("lon"));
-            IDconverter[node.osm_id()] = nodes[IDWithRoads].id;
-            IDconverterBack[nodes[IDWithRoads].id] = node.osm_id();
+            nodes[IDWithRoads].orderPoints = numberOfWaysFromNode.at(node.first);
+            nodes[IDWithRoads].lat = boost::lexical_cast<double>(node.second.get_attribute("lat"));
+            nodes[IDWithRoads].lon = boost::lexical_cast<double>(node.second.get_attribute("lon"));
+            IDconverter[node.first] = nodes[IDWithRoads].id;
+            IDconverterBack[nodes[IDWithRoads].id] = node.first;
             ++IDWithRoads;
         }
     }
     // "Reorder of osm2pgr nodes
-    osm2pgrNodes.clear();
+    osm2pgrNodes.resize(IDWithRoads);
     for(size_t i = 0; i < IDWithRoads; ++i)
     {
-        osm2pgrNodes.push_back(document.nodes().at(IDconverterBack[nodes[i].id]));
+        osm2pgrNodes[i] = document.nodes().at(IDconverterBack[nodes[i].id]);
     }
 }
 
