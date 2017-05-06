@@ -159,12 +159,13 @@ void DataConverter::convertToInternalFormat(const OSMDocument &document)
 
     splittedWays = createSplittedWays(document);
     NumberOfWaysFromNode numberOfWaysFromNode = getNumberOfWaysFromNode(splittedWays);
-
+    size_t numberOfWays = numberOfWaysFromNode.size();
     groupNodesWithRoads(numberOfWaysFromNode, document);
+    numberOfWaysFromNode.clear();
 
-    fillEdgesTable(splittedWays, numberOfWaysFromNode.size());
+    fillEdgesTable(splittedWays, numberOfWays);
 
-    nodesWithRoads = std::vector<Node>(nodes.begin(), nodes.begin() + numberOfWaysFromNode.size());
+    nodesWithRoads = std::vector<Node>(nodes.begin(), nodes.begin() + numberOfWays);
 //    order.resize(numberOfWaysFromNode.size());
 
     nextWayID = (document.ways().rbegin()->first)+1;
@@ -217,7 +218,7 @@ DataConverter::SplittedWays DataConverter::createSplittedWays(const OSMDocument 
 void DataConverter::groupNodesWithRoads(const DataConverter::NumberOfWaysFromNode &numberOfWaysFromNode, const OSMDocument &document)
 {
     uint32_t IDWithRoads = 0;
-    uint32_t IDWithoutRoads = numberOfWaysFromNode.size();
+    nodes.resize(numberOfWaysFromNode.size());
     for(auto& node : osm2pgrNodes)
     {
         if(numberOfWaysFromNode.find(node.osm_id()) != numberOfWaysFromNode.end())
@@ -231,24 +232,12 @@ void DataConverter::groupNodesWithRoads(const DataConverter::NumberOfWaysFromNod
             IDconverterBack[nodes[IDWithRoads].id] = node.osm_id();
             ++IDWithRoads;
         }
-        else
-        {
-
-            assert(IDWithoutRoads < osm2pgrNodes.size());
-            nodes[IDWithoutRoads].id = IDWithoutRoads;
-            nodes[IDWithRoads].orderPoints = 0;
-            IDconverter[node.osm_id()] = nodes[IDWithoutRoads].id;
-            IDconverterBack[nodes[IDWithoutRoads].id] = node.osm_id();
-            nodes[IDWithoutRoads].lat = boost::lexical_cast<double>(node.get_attribute("lat"));
-            nodes[IDWithoutRoads].lon = boost::lexical_cast<double>(node.get_attribute("lon"));
-            ++IDWithoutRoads;
-        }
     }
     // "Reorder of osm2pgr nodes
     osm2pgrNodes.clear();
-    for(auto& node : nodes)
+    for(int i = 0; i < IDWithRoads; ++i)
     {
-        osm2pgrNodes.push_back(document.nodes().at(IDconverterBack[node.id]));
+        osm2pgrNodes.push_back(document.nodes().at(IDconverterBack[nodes[i].id]));
     }
 }
 
