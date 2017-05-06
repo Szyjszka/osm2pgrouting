@@ -63,7 +63,6 @@ DataConverter::Osm2pgrWays DataConverter::createNewWays(const osm2pgr::OSMDocume
     splittedWays.clear();
     edgesTable.clear();
     neighboursTable.clear();
-    IDconverterBack.clear();
 
     osm2pgr::Tag tagForNewWays = getTagForNewWays(document);
     Osm2pgrWays newWays;
@@ -219,6 +218,7 @@ void DataConverter::groupNodesWithRoads(const DataConverter::NumberOfWaysFromNod
 {
     uint32_t IDWithRoads = 0;
     nodes.resize(numberOfWaysFromNode.size());
+    std::map<uint32_t, int64_t> IDconverterBack;
     for(auto& node : osm2pgrNodes)
     {
         if(numberOfWaysFromNode.find(node.osm_id()) != numberOfWaysFromNode.end())
@@ -235,7 +235,7 @@ void DataConverter::groupNodesWithRoads(const DataConverter::NumberOfWaysFromNod
     }
     // "Reorder of osm2pgr nodes
     osm2pgrNodes.clear();
-    for(int i = 0; i < IDWithRoads; ++i)
+    for(size_t i = 0; i < IDWithRoads; ++i)
     {
         osm2pgrNodes.push_back(document.nodes().at(IDconverterBack[nodes[i].id]));
     }

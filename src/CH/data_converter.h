@@ -43,7 +43,6 @@ private:
     RouterCH::Nodes nodesWithRoads;
     ShorctutsInfoTable shortcutInfos;
     std::map<int64_t, uint32_t> IDconverter;
-    std::map<uint32_t, int64_t> IDconverterBack;
 };
 
 }
