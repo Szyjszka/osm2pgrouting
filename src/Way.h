@@ -60,9 +60,9 @@ class Way : public Element {
       */
      explicit Way(const char **atts);
      Tag add_tag(const Tag &tag);
-     void add_node(Node* node);
+     void add_node(const Node *node);
 
-     std::vector<Node*>& nodeRefs() {return m_NodeRefs;}
+     std::vector<const Node*>& nodeRefs() {return m_NodeRefs;}
 //     std::vector<Node*> nodeRefs() {return m_NodeRefs;}
 
 
@@ -102,10 +102,10 @@ class Way : public Element {
 
 
      //! splits the way
-     std::vector<std::vector<Node*>> split_me();
-     std::string geometry_str(const std::vector<Node*> &) const;
-     std::string length_str(const std::vector<Node*> &) const;
-     static double length(const std::vector<Node*> &);
+     std::vector<std::vector<const Node*>> split_me();
+     std::string geometry_str(const std::vector<const Node *> &) const;
+     std::string length_str(const std::vector<const Node*> &) const;
+     static double length(const std::vector<const Node*> &);
 
      /**
       * to insert the relations tags
@@ -127,7 +127,7 @@ class Way : public Element {
 
 
  private:
-     std::vector<Node*> m_NodeRefs;
+     std::vector<const Node*> m_NodeRefs;
 
      double m_maxspeed_forward;
      double m_maxspeed_backward;

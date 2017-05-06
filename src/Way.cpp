@@ -56,7 +56,7 @@ Way::add_tag(const Tag &tag) {
 
 
 void
-Way::add_node(Node *node) {
+Way::add_node(const Node *node) {
     assert(node);
     m_NodeRefs.push_back(node);
 }
@@ -81,7 +81,7 @@ Way::length() const {
 
 
 std::string
-Way::geometry_str(const std::vector<Node*> &nodeRefs) const {
+Way::geometry_str(const std::vector<const Node*> &nodeRefs) const {
     std::string geometry("LINESTRING(");
 
     for (auto it = nodeRefs.begin();
@@ -98,11 +98,11 @@ Way::geometry_str(const std::vector<Node*> &nodeRefs) const {
 
 
 std::string
-Way::length_str(const std::vector<Node*> &nodeRefs) const {
+Way::length_str(const std::vector<const Node*> &nodeRefs) const {
     return boost::lexical_cast<std::string>(length(nodeRefs));
 }
 
-double Way::length(const std::vector<Node *> &nodeRefs)
+double Way::length(const std::vector<const Node *> &nodeRefs)
 {
     double length = 0;
     auto prev_node_ptr = nodeRefs.front();
@@ -120,16 +120,16 @@ double Way::length(const std::vector<Node *> &nodeRefs)
 
 
 
-std::vector<std::vector<Node*>>
+std::vector<std::vector<const Node*>>
 Way::split_me() {
     if (nodeRefs().size() < 2) {
         /*
          * The way is ill formed
          */
-        return std::vector<std::vector<Node*>>();
+        return std::vector<std::vector<const Node*>>();
     }
 
-    std::vector<std::vector<Node*>> m_split_ways;
+    std::vector<std::vector<const Node*>> m_split_ways;
     auto it_node(nodeRefs().begin());
     auto last_node(nodeRefs().end());
 
@@ -137,7 +137,7 @@ Way::split_me() {
         /*
          * starting a new split
          */
-        std::vector<Node*> split_way;
+        std::vector<const Node*> split_way;
         split_way.push_back(*it_node);
 
         ++it_node;

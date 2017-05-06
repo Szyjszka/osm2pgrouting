@@ -66,7 +66,7 @@ class Node : public Element {
       *    @param atts attributes read py the parser
       */
      explicit Node(const char **atts);
-     inline std::string geom_str(std::string separator) {
+     inline std::string geom_str(std::string separator) const{
          return get_attribute("lon") + separator +  get_attribute("lat");
      }
 

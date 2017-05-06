@@ -20,6 +20,8 @@ DataConverter::DataConverter(OSMDocument &document, OrderCriterium orderCriteriu
 
     convertToInternalFormat(document);
 
+    std::cout <<"contraction" << std::endl;
+
     atm.startMeasurement();
 
     contract(edgesTable, nodesWithRoads, shortcutsTable, neighboursTable, shortcutInfos, orderCriterium, strategy);
@@ -32,12 +34,12 @@ DataConverter::DataConverter(OSMDocument &document, OrderCriterium orderCriteriu
     measureFile.close();
 }
 
-double DataConverter::getWayCost(const std::vector<osm2pgr::Node*> &nodes) const
+double DataConverter::getWayCost(const std::vector<const osm2pgr::Node*> &nodes) const
 {
     return Way::length(nodes);
 }
 
-Endpoints DataConverter::getEntpoints(const std::vector<osm2pgr::Node*> &nodes) const
+Endpoints DataConverter::getEntpoints(const std::vector<const osm2pgr::Node*> &nodes) const
 {
     return {*(nodes.front()), *(nodes.back())};
 }
@@ -148,6 +150,8 @@ void DataConverter::upgradeWays(OSMDocument &document)
 
 void DataConverter::convertToInternalFormat(const OSMDocument &document)
 {
+
+    std::cout <<"convert to internal format" << std::endl;
     size_t numberOfNodes = document.nodes().size();
     getTagForNewWays(document);
     nodes.resize(numberOfNodes);
@@ -156,12 +160,16 @@ void DataConverter::convertToInternalFormat(const OSMDocument &document)
         osm2pgrNodes.push_back(node.second);
     }
 
+    std::cout <<"create splitted ways" << std::endl;
     splittedWays = createSplittedWays(document);
     NumberOfWaysFromNode numberOfWaysFromNode = getNumberOfWaysFromNode(splittedWays);
     size_t numberOfWays = numberOfWaysFromNode.size();
     groupNodesWithRoads(numberOfWaysFromNode, document);
     numberOfWaysFromNode.clear();
 
+
+    std::cout <<"fill edges table" << std::endl;
+    std::cout <<"Tyle wierzcholkow z drogami " << osm2pgrNodes.size()<<std::endl;
     fillEdgesTable(splittedWays, numberOfWays);
 
     nodesWithRoads = std::vector<Node>(nodes.begin(), nodes.begin() + numberOfWays);

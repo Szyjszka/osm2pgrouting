@@ -16,13 +16,13 @@ public:
     DataConverter(osm2pgr::OSMDocument& document, OrderCriterium orderCriterium,
                   OrderSupervisor::Strategy strategy, const std::string& measureFileName);
 
-    typedef std::vector<std::vector<osm2pgr::Node *> > SplittedWays;
+    typedef std::vector<std::vector<const osm2pgr::Node *> > SplittedWays;
     typedef std::vector<osm2pgr::Way> Osm2pgrWays;
     typedef std::vector<osm2pgr::Node> Osm2pgrNodes;
     typedef std::map<int64_t, uint32_t> NumberOfWaysFromNode;
 private:
-    double getWayCost(const std::vector<osm2pgr::Node*> &nodes) const;
-    Endpoints getEntpoints(const std::vector<osm2pgr::Node*>& way) const;
+    double getWayCost(const std::vector<const osm2pgr::Node *> &nodes) const;
+    Endpoints getEntpoints(const std::vector<const osm2pgr::Node*>& way) const;
     osm2pgr::Tag getTagForNewWays(const osm2pgr::OSMDocument& document);
 
     Osm2pgrWays createNewWays(const osm2pgr::OSMDocument& document);

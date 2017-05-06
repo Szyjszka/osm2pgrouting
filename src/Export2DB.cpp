@@ -731,7 +731,7 @@ void Export2DB::exportWays(const std::map<int64_t, Way> &ways, const Configurati
         if(way.shortcut == 0)
         {
             double length_of_shortcut = 0;
-            std::vector<Node*> wholeShortcut;
+            std::vector<const Node*> wholeShortcut;
             wholeShortcut.push_back(splits[0][0]);
             wholeShortcut.push_back(splits.back().back());
             for (size_t i = 0; i < splits.size(); ++i) {
