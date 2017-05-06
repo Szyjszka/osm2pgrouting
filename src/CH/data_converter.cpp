@@ -155,7 +155,8 @@ void DataConverter::convertToInternalFormat(const OSMDocument &document)
     getTagForNewWays(document);
 
     std::cout <<"create splitted ways" << std::endl;
-    splittedWays = createSplittedWays(document);
+    SplittedWays splittedWays;
+    createSplittedWays(document, splittedWays);
     NumberOfWaysFromNode numberOfWaysFromNode = getNumberOfWaysFromNode(splittedWays);
     size_t numberOfWays = numberOfWaysFromNode.size();
     nodes.resize(numberOfWays);
@@ -201,9 +202,9 @@ DataConverter::NumberOfWaysFromNode DataConverter::getNumberOfWaysFromNode(const
     return waysFromNode;
 }
 
-DataConverter::SplittedWays DataConverter::createSplittedWays(const OSMDocument &document)
+void DataConverter::createSplittedWays(const OSMDocument &document, DataConverter::SplittedWays& splittedWays)
 {
-    SplittedWays splittedWays;
+    splittedWays.reserve(document.ways().size());
     for(auto ways_together : document.ways())
     {
        if (ways_together.second.tag_config().key() == "" || ways_together.second.tag_config().value() == "") continue;
@@ -214,7 +215,6 @@ DataConverter::SplittedWays DataConverter::createSplittedWays(const OSMDocument 
            splittedWays.push_back(way);
        }
     }
-    return splittedWays;
 }
 
 void DataConverter::groupNodesWithRoads(const DataConverter::NumberOfWaysFromNode &numberOfWaysFromNode, const OSMDocument &document)

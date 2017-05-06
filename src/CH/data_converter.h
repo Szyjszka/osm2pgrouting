@@ -29,7 +29,7 @@ private:
     void upgradeWays(osm2pgr::OSMDocument& document);
     void convertToInternalFormat(const osm2pgr::OSMDocument& document);
     NumberOfWaysFromNode getNumberOfWaysFromNode(const SplittedWays& splittedWays);
-    SplittedWays createSplittedWays(const osm2pgr::OSMDocument &document);
+    void createSplittedWays(const osm2pgr::OSMDocument &document, SplittedWays &splittedWays);
     void groupNodesWithRoads(const NumberOfWaysFromNode& numberOfWaysFromNode, const osm2pgr::OSMDocument &document);
     void fillEdgesTable(const SplittedWays& splittedWays, const size_t numberOfWays);
 
