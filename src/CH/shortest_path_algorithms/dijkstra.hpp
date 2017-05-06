@@ -7,6 +7,6 @@ namespace RouterCH
 {
 
 Route dijkstra(const EdgesTable& edgesTable, const uint32_t start,
-              const uint32_t end, const Nodes& nodes, const double maxCost);
+              const uint32_t end, const Nodes& nodes, const double maxCost, const uint32_t startingOrder);
 }
 #endif // DIJKSTRA_HPP

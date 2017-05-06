@@ -67,7 +67,7 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
             if((edgesTable)[uID].at(wID)>=INF)
             {
                 if(chechIfShortcudNeeded(edgesTable, nodes[uID], nodes[wID], nodes,
-                                        edgeWithNodesTable[i].cost + edgeWithNodesTable[j].cost))
+                                        edgeWithNodesTable[i].cost + edgeWithNodesTable[j].cost, nodes[v.id].order))
                 {
                     ++numberOfShortcutsCreated;
 

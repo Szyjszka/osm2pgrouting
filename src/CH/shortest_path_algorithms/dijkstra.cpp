@@ -9,7 +9,7 @@ namespace RouterCH
 {
 
 Route dijkstra(const EdgesTable &edgesTable, const uint32_t start,
-               const uint32_t end, const Nodes& nodes, const double maxCost)
+               const uint32_t end, const Nodes& nodes, const double maxCost, const uint32_t startingOrder)
 {
     QSTable qsTable(nodes.size(),true);
     CostQue costQue;
@@ -35,7 +35,7 @@ Route dijkstra(const EdgesTable &edgesTable, const uint32_t start,
         qsTable[nextElem.second] = false;
         for(auto edge : edgesTable[nextElem.second])
         {
-                if(qsTable[edge.first] && edge.second  < INF)
+                if(qsTable[edge.first] && edge.second  < INF && nodes[edge.first].order >= startingOrder)
                 {
                     if(costTable[edge.first] > costTable[nextElem.second] + edge.second)
                     {

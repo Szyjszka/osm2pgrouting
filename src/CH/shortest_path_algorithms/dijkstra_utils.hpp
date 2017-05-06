@@ -18,7 +18,7 @@ Route createShortestPath(const EdgesTable &edgesTable, const PathTable& pathTabl
                          const uint32_t end, const Nodes& nodes, const ShorctutsTable* shortcutsTable = nullptr);
 
 bool chechIfShortcudNeeded(const EdgesTable& edgesTable, const Node& u,
-                           const Node& w, const Nodes &nodes, const double cost);
+                           const Node& w, const Nodes &nodes, const double cost, const uint32_t startingOrder);
 bool operator==(const Route& a, const Route& b);
 bool operator!=(const Route& a, const Route& b);
 bool operator==(const Node& a, const Node& b);
