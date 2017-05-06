@@ -95,9 +95,12 @@ OSMDocumentParserCallback::StartElement(
             last_way = new Way(atts);
         }
         if (strcmp(name, "tag") == 0) {
-            auto tag = last_way->add_tag(Tag(atts));
+            auto tag = Tag(atts);
             if(tag.key() == "highway" || tag.key() == "maxspeed")
+            {
                 m_rDocument.add_config(*last_way, tag);
+                last_way->add_tag(tag);
+            }
         }
 
         if (strcmp(name, "nd") == 0) {

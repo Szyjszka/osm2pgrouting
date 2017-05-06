@@ -40,7 +40,8 @@ Element::Element(const char **atts) :
             if (name == "visible") {
                 m_visible = (value == "true")? true : false;
             }
-            m_attributes[name] = value;
+            if(name == "lat" || name == "lon")
+                m_attributes[name] = value;
         }
     }
 
