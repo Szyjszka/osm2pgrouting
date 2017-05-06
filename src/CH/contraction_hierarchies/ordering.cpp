@@ -10,6 +10,40 @@ static int32_t getNumOfWays(EdgesTable& edgesTable, const Node& v)
     return static_cast<int32_t>(edgesTable[v.id].size());
 }
 
+static int32_t getSearchSpace(EdgesTable& edgesTable, Nodes &nodes, const Node& v, NeighboursTable& neighboursTable)
+{
+    uint32_t searchSpace = 0;
+    for(uint32_t i = 0; i < neighboursTable[v.id].size(); ++i)
+    {
+        uint32_t uID = neighboursTable[v.id][i];
+        if(nodes[uID].order <= nodes[v.id].order)
+        {
+            continue;
+        }
+
+        for(uint32_t j = i + 1; j < neighboursTable[v.id].size(); ++j)
+        {
+            uint32_t wID = neighboursTable[v.id][j];
+            if(nodes[wID].order <= nodes[v.id].order)
+            {
+                continue;
+            }
+
+            if((edgesTable)[uID].at(wID)>=INF)
+            {
+                //TODO * cost of query
+                ++searchSpace;
+            }
+        }
+    }
+    return searchSpace;
+}
+
+//static int32_t getCostOfQuery(EdgesTable& edgesTable, const Node& v)
+//{
+//    return 0;
+//}
+
 static int32_t getDeletedWays(EdgesTable& edgesTable, const Node& v, Nodes &nodes, const uint32_t starting_order)
 {
     uint32_t deletedWays = 0;
@@ -53,6 +87,7 @@ static int32_t getNumOfAlreadyContractedNeighbours(const Node& v, const Nodes &n
 static int32_t getVoronaiRegion(const EdgesTable& edgesTable, const Node& v,
                 const NeighboursTable& neighboursTable)
 {
+    //TODO voronai region wedle artykulu
     int32_t orderPoints = 0;
     for(auto neighbour : neighboursTable[v.id])
     {
@@ -138,6 +173,9 @@ int32_t getOrderPoints(OrderCriterium criterium, EdgesTable& edgesTable, const N
         break;
     case OrderCriterium::Geo:
         return getGeoPoints(v, nodes);
+        break;
+    case OrderCriterium::SearchSpace:
+        return getSearchSpace(edgesTable, nodes, v, neighboursTable);
         break;
     default:
         break;

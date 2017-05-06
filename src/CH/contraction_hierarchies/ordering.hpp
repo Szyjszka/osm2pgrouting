@@ -15,7 +15,9 @@ namespace RouterCH
         ContractedNeighbours,
         VoronoiRegion,
         TimeOfContraction,
-        Geo
+        Geo,
+        SearchSpace,
+        CostOfQuery
     };
 
     OrderCriterium getOrderCriteriumFromString(const std::string& string);
