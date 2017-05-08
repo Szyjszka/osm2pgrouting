@@ -14,7 +14,7 @@ class DataConverter
 {
 public:
     DataConverter(osm2pgr::OSMDocument& document, OrderCriterium orderCriterium,
-                  OrderSupervisor::Strategy strategy, const std::string& measureFileName);
+                  OrderSupervisor::Strategy strategy, const std::string& measureFileName, const OrderParameters& orderParameters);
 
     typedef std::vector<std::vector<const osm2pgr::Node *> > SplittedWays;
     typedef std::vector<osm2pgr::Way> Osm2pgrWays;

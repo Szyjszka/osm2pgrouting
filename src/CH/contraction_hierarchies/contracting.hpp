@@ -11,7 +11,7 @@ namespace RouterCH
 
 void contract(EdgesTable& edgesTable, Nodes& nodes, ShorctutsTable& shortcutsTable,
               NeighboursTable& neighboursTable, ShorctutsInfoTable &shortcutInfos,
-              OrderCriterium orderCriterium, OrderSupervisor::Strategy strategy);
+              OrderCriterium orderCriterium, OrderSupervisor::Strategy strategy, const OrderParameters& orderParameters);
 uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
                   ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, bool addNewEdges, ShorctutsInfoTable &shortcutInfos);
 }

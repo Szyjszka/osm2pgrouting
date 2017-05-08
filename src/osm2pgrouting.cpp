@@ -139,7 +139,11 @@ int main(int argc, char* argv[]) {
         //1) Create edges table
         RouterCH::OrderCriterium orderCriterium = RouterCH::getOrderCriteriumFromString(vm["OrderUpdate"].as<string>());
         RouterCH::OrderSupervisor::Strategy orderStrategy = RouterCH::OrderSupervisor::getOrderStrategyFromString(vm["OrderStrategy"].as<string>());
-        RouterCH::DataConverter dataForCH(document, orderCriterium, orderStrategy, vm["measure"].as<string>());
+        RouterCH::OrderParameters orderParameters;
+        orderParameters.A =vm["A"].as<int>();
+        orderParameters.B =vm["B"].as<int>();
+        orderParameters.C =vm["C"].as<int>();
+        RouterCH::DataConverter dataForCH(document, orderCriterium, orderStrategy, vm["measure"].as<string>(), orderParameters);
 
         // END OF CH PART
 

@@ -17,23 +17,24 @@ namespace RouterCH
         TimeOfContraction,
         Geo,
         SearchSpace,
-        CostOfQuery
+        CostOfQuery,
+        MyAlgorithm
     };
 
     OrderCriterium getOrderCriteriumFromString(const std::string& string);
 
     void simple_order(Nodes* nodes, Order* order);
     void orderNodes(OrderCriterium criterium, Nodes& nodes, Order& order, EdgesTable &edgesTable, const uint32_t start,
-               ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable);
+               ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const OrderParameters& orderParameters);
 
 
     void orderNodes(OrderCriterium criterium, Nodes& nodes, OrderQue& orderQue, EdgesTable &edgesTable,
-               ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable);
+               ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const OrderParameters& orderParameters);
 
     void updateNeighbours(OrderCriterium criterium, Nodes& nodes, Order& order, EdgesTable &edgesTable, const uint32_t start,
-                    ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const Neighbours& nodesThatChanged);
+                    ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const Neighbours& nodesThatChanged, const OrderParameters& orderParameters);
 
     int32_t getOrderPoints(OrderCriterium criterium, EdgesTable& edgesTable, const Node& v, Nodes &nodes,
-                            ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const uint32_t actualIter);
+                            ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const uint32_t actualIter, const OrderParameters& orderParameters);
 }
 #endif // ORDERING_HPP

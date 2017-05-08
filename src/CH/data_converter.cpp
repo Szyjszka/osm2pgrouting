@@ -13,7 +13,8 @@
 using namespace osm2pgr;
 using namespace RouterCH;
 
-DataConverter::DataConverter(OSMDocument &document, OrderCriterium orderCriterium, OrderSupervisor::Strategy strategy, const std::__cxx11::string &measureFileName)
+DataConverter::DataConverter(OSMDocument &document, OrderCriterium orderCriterium, OrderSupervisor::Strategy strategy,
+                             const std::__cxx11::string &measureFileName, const OrderParameters& orderParameters)
 {
     std::ofstream measureFile(measureFileName, std::ofstream::out | std::ofstream::app);
     AlgorithmTimeMeasure atm;
@@ -24,7 +25,7 @@ DataConverter::DataConverter(OSMDocument &document, OrderCriterium orderCriteriu
 
     atm.startMeasurement();
 
-    contract(edgesTable, nodesWithRoads, shortcutsTable, neighboursTable, shortcutInfos, orderCriterium, strategy);
+    contract(edgesTable, nodesWithRoads, shortcutsTable, neighboursTable, shortcutInfos, orderCriterium, strategy, orderParameters);
 
     atm.stopMeasurement();
     measureFile << nodesWithRoads.size() << " " << splittedWays.size() << " " << atm.getMeanTime() << std::endl;

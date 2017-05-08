@@ -142,11 +142,11 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
 
 void contract(EdgesTable& edgesTable, Nodes& nodes,
               ShorctutsTable& shortcutsTable, NeighboursTable &neighboursTable, ShorctutsInfoTable &shortcutInfos,
-              OrderCriterium orderCriterium, OrderSupervisor::Strategy strategy)
+              OrderCriterium orderCriterium, OrderSupervisor::Strategy strategy, const OrderParameters &orderParameters)
 {
     uint32_t shortcuts = 0;
     OrderSupervisor orderSupervisor(strategy, orderCriterium,
-                                    nodes, edgesTable, neighboursTable, shortcutsTable);
+                                    nodes, edgesTable, neighboursTable, shortcutsTable, orderParameters);
     for(uint32_t i = 0; i < nodes.size(); ++i)
     {
         orderSupervisor.updateOrder(nodes, edgesTable, neighboursTable, shortcutsTable);

@@ -8,6 +8,12 @@
 #include "Way.h"
 
 namespace RouterCH {
+
+struct OrderParameters{
+    int A,B,C;
+};
+
+
 struct Endpoints{
     osm2pgr::Node start, end;
 };

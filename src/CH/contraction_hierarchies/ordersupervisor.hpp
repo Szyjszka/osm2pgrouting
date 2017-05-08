@@ -22,7 +22,7 @@ public:
 
     static Strategy getOrderStrategyFromString(const std::string& string);
     OrderSupervisor(const Strategy strategy_, const OrderCriterium orderCriterium_, Nodes& nodes,
-                    EdgesTable& edgesTable, NeighboursTable& neighboursTable, ShorctutsTable& shortcutsTable);
+                    EdgesTable& edgesTable, NeighboursTable& neighboursTable, ShorctutsTable& shortcutsTable, const OrderParameters& OrderParameters);
     uint32_t getIndexOfNextNode() const;
     void updateOrder(Nodes& nodes, EdgesTable& edgesTable, NeighboursTable& neighbours, ShorctutsTable& shortcutsTable);
 private:
@@ -32,6 +32,7 @@ private:
     Order orderTable;
     uint32_t actualNode;
     uint32_t counter;
+    OrderParameters orderParameters;
 };
 
 

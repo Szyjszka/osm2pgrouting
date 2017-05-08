@@ -22,20 +22,21 @@ OrderSupervisor::Strategy OrderSupervisor::getOrderStrategyFromString(const std:
 }
 
 OrderSupervisor::OrderSupervisor(const OrderSupervisor::Strategy strategy_, const OrderCriterium orderCriterium_,
-                                 Nodes &nodes, EdgesTable &edgesTable, NeighboursTable &neighboursTable, ShorctutsTable &shortcutsTable)
+                                 Nodes &nodes, EdgesTable &edgesTable, NeighboursTable &neighboursTable, ShorctutsTable &shortcutsTable, const OrderParameters &orderParameters_)
     : strategy(strategy_)
     , orderCriterium(orderCriterium_)
     , counter(0)
+    , orderParameters(orderParameters_)
 {
     if(strategy != Strategy::LazyUpdate)
     {
         orderTable.resize(nodes.size());
         simple_order(&nodes, &orderTable);
-        orderNodes(orderCriterium, nodes, orderTable, edgesTable, 0, shortcutsTable, neighboursTable);
+        orderNodes(orderCriterium, nodes, orderTable, edgesTable, 0, shortcutsTable, neighboursTable, orderParameters);
     }
     else
     {
-        orderNodes(orderCriterium, nodes, orderQue, edgesTable, shortcutsTable, neighboursTable);
+        orderNodes(orderCriterium, nodes, orderQue, edgesTable, shortcutsTable, neighboursTable, orderParameters);
     }
 
 }
@@ -53,12 +54,12 @@ void OrderSupervisor::updateOrder(Nodes &nodes, EdgesTable &edgesTable, Neighbou
         if(strategy == Strategy::UpdateEveryRound)
         {
             orderNodes(orderCriterium, nodes, orderTable, edgesTable, counter,
-                       shortcutsTable, neighboursTable);
+                       shortcutsTable, neighboursTable, orderParameters);
         }
         else if(strategy == Strategy::UpdateNeighbours)
         {
             updateNeighbours(orderCriterium, nodes, orderTable, edgesTable, counter,
-                             shortcutsTable, neighboursTable, neighboursTable[nodes[actualNode].id]);
+                             shortcutsTable, neighboursTable, neighboursTable[nodes[actualNode].id], orderParameters);
         }
         actualNode = orderTable[counter];
     }
@@ -72,7 +73,7 @@ void OrderSupervisor::updateOrder(Nodes &nodes, EdgesTable &edgesTable, Neighbou
             orderElem = orderQue.top();
             orderQue.pop();
             orderElem.first = getOrderPoints(orderCriterium, edgesTable, nodes[orderElem.second],
-                    nodes, shortcutsTable, neighboursTable, counter);
+                    nodes, shortcutsTable, neighboursTable, counter, orderParameters);
             notBestSolution = orderElem.first > orderQue.top().first;
             if(notBestSolution)
                 orderQue.push(orderElem);

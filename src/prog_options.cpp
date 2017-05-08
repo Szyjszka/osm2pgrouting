@@ -54,6 +54,9 @@ void get_option_description(po::options_description &od_desc) {
         ("measure", po::value<std::string>()->required(), "Name of file in which contraction measures are put")
         ("OrderUpdate", po::value<std::string>()->required(), "Order - Voronai, ED...")
         ("OrderStrategy", po::value<std::string>()->required(), "Update method for order - lazy contraction, all ...")
+        ("A", po::value<int>()->required(), "Parameter for ordering algorithm")
+        ("B", po::value<int>()->required(), "Parameter for ordering algorithm")
+        ("C", po::value<int>()->required(), "Parameter for ordering algorithm")
         ("addnodes", "Import the osm_nodes table.")
         ("clean", "Drop previously created tables.");
 
