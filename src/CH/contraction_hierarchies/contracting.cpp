@@ -151,10 +151,10 @@ void contract(EdgesTable& edgesTable, Nodes& nodes,
     {
         orderSupervisor.updateOrder(nodes, edgesTable, neighboursTable, shortcutsTable);
         uint32_t nextNode = orderSupervisor.getIndexOfNextNode();
-        if(!(i%100))
-        {
-            std::cout << "Zostalo jeszcze " << nodes.size() - i << " Utworzono "<< shortcuts << " skrotow" << std::endl;
-        }
+//        if(!(i%100))
+//        {
+//            std::cout << "Zostalo jeszcze " << nodes.size() - i << " Utworzono "<< shortcuts << " skrotow" << std::endl;
+//        }
         shortcuts += contractNode(edgesTable, nodes[nextNode], nodes, shortcutsTable, neighboursTable, true, shortcutInfos);
 
 
