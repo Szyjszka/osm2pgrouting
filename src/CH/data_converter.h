@@ -26,7 +26,7 @@ private:
     osm2pgr::Tag getTagForNewWays(const osm2pgr::OSMDocument& document);
 
     Osm2pgrWays createNewWays(const osm2pgr::OSMDocument& document);
-    void upgradeWays(osm2pgr::OSMDocument& document);
+    unsigned int upgradeWays(osm2pgr::OSMDocument& document);
     void convertToInternalFormat(const osm2pgr::OSMDocument& document);
     NumberOfWaysFromNode getNumberOfWaysFromNode(const SplittedWays& splittedWays);
     void createSplittedWays(const osm2pgr::OSMDocument &document, SplittedWays &splittedWays);
@@ -35,7 +35,6 @@ private:
 
     int64_t nextWayID;
     RouterCH::EdgesTable edgesTable;
-    SplittedWays splittedWays;
     RouterCH::Nodes nodes;
     ShorctutsTable shortcutsTable;
     Osm2pgrNodes osm2pgrNodes;

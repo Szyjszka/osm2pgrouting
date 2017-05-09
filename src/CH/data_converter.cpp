@@ -28,9 +28,10 @@ DataConverter::DataConverter(OSMDocument &document, OrderCriterium orderCriteriu
     contract(edgesTable, nodesWithRoads, shortcutsTable, neighboursTable, shortcutInfos, orderCriterium, strategy, orderParameters);
 
     atm.stopMeasurement();
-    measureFile << nodesWithRoads.size() << " " << splittedWays.size() << " " << atm.getMeanTime() << std::endl;
 
-    upgradeWays(document);
+    const uint32_t numOfShortcuts = upgradeWays(document);
+
+    measureFile << nodesWithRoads.size() << " " << document.ways().size() - numOfShortcuts << " " << numOfShortcuts << " " << atm.getMeanTime() << std::endl;
 
     measureFile.close();
 }
@@ -63,7 +64,6 @@ DataConverter::Osm2pgrWays DataConverter::createNewWays(const osm2pgr::OSMDocume
 {
     //These things are no longer needed
     nodes.clear();
-    splittedWays.clear();
     edgesTable.clear();
     neighboursTable.clear();
 
@@ -98,7 +98,7 @@ DataConverter::Osm2pgrWays DataConverter::createNewWays(const osm2pgr::OSMDocume
     return newWays;
 }
 
-void DataConverter::upgradeWays(OSMDocument &document)
+unsigned int DataConverter::upgradeWays(OSMDocument &document)
 {
 
     Osm2pgrWays newWays = createNewWays(document);
@@ -147,6 +147,8 @@ void DataConverter::upgradeWays(OSMDocument &document)
         assert(document.ways().find(way.osm_id()) == document.ways().end());
         document.AddWay(way);
     }
+
+    return newWays.size();
 }
 
 void DataConverter::convertToInternalFormat(const OSMDocument &document)
