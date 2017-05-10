@@ -8,7 +8,6 @@
 #include "contraction_hierarchies/contracting.hpp"
 #include "contraction_hierarchies/ordering.hpp"
 #include "shortest_path_algorithms/dijkstra.hpp"
-#include "shortest_path_algorithms/modified_bidirectional_dijkstra.hpp"
 
 using namespace osm2pgr;
 using namespace RouterCH;

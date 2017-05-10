@@ -27,18 +27,24 @@ OrderSupervisor::OrderSupervisor(const OrderSupervisor::Strategy strategy_, cons
     , orderCriterium(orderCriterium_)
     , counter(0)
     , orderParameters(orderParameters_)
+    , settledNodesLimit(INF)
+    , hopLimit(INF)
 {
     if(strategy != Strategy::LazyUpdate)
     {
         orderTable.resize(nodes.size());
         simple_order(&nodes, &orderTable);
-        orderNodes(orderCriterium, nodes, orderTable, edgesTable, 0, shortcutsTable, neighboursTable, orderParameters);
+        orderNodes(orderCriterium, nodes, orderTable, edgesTable, 0, shortcutsTable, neighboursTable, orderParameters, hopLimit, settledNodesLimit);
     }
     else
     {
-        orderNodes(orderCriterium, nodes, orderQue, edgesTable, shortcutsTable, neighboursTable, orderParameters);
+        orderNodes(orderCriterium, nodes, orderQue, edgesTable, shortcutsTable, neighboursTable, orderParameters, hopLimit, settledNodesLimit);
     }
-
+    if(orderCriterium_ == OrderCriterium::MyAlgorithm)
+    {
+        hopLimit = INF;
+        settledNodesLimit = INF;
+    }
 }
 
 uint32_t OrderSupervisor::getIndexOfNextNode() const
@@ -54,12 +60,12 @@ void OrderSupervisor::updateOrder(Nodes &nodes, EdgesTable &edgesTable, Neighbou
         if(strategy == Strategy::UpdateEveryRound)
         {
             orderNodes(orderCriterium, nodes, orderTable, edgesTable, counter,
-                       shortcutsTable, neighboursTable, orderParameters);
+                       shortcutsTable, neighboursTable, orderParameters, hopLimit, settledNodesLimit);
         }
         else if(strategy == Strategy::UpdateNeighbours)
         {
             updateNeighbours(orderCriterium, nodes, orderTable, edgesTable, counter,
-                             shortcutsTable, neighboursTable, neighboursTable[nodes[actualNode].id], orderParameters);
+                             shortcutsTable, neighboursTable, neighboursTable[nodes[actualNode].id], orderParameters, hopLimit, settledNodesLimit);
         }
         actualNode = orderTable[counter];
     }
@@ -73,7 +79,7 @@ void OrderSupervisor::updateOrder(Nodes &nodes, EdgesTable &edgesTable, Neighbou
             orderElem = orderQue.top();
             orderQue.pop();
             orderElem.first = getOrderPoints(orderCriterium, edgesTable, nodes[orderElem.second],
-                    nodes, shortcutsTable, neighboursTable, counter, orderParameters);
+                    nodes, shortcutsTable, neighboursTable, counter, orderParameters, hopLimit, settledNodesLimit);
             notBestSolution = orderElem.first > orderQue.top().first;
             if(notBestSolution)
                 orderQue.push(orderElem);
@@ -82,6 +88,16 @@ void OrderSupervisor::updateOrder(Nodes &nodes, EdgesTable &edgesTable, Neighbou
         nodes[actualNode].order = counter;
     }
     ++counter;
+}
+
+uint32_t OrderSupervisor::getSettledNodesLimit() const
+{
+    return settledNodesLimit;
+}
+
+uint32_t OrderSupervisor::getHopLimit() const
+{
+    return hopLimit;
 }
 
 }

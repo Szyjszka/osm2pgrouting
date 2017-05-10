@@ -30,7 +30,8 @@ bool operator ==(Route a, Route b)
 
 
 uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
-                  ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, bool addNewEdges,  ShorctutsInfoTable& shortcutInfos)
+                  ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, bool addNewEdges,  ShorctutsInfoTable& shortcutInfos,
+                      const uint32_t maxHop, const uint32_t maxSettledNodes)
 {
 
     EdgeWithNodesTable edgeWithNodesTable(neighboursTable[v.id].size());
@@ -67,7 +68,8 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
             if((edgesTable)[uID].at(wID)>=INF)
             {
                 if(chechIfShortcudNeeded(edgesTable, nodes[uID], nodes[wID], nodes,
-                                        edgeWithNodesTable[i].cost + edgeWithNodesTable[j].cost, nodes[v.id].order))
+                                        edgeWithNodesTable[i].cost + edgeWithNodesTable[j].cost, nodes[v.id].order,
+                                         maxHop, maxSettledNodes))
                 {
                     ++numberOfShortcutsCreated;
 
@@ -111,7 +113,6 @@ uint32_t contractNode(EdgesTable& edgesTable, const Node& v, const Nodes &nodes,
                     shortcutInfos[wID][uID].id = shortcutID;
                     ++shortcutID;
 
-                    //TODO shortcuts recursively from other roads
                     for(auto nodeID : shorctcutsTable[uID][v.id])
                     {
                         (shorctcutsTable)[uID][wID].push_back({nodeID});
@@ -151,11 +152,12 @@ void contract(EdgesTable& edgesTable, Nodes& nodes,
     {
         orderSupervisor.updateOrder(nodes, edgesTable, neighboursTable, shortcutsTable);
         uint32_t nextNode = orderSupervisor.getIndexOfNextNode();
-//        if(!(i%100))
-//        {
-//            std::cout << "Zostalo jeszcze " << nodes.size() - i << " Utworzono "<< shortcuts << " skrotow" << std::endl;
-//        }
-        shortcuts += contractNode(edgesTable, nodes[nextNode], nodes, shortcutsTable, neighboursTable, true, shortcutInfos);
+        if(!(i%100))
+        {
+            std::cout << "Zostalo jeszcze " << nodes.size() - i << " Utworzono "<< shortcuts << " skrotow" << std::endl;
+        }
+        shortcuts += contractNode(edgesTable, nodes[nextNode], nodes, shortcutsTable, neighboursTable, true, shortcutInfos,
+                                 orderSupervisor.getHopLimit(),  orderSupervisor.getSettledNodesLimit());
 
 
     }

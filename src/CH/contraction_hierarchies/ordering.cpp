@@ -59,13 +59,14 @@ static int32_t getDeletedWays(EdgesTable& edgesTable, const Node& v, Nodes &node
 
 
 static int32_t getNumOfShortcuts(EdgesTable& edgesTable, const Node& v, Nodes &nodes,
-                           ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const uint32_t starting_order)
+                           ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const uint32_t starting_order,
+                           const uint32_t maxHop, const uint32_t maxSettledNodes)
 {
 
     const int32_t actualOrder = nodes[v.id].order;
     nodes[v.id].order = std::max<int>(0, starting_order-1);
     ShorctutsInfoTable unused;
-    const int32_t orderPoints = contractNode(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, false, unused);
+    const int32_t orderPoints = contractNode(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, false, unused, maxHop, maxSettledNodes);
     nodes[v.id].order = actualOrder;
     return orderPoints;
 }
@@ -118,7 +119,7 @@ static int32_t getTimeOfContraction(EdgesTable& edgesTable, const Node& v, Nodes
     ShorctutsInfoTable unused;
     AlgorithmTimeMeasure atm;
     atm.startMeasurement();
-    contractNode(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, false, unused);
+    contractNode(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, false, unused, INF, INF);
     atm.stopMeasurement();
     const int32_t orderPoints = static_cast<int32_t>(std::ceil(atm.getMeanTime()*TIME_MULTIPLIER));
     nodes[v.id].order = actualOrder;
@@ -132,19 +133,20 @@ static int32_t getGeoPoints(const Node& v, Nodes &nodes)
 }
 
 static int32_t getEdgeDifference(EdgesTable& edgesTable, const Node& v, Nodes &nodes,
-                           ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, uint32_t starting_order)
+                                ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, uint32_t starting_order,
+                                 const uint32_t maxHop, const uint32_t maxSettledNodes)
 {
-    return getNumOfShortcuts(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, starting_order) -
+    return getNumOfShortcuts(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, starting_order, maxHop, maxSettledNodes) -
            getDeletedWays(edgesTable,  nodes[v.id], nodes, starting_order);
 }
 
 static int32_t getMyAlgorithmPoints(EdgesTable& edgesTable, const Node& v, Nodes &nodes,
                                     ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, uint32_t starting_order,
-                                    OrderParameters orderParameters)
+                                    OrderParameters orderParameters, const uint32_t maxHop, const uint32_t maxSettledNodes)
 {
     const uint32_t w = getNumOfWays(edgesTable, v);
-    const uint32_t ed = getEdgeDifference(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, starting_order);
-    const uint32_t sh = getNumOfShortcuts(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, starting_order);
+    const uint32_t ed = getEdgeDifference(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, starting_order, maxHop, maxSettledNodes);
+    const uint32_t sh = getNumOfShortcuts(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, starting_order, maxHop, maxSettledNodes);
 
     return (orderParameters.A*w + orderParameters.B*ed + orderParameters.C*sh);
 }
@@ -159,20 +161,21 @@ void simple_order(Nodes* nodes, Order *order)
 }
 
 int32_t getOrderPoints(OrderCriterium criterium, EdgesTable& edgesTable, const Node& v, Nodes &nodes,
-                        ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const uint32_t actualIter, const OrderParameters &orderParameters)
+                        ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const uint32_t actualIter, const OrderParameters &orderParameters,
+                       const uint32_t maxHop, const uint32_t maxSettledNodes)
 {
     switch (criterium) {
     case OrderCriterium::Ways:
         return getNumOfWays(edgesTable, v);
         break;
     case OrderCriterium::Shortcuts:
-        return getNumOfShortcuts(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, actualIter);
+        return getNumOfShortcuts(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, actualIter, maxHop, maxSettledNodes);
         break;
     case OrderCriterium::Ways_Plus_Shortcuts:
-        return getNumOfWays(edgesTable, v) + getNumOfShortcuts(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, actualIter);
+        return getNumOfWays(edgesTable, v) + getNumOfShortcuts(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, actualIter, maxHop, maxSettledNodes);
         break;
     case OrderCriterium::EdgeDifference:
-        return getEdgeDifference(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, actualIter);
+        return getEdgeDifference(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, actualIter, maxHop, maxSettledNodes);
         break;
     case OrderCriterium::TimeOfContraction:
         return getTimeOfContraction(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, actualIter);
@@ -190,7 +193,9 @@ int32_t getOrderPoints(OrderCriterium criterium, EdgesTable& edgesTable, const N
         return getSearchSpace(edgesTable, nodes, v, neighboursTable);
         break;
     case OrderCriterium::MyAlgorithm:
-        return getMyAlgorithmPoints(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, actualIter, orderParameters);
+        return getMyAlgorithmPoints(edgesTable, nodes[v.id], nodes, shorctcutsTable,
+                neighboursTable, actualIter, orderParameters, maxHop, maxSettledNodes);
+
     default:
         break;
     }
@@ -209,7 +214,8 @@ void applyOrderPoints(Nodes& nodes, Order& order, const uint32_t start, const ui
 }
 
 void updateNeighbours(OrderCriterium criterium, Nodes& nodes, Order& order, EdgesTable &edgesTable, const uint32_t start,
-                ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const Neighbours& nodesThatChanged, const OrderParameters &orderParameters)
+                    ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const Neighbours& nodesThatChanged, const OrderParameters &orderParameters,
+                      const uint32_t maxHop, const uint32_t maxSettledNodes)
 {
     if(!nodesThatChanged.size())
     {
@@ -222,7 +228,7 @@ void updateNeighbours(OrderCriterium criterium, Nodes& nodes, Order& order, Edge
         if(nodes[nodesThatChanged[i]].order >= start)
         {
             nodes[nodesThatChanged[i]].orderPoints = getOrderPoints(criterium, edgesTable, nodes[nodesThatChanged[i]], nodes,
-                    shorctcutsTable, neighboursTable, start, orderParameters);
+                    shorctcutsTable, neighboursTable, start, orderParameters, maxHop, maxSettledNodes);
             end = std::max(nodes[nodesThatChanged[i]].order, end);
         }
     }
@@ -233,24 +239,24 @@ void updateNeighbours(OrderCriterium criterium, Nodes& nodes, Order& order, Edge
 }
 
 void orderNodes(OrderCriterium criterium, Nodes& nodes, Order& order, EdgesTable &edgesTable, const uint32_t start,
-                ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const OrderParameters &orderParameters)
+                ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const OrderParameters &orderParameters, const uint32_t maxHop, const uint32_t maxSettledNodes)
 {
     for(size_t i = start; i < order.size(); ++i)
     {
         assert((nodes)[order[i]].order >= start);
         (nodes)[order[i]].orderPoints = getOrderPoints(criterium, edgesTable, nodes[order[i]], nodes,
-                shorctcutsTable, neighboursTable, start, orderParameters);
+                shorctcutsTable, neighboursTable, start, orderParameters, maxHop, maxSettledNodes);
     }
     applyOrderPoints(nodes, order, start, static_cast<uint32_t>(order.size()));
 }
 
 void orderNodes(OrderCriterium criterium, Nodes& nodes, OrderQue& orderQue, EdgesTable &edgesTable,
-                ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const OrderParameters &orderParameters)
+                ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const OrderParameters &orderParameters, const uint32_t maxHop, const uint32_t maxSettledNodes)
 {
     for(size_t i = 0; i < nodes.size(); ++i)
     {
         nodes[i].orderPoints = getOrderPoints(criterium, edgesTable, nodes[i], nodes,
-                shorctcutsTable, neighboursTable, 0, orderParameters);
+                shorctcutsTable, neighboursTable, 0, orderParameters, maxHop, maxSettledNodes);
         orderQue.push(std::make_pair((nodes)[i].orderPoints, i));
         nodes[i].order = std::numeric_limits<uint32_t>::max(); //order in this method is given when returning
     }

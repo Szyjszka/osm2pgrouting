@@ -25,6 +25,8 @@ public:
                     EdgesTable& edgesTable, NeighboursTable& neighboursTable, ShorctutsTable& shortcutsTable, const OrderParameters& OrderParameters);
     uint32_t getIndexOfNextNode() const;
     void updateOrder(Nodes& nodes, EdgesTable& edgesTable, NeighboursTable& neighbours, ShorctutsTable& shortcutsTable);
+    uint32_t getSettledNodesLimit() const;
+    uint32_t getHopLimit() const;
 private:
     Strategy strategy;
     OrderCriterium orderCriterium;
@@ -33,6 +35,8 @@ private:
     uint32_t actualNode;
     uint32_t counter;
     OrderParameters orderParameters;
+    uint32_t settledNodesLimit;
+    uint32_t hopLimit;
 };
 
 
