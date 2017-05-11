@@ -3,6 +3,8 @@
 
 #include "CH/ch_types.h"
 #include "ordering.hpp"
+#include "../distancemanager.hpp"
+#include "memory"
 
 namespace RouterCH
 {
@@ -37,6 +39,7 @@ private:
     OrderParameters orderParameters;
     uint32_t settledNodesLimit;
     uint32_t hopLimit;
+    std::unique_ptr<DistanceManager> distanceManager;
 };
 
 

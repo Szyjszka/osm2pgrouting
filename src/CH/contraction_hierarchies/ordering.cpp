@@ -85,31 +85,6 @@ static int32_t getNumOfAlreadyContractedNeighbours(const Node& v, const Nodes &n
     return orderPoints;
 }
 
-static int32_t getVoronaiRegion(const EdgesTable& edgesTable, const Node& v,
-                const NeighboursTable& neighboursTable)
-{
-    //TODO voronai region wedle artykulu
-    int32_t orderPoints = 0;
-    for(auto neighbour : neighboursTable[v.id])
-    {
-        auto closestNode = neighbour;
-        auto closestDistance = std::numeric_limits<double>::max();
-        for(auto edge : edgesTable.at(neighbour))
-        {
-            if(edge.second < closestDistance)
-            {
-                closestDistance = edge.second;
-                closestNode = edge.first;
-            }
-        }
-        if(closestNode == v.id)
-        {
-            ++orderPoints;
-        }
-    }
-    return orderPoints;
-}
-
 static int32_t getTimeOfContraction(EdgesTable& edgesTable, const Node& v, Nodes &nodes,
                            ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const uint32_t starting_order)
 {
@@ -162,7 +137,7 @@ void simple_order(Nodes* nodes, Order *order)
 
 int32_t getOrderPoints(OrderCriterium criterium, EdgesTable& edgesTable, const Node& v, Nodes &nodes,
                         ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const uint32_t actualIter, const OrderParameters &orderParameters,
-                       const uint32_t maxHop, const uint32_t maxSettledNodes)
+                       const uint32_t maxHop, const uint32_t maxSettledNodes, const DistanceManager& distanceManager)
 {
     switch (criterium) {
     case OrderCriterium::Ways:
@@ -181,7 +156,8 @@ int32_t getOrderPoints(OrderCriterium criterium, EdgesTable& edgesTable, const N
         return getTimeOfContraction(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, actualIter);
         break;
     case OrderCriterium::VoronoiRegion:
-        return getVoronaiRegion(edgesTable, v, neighboursTable);
+        return distanceManager.getNumbersOfOwnedNodes(v.id);
+        //return getVoronaiRegion(edgesTable, v, neighboursTable);
         break;
     case OrderCriterium::ContractedNeighbours:
         return getNumOfAlreadyContractedNeighbours(v, nodes, neighboursTable, actualIter);
@@ -215,7 +191,7 @@ void applyOrderPoints(Nodes& nodes, Order& order, const uint32_t start, const ui
 
 void updateNeighbours(OrderCriterium criterium, Nodes& nodes, Order& order, EdgesTable &edgesTable, const uint32_t start,
                     ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const Neighbours& nodesThatChanged, const OrderParameters &orderParameters,
-                      const uint32_t maxHop, const uint32_t maxSettledNodes)
+                      const uint32_t maxHop, const uint32_t maxSettledNodes, const DistanceManager& distanceManager)
 {
     if(!nodesThatChanged.size())
     {
@@ -228,7 +204,7 @@ void updateNeighbours(OrderCriterium criterium, Nodes& nodes, Order& order, Edge
         if(nodes[nodesThatChanged[i]].order >= start)
         {
             nodes[nodesThatChanged[i]].orderPoints = getOrderPoints(criterium, edgesTable, nodes[nodesThatChanged[i]], nodes,
-                    shorctcutsTable, neighboursTable, start, orderParameters, maxHop, maxSettledNodes);
+                    shorctcutsTable, neighboursTable, start, orderParameters, maxHop, maxSettledNodes, distanceManager);
             end = std::max(nodes[nodesThatChanged[i]].order, end);
         }
     }
@@ -239,24 +215,26 @@ void updateNeighbours(OrderCriterium criterium, Nodes& nodes, Order& order, Edge
 }
 
 void orderNodes(OrderCriterium criterium, Nodes& nodes, Order& order, EdgesTable &edgesTable, const uint32_t start,
-                ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const OrderParameters &orderParameters, const uint32_t maxHop, const uint32_t maxSettledNodes)
+                ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const OrderParameters &orderParameters,
+                const uint32_t maxHop, const uint32_t maxSettledNodes, const DistanceManager& distanceManager)
 {
     for(size_t i = start; i < order.size(); ++i)
     {
         assert((nodes)[order[i]].order >= start);
         (nodes)[order[i]].orderPoints = getOrderPoints(criterium, edgesTable, nodes[order[i]], nodes,
-                shorctcutsTable, neighboursTable, start, orderParameters, maxHop, maxSettledNodes);
+                shorctcutsTable, neighboursTable, start, orderParameters, maxHop, maxSettledNodes, distanceManager);
     }
     applyOrderPoints(nodes, order, start, static_cast<uint32_t>(order.size()));
 }
 
 void orderNodes(OrderCriterium criterium, Nodes& nodes, OrderQue& orderQue, EdgesTable &edgesTable,
-                ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const OrderParameters &orderParameters, const uint32_t maxHop, const uint32_t maxSettledNodes)
+                ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, const OrderParameters &orderParameters,
+                const uint32_t maxHop, const uint32_t maxSettledNodes, const DistanceManager& distanceManager)
 {
     for(size_t i = 0; i < nodes.size(); ++i)
     {
         nodes[i].orderPoints = getOrderPoints(criterium, edgesTable, nodes[i], nodes,
-                shorctcutsTable, neighboursTable, 0, orderParameters, maxHop, maxSettledNodes);
+                shorctcutsTable, neighboursTable, 0, orderParameters, maxHop, maxSettledNodes, distanceManager);
         orderQue.push(std::make_pair((nodes)[i].orderPoints, i));
         nodes[i].order = std::numeric_limits<uint32_t>::max(); //order in this method is given when returning
     }

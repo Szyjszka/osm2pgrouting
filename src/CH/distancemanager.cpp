@@ -2,6 +2,8 @@
 
 #include <limits>
 #include "ch_types.h"
+#include "shortest_path_algorithms/dijkstra.hpp"
+#include "shortest_path_algorithms/dijkstra_utils.hpp"
 
 using namespace RouterCH;
 
@@ -11,7 +13,7 @@ DistanceManager::DistanceManager(const Nodes &nodes_, const EdgesTable &edgesTab
     ,   edgesTable(edgesTable_)
     ,   neighboursTable(neighboursTable_)
 {
-    owners.resize(nodes.size());
+    owners.resize(nodes.size(), DistanceNode(INF, 1e6));
     closestNodes.resize(nodes.size());
 
     for(auto node : nodes)
@@ -35,9 +37,12 @@ DistanceManager::DistanceManager(const Nodes &nodes_, const EdgesTable &edgesTab
 
 void DistanceManager::removeNodeFromOwning(const uint32_t node, const uint32_t staringOrder)
 {
-    for(auto nodeID : closestNodes[node])
+    if(!closestNodes[node].size())
+        return;
+    for(uint32_t nodeID : closestNodes[node])
     {
-        auto closestNode = getClosestNode(node, staringOrder);
+        auto closestNode = getClosestNode(nodeID, staringOrder + 1);
+        assert(nodes[closestNode.id].order > staringOrder);
         setOwner(nodeID, closestNode.id, closestNode.distance);
     }
 
@@ -49,11 +54,6 @@ uint32_t DistanceManager::getNumbersOfOwnedNodes(const uint32_t node) const
     return closestNodes[node].size();
 }
 
-double DistanceManager::getDistanceToNode(const uint32_t nodeA, const uint32_t nodeB) const
-{
-    return 0;
-}
-
 void DistanceManager::setOwner(const uint32_t node, const uint32_t owner, const double distance)
 {
     owners[node].id = owner;
@@ -62,7 +62,71 @@ void DistanceManager::setOwner(const uint32_t node, const uint32_t owner, const 
     closestNodes[owner].push_back(node);
 }
 
-DistanceManager::DistanceNode DistanceManager::getClosestNode( const uint32_t node, const uint32_t staringOrder) const
+DistanceManager::DistanceNode DistanceManager::getClosestNode( const uint32_t node, const uint32_t startingOrder) const
 {
+    QSTable qsTable(nodes.size(),true);
+    PathTable numberOfWaysAway(nodes.size(), 0);
+    CostQue costQue;
+    costQue.push(std::make_pair(0.0, node));
+    CostTable costTable(nodes.size(), std::numeric_limits<double>::max());
+    costTable[node] = 0;
+    PDI nextElem = costQue.top();
 
+    while(costQue.size())
+    {
+        do{
+            nextElem = costQue.top();
+            costQue.pop();
+        }while(!qsTable[nextElem.second] && costQue.size());
+
+        if(nextElem.second != node)
+        {
+            if(nodes[nextElem.second].order >= startingOrder)
+            {
+                DistanceNode n(nextElem.second, nextElem.first);
+                assert(n.id != node);
+                return n;
+            }
+            else
+            {
+                DistanceNode n(owners[nextElem.second].id, nextElem.first);
+                assert(n.id != node);
+                return n;
+            }
+        }
+
+        qsTable[nextElem.second] = false;
+        for(auto edge : edgesTable.at(nextElem.second))
+        {
+                if(qsTable[edge.first] && edge.second  < INF)
+                {
+                    if( nodes[edge.first].order >= startingOrder)
+                    {
+                        if(costTable[edge.first] > costTable[nextElem.second] + edge.second)
+                        {
+                            numberOfWaysAway[edge.first] = numberOfWaysAway[nextElem.second] + 1;
+                            costTable[edge.first] = costTable[nextElem.second] + edge.second;
+                            if(qsTable[edge.first])
+                            {
+                                costQue.push(std::make_pair(costTable[edge.first], edge.first));
+                            }
+                        }
+                    }
+                    else if(nodes[owners[nextElem.second].id].order > startingOrder)
+                    {
+                        if(costTable[edge.first] > costTable[nextElem.second] + edge.second +  + owners[edge.first].distance)
+                        {
+                            numberOfWaysAway[edge.first] = numberOfWaysAway[nextElem.second] + 1;
+                            costTable[edge.first] = costTable[nextElem.second] + edge.second + owners[edge.first].distance;
+                            if(qsTable[edge.first])
+                            {
+                                costQue.push(std::make_pair(costTable[edge.first], edge.first));
+                            }
+                        }
+                    }
+
+                }
+        }
+    }
+    assert(false);
 }
