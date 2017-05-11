@@ -157,7 +157,6 @@ int32_t getOrderPoints(OrderCriterium criterium, EdgesTable& edgesTable, const N
         break;
     case OrderCriterium::VoronoiRegion:
         return distanceManager.getNumbersOfOwnedNodes(v.id);
-        //return getVoronaiRegion(edgesTable, v, neighboursTable);
         break;
     case OrderCriterium::ContractedNeighbours:
         return getNumOfAlreadyContractedNeighbours(v, nodes, neighboursTable, actualIter);
