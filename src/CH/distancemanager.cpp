@@ -97,7 +97,8 @@ DistanceManager::DistanceNode DistanceManager::getClosestNode( const uint32_t no
         {
                 if(qsTable[edge.first] && edge.second  < INF)
                 {
-                        if(costTable[edge.first] > costTable[nextElem.second] + edge.second)
+                        if(costTable[edge.first] > costTable[nextElem.second] + edge.second &&
+                                nodes[edge.first].order >= startingOrder)
                         {
                             costTable[edge.first] = costTable[nextElem.second] + edge.second;
                             if(qsTable[edge.first])
