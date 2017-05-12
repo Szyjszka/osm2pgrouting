@@ -33,8 +33,8 @@ OrderSupervisor::OrderSupervisor(const OrderSupervisor::Strategy strategy_, cons
 {
     if(orderCriterium_ == OrderCriterium::MyAlgorithm)
     {
-        hopLimit = INF;
-        settledNodesLimit = INF;
+        hopLimit = 5;
+        settledNodesLimit = nodes.size()/20;
     }
     else if(orderCriterium_ == OrderCriterium::VoronoiRegion)
     {
