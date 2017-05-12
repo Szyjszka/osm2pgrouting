@@ -125,6 +125,17 @@ static int32_t getMyAlgorithmPoints(EdgesTable& edgesTable, const Node& v, Nodes
     return (orderParameters.A*w - orderParameters.B*dw + (orderParameters.C+orderParameters.B)*sh);
 }
 
+static int32_t getVoronaiCombination(EdgesTable& edgesTable, const Node& v, Nodes &nodes,
+                                    ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, uint32_t starting_order,
+                                    OrderParameters orderParameters, const uint32_t maxHop, const uint32_t maxSettledNodes, const DistanceManager& distanceManager)
+{
+    const uint32_t vor = distanceManager.getNumbersOfOwnedNodes(v.id);
+    const uint32_t sh = getNumOfShortcuts(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, starting_order, maxHop, maxSettledNodes);
+    const uint32_t ss = getSearchSpace(edgesTable,  nodes[v.id], nodes, starting_order);
+    return (orderParameters.A*vor + orderParameters.B*ss + (orderParameters.C)*sh);
+}
+
+
 void simple_order(Nodes* nodes, Order *order)
 {
     for(uint32_t i = 0; i <nodes->size(); ++i)
@@ -169,7 +180,9 @@ int32_t getOrderPoints(OrderCriterium criterium, EdgesTable& edgesTable, const N
     case OrderCriterium::MyAlgorithm:
         return getMyAlgorithmPoints(edgesTable, nodes[v.id], nodes, shorctcutsTable,
                 neighboursTable, actualIter, orderParameters, maxHop, maxSettledNodes);
-
+    case OrderCriterium::VoronaiCombination:
+        return getVoronaiCombination(edgesTable, nodes[v.id], nodes, shorctcutsTable,
+                neighboursTable, actualIter, orderParameters, maxHop, maxSettledNodes, distanceManager);
     default:
         break;
     }
@@ -258,6 +271,8 @@ OrderCriterium getOrderCriteriumFromString(const std::string &string)
         return OrderCriterium::Geo;
     if(string == "MyAlgorithm")
         return OrderCriterium::MyAlgorithm;
+    if(string == "VoronoiCombination")
+        return OrderCriterium::VoronaiCombination;
     assert(false);
 }
 

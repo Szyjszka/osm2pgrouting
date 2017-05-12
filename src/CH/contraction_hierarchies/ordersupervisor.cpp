@@ -33,10 +33,10 @@ OrderSupervisor::OrderSupervisor(const OrderSupervisor::Strategy strategy_, cons
 {
     if(orderCriterium_ == OrderCriterium::MyAlgorithm)
     {
-        hopLimit = 5;
-        settledNodesLimit = nodes.size()/20;
+        hopLimit = INF;
+        settledNodesLimit = INF;
     }
-    else if(orderCriterium_ == OrderCriterium::VoronoiRegion)
+    else if(orderCriterium_ == OrderCriterium::VoronoiRegion || orderCriterium_ == OrderCriterium::VoronaiCombination)
     {
         distanceManager = std::make_unique<DistanceManager>(nodes, edgesTable, neighboursTable);
     }

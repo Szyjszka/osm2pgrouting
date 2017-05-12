@@ -23,8 +23,10 @@ Route dijkstra(const EdgesTable &edgesTable, const uint32_t start,
                const uint32_t maxHop, const uint32_t maxSettledNodes)
 {
     QSTable qsTable(nodes.size(),true);
-//    PathTable numberOfWaysAway(nodes.size(), 0);
-//    uint32_t settledNodes = 0;
+    PathTable numberOfWaysAway;
+    if(maxHop < INF)
+        numberOfWaysAway.resize(nodes.size(), 0);
+    uint32_t settledNodes = 0;
     CostQue costQue;
     costQue.push(std::make_pair(0.0, start));
     CostTable costTable(nodes.size(), std::numeric_limits<double>::max());
@@ -41,8 +43,18 @@ Route dijkstra(const EdgesTable &edgesTable, const uint32_t start,
             costQue.pop();
         }while(!qsTable[nextElem.second] && costQue.size());
 
-//        ++settledNodes;
-        if(nextElem.first > maxCost/* || settledNodes > maxSettledNodes || numberOfWaysAway[nextElem.second] > maxHop*/)
+        ++settledNodes;
+
+        if(maxHop < INF)
+        if(numberOfWaysAway[nextElem.second] > maxHop)
+        {
+            return returnedRoute;
+        }
+        if(settledNodes > maxSettledNodes)
+        {
+            return returnedRoute;
+        }
+        if(nextElem.first > maxCost)
         {
             return returnedRoute;
         }
@@ -54,9 +66,9 @@ Route dijkstra(const EdgesTable &edgesTable, const uint32_t start,
                     if(distanceIsSmallerFromB(nodes[end], nodes[nextElem.second], nodes[edge.first]))
                     if(costTable[edge.first] > costTable[nextElem.second] + edge.second)
                     {
-//                        numberOfWaysAway[edge.first] = numberOfWaysAway[nextElem.second] + 1;
+                        if(maxHop < INF)
+                            numberOfWaysAway[edge.first] = numberOfWaysAway[nextElem.second] + 1;
                         costTable[edge.first] = costTable[nextElem.second] + edge.second;
-//                        numberOfWaysAway[edge.first] = numberOfWaysAway[nextElem.second] + 1;
                         if(qsTable[edge.first])
                         {
                             costQue.push(std::make_pair(costTable[edge.first], edge.first));

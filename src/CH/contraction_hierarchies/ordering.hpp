@@ -19,7 +19,9 @@ namespace RouterCH
         Geo,
         SearchSpace,
         CostOfQuery,
-        MyAlgorithm
+        MyAlgorithm,
+        VoronaiCombination,
+        GeiserbergAlgorithm,
     };
 
     OrderCriterium getOrderCriteriumFromString(const std::string& string);
