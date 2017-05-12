@@ -131,7 +131,7 @@ static int32_t getVoronaiCombination(EdgesTable& edgesTable, const Node& v, Node
 {
     const uint32_t vor = distanceManager.getNumbersOfOwnedNodes(v.id);
     const uint32_t sh = getNumOfShortcuts(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, starting_order, maxHop, maxSettledNodes);
-    const uint32_t ss = getSearchSpace(edgesTable,  nodes[v.id], nodes, starting_order);
+    const uint32_t ss = getSearchSpace(edgesTable, nodes,  nodes[v.id], neighboursTable);
     return (orderParameters.A*vor + orderParameters.B*ss + (orderParameters.C)*sh);
 }
 
