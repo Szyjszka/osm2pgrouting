@@ -120,10 +120,9 @@ static int32_t getMyAlgorithmPoints(EdgesTable& edgesTable, const Node& v, Nodes
                                     OrderParameters orderParameters, const uint32_t maxHop, const uint32_t maxSettledNodes)
 {
     const uint32_t w = getNumOfWays(edgesTable, v);
-    const uint32_t ed = getEdgeDifference(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, starting_order, maxHop, maxSettledNodes);
     const uint32_t sh = getNumOfShortcuts(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, starting_order, maxHop, maxSettledNodes);
-
-    return (orderParameters.A*w + orderParameters.B*ed + orderParameters.C*sh);
+    const uint32_t dw = getDeletedWays(edgesTable,  nodes[v.id], nodes, starting_order);
+    return (orderParameters.A*w - orderParameters.B*dw + (orderParameters.C+orderParameters.B)*sh);
 }
 
 void simple_order(Nodes* nodes, Order *order)
