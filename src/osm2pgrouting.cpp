@@ -146,8 +146,18 @@ int main(int argc, char* argv[]) {
         const unsigned int NUM_OF_ITERS = 20;
         RouterCH::DataConverter dataForCH;
         for(unsigned int i = 0; i < NUM_OF_ITERS; ++i)
-            dataForCH.convert(document, orderCriterium, orderStrategy,
-                                              vm["measure"].as<string>(), orderParameters,  i == (NUM_OF_ITERS-1));
+        {
+            if(i != (NUM_OF_ITERS-1)){
+                RouterCH::DataConverter dataForCH2;
+                dataForCH2.convert(document, orderCriterium, orderStrategy,
+                                              vm["measure"].as<string>(), orderParameters,  false);
+            }
+            else
+            {
+                dataForCH.convert(document, orderCriterium, orderStrategy,
+                                              vm["measure"].as<string>(), orderParameters,  true);
+            }
+        }
 
         // END OF CH PART
 
