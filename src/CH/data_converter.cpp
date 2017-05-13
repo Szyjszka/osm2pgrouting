@@ -13,7 +13,7 @@ using namespace osm2pgr;
 using namespace RouterCH;
 
 DataConverter::DataConverter(OSMDocument &document, OrderCriterium orderCriterium, OrderSupervisor::Strategy strategy,
-                             const std::__cxx11::string &measureFileName, const OrderParameters& orderParameters)
+                             const std::__cxx11::string &measureFileName, const OrderParameters& orderParameters, const bool final)
 {
     std::ofstream measureFile(measureFileName, std::ofstream::out | std::ofstream::app);
     AlgorithmTimeMeasure atm;
@@ -28,9 +28,9 @@ DataConverter::DataConverter(OSMDocument &document, OrderCriterium orderCriteriu
 
     atm.stopMeasurement();
 
-    const uint32_t numOfShortcuts = upgradeWays(document);
+    const uint32_t numOfShortcuts = upgradeWays(document, final);
 
-    measureFile << nodesWithRoads.size() << " " << document.ways().size() - numOfShortcuts << " " << numOfShortcuts << " " << atm.getMeanTime() << std::endl;
+    measureFile << nodesWithRoads.size() << " " << numOfWays << " " << numOfShortcuts << " " << atm.getMeanTime() << std::endl;
 
     measureFile.close();
 }
@@ -97,10 +97,12 @@ DataConverter::Osm2pgrWays DataConverter::createNewWays(const osm2pgr::OSMDocume
     return newWays;
 }
 
-unsigned int DataConverter::upgradeWays(OSMDocument &document)
+unsigned int DataConverter::upgradeWays(OSMDocument &document, const bool final)
 {
 
     Osm2pgrWays newWays = createNewWays(document);
+    if(!final)
+        return newWays.size();
 
     std::cout << " TYLE SKROTOW POWSTALO " << newWays.size() << std::endl;
 
@@ -159,6 +161,7 @@ void DataConverter::convertToInternalFormat(const OSMDocument &document)
     std::cout <<"create splitted ways" << std::endl;
     SplittedWays splittedWays;
     createSplittedWays(document, splittedWays);
+    numOfWays = splittedWays.size();
     NumberOfWaysFromNode numberOfWaysFromNode = getNumberOfWaysFromNode(splittedWays);
     size_t numberOfWays = numberOfWaysFromNode.size();
     nodes.resize(numberOfWays);
