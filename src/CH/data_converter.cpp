@@ -12,7 +12,7 @@
 using namespace osm2pgr;
 using namespace RouterCH;
 
-DataConverter::DataConverter(OSMDocument &document, OrderCriterium orderCriterium, OrderSupervisor::Strategy strategy,
+void DataConverter::convert(OSMDocument &document, OrderCriterium orderCriterium, OrderSupervisor::Strategy strategy,
                              const std::__cxx11::string &measureFileName, const OrderParameters& orderParameters, const bool final)
 {
     std::ofstream measureFile(measureFileName, std::ofstream::out | std::ofstream::app);

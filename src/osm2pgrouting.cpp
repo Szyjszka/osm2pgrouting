@@ -144,9 +144,10 @@ int main(int argc, char* argv[]) {
         orderParameters.B =vm["B"].as<int>();
         orderParameters.C =vm["C"].as<int>();
         const unsigned int NUM_OF_ITERS = 20;
+        RouterCH::DataConverter dataForCH;
         for(unsigned int i = 0; i < NUM_OF_ITERS; ++i)
-            RouterCH::DataConverter dataForCH(document, orderCriterium, orderStrategy,
-                                              vm["measure"].as<string>(), orderParameters, i == (NUM_OF_ITERS-1));
+            dataForCH.convert(document, orderCriterium, orderStrategy,
+                                              vm["measure"].as<string>(), orderParameters,  i == (NUM_OF_ITERS-1));
 
         // END OF CH PART
 

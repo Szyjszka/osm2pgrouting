@@ -13,7 +13,7 @@ namespace RouterCH {
 class DataConverter
 {
 public:
-    DataConverter(osm2pgr::OSMDocument& document, OrderCriterium orderCriterium,
+    void convert(osm2pgr::OSMDocument& document, OrderCriterium orderCriterium,
                   OrderSupervisor::Strategy strategy, const std::string& measureFileName, const OrderParameters& orderParameters, const bool final);
 
     typedef std::vector<std::vector<const osm2pgr::Node *> > SplittedWays;
