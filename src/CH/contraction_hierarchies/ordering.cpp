@@ -115,6 +115,17 @@ static int32_t getEdgeDifference(EdgesTable& edgesTable, const Node& v, Nodes &n
            getDeletedWays(edgesTable,  nodes[v.id], nodes, starting_order);
 }
 
+static int32_t getMyAlgorithmPoints2(EdgesTable& edgesTable, const Node& v, Nodes &nodes,
+                                    ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, uint32_t starting_order,
+                                    OrderParameters orderParameters, const uint32_t maxHop, const uint32_t maxSettledNodes)
+{
+    // 80, 1, 200
+    const uint32_t w = getNumOfWays(edgesTable, v);
+    const uint32_t sh = getNumOfShortcuts(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, starting_order, maxHop, maxSettledNodes);
+    const uint32_t dw = getNumOfAlreadyContractedNeighbours(v, nodes, neighboursTable, starting_order);//getDeletedWays(edgesTable,  nodes[v.id], nodes, starting_order);
+    return (orderParameters.A*w + orderParameters.B*dw + (orderParameters.C)*sh);
+}
+
 static int32_t getMyAlgorithmPoints(EdgesTable& edgesTable, const Node& v, Nodes &nodes,
                                     ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, uint32_t starting_order,
                                     OrderParameters orderParameters, const uint32_t maxHop, const uint32_t maxSettledNodes)
