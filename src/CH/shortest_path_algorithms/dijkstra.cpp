@@ -22,7 +22,6 @@ Route dijkstra(const EdgesTable &edgesTable, const uint32_t start,
                const uint32_t end, const Nodes& nodes, const double maxCost, const uint32_t startingOrder,
                const uint32_t maxHop, const uint32_t maxSettledNodes)
 {
-    QSTable qsTable(nodes.size(),true);
     PathTable numberOfWaysAway;
     if(maxHop < INF)
         numberOfWaysAway.resize(nodes.size(), 0);
@@ -38,10 +37,8 @@ Route dijkstra(const EdgesTable &edgesTable, const uint32_t start,
 
     while(costQue.size() && nextElem.second != end)
     {
-        do{
-            nextElem = costQue.top();
-            costQue.pop();
-        }while(!qsTable[nextElem.second] && costQue.size());
+        nextElem = costQue.top();
+        costQue.pop();
 
         ++settledNodes;
 
@@ -58,10 +55,9 @@ Route dijkstra(const EdgesTable &edgesTable, const uint32_t start,
         {
             return returnedRoute;
         }
-        qsTable[nextElem.second] = false;
         for(auto edge : edgesTable[nextElem.second])
         {
-                if(qsTable[edge.first] && edge.second  < INF && nodes[edge.first].order >= startingOrder)
+                if(edge.second  < INF && nodes[edge.first].order >= startingOrder)
                 {
                     if(distanceIsSmallerFromB(nodes[end], nodes[nextElem.second], nodes[edge.first]))
                     if(costTable[edge.first] > costTable[nextElem.second] + edge.second)
@@ -69,10 +65,7 @@ Route dijkstra(const EdgesTable &edgesTable, const uint32_t start,
                         if(maxHop < INF)
                             numberOfWaysAway[edge.first] = numberOfWaysAway[nextElem.second] + 1;
                         costTable[edge.first] = costTable[nextElem.second] + edge.second;
-                        if(qsTable[edge.first])
-                        {
-                            costQue.push(std::make_pair(costTable[edge.first], edge.first));
-                        }
+                        costQue.push(std::make_pair(costTable[edge.first], edge.first));
                     }
 
                 }
