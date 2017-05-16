@@ -119,7 +119,7 @@ static int32_t getMyAlgorithmPoints2(EdgesTable& edgesTable, const Node& v, Node
                                     ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, uint32_t starting_order,
                                     OrderParameters orderParameters, const uint32_t maxHop, const uint32_t maxSettledNodes)
 {
-    // 80, 1, 200
+    // --A 100 --B 2 --C 225 --D 1
     const uint32_t w = getNumOfWays(edgesTable, v);
     const uint32_t sh = getNumOfShortcuts(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, starting_order, maxHop, maxSettledNodes);
     const uint32_t dw = getNumOfAlreadyContractedNeighbours(v, nodes, neighboursTable, starting_order);//getDeletedWays(edgesTable,  nodes[v.id], nodes, starting_order);
@@ -134,6 +134,18 @@ static int32_t getMyAlgorithmPoints(EdgesTable& edgesTable, const Node& v, Nodes
     const uint32_t sh = getNumOfShortcuts(edgesTable, nodes[v.id], nodes, shorctcutsTable, neighboursTable, starting_order, maxHop, maxSettledNodes);
     const uint32_t dw = getDeletedWays(edgesTable,  nodes[v.id], nodes, starting_order);
     return (orderParameters.A*w - orderParameters.B*dw + (orderParameters.C+orderParameters.B)*sh);
+}
+
+//GEISERBERG
+static int32_t getGeiserbergPoints(EdgesTable& edgesTable, const Node& v, Nodes &nodes,
+                                    ShorctutsTable& shorctcutsTable, NeighboursTable& neighboursTable, uint32_t starting_order,
+                                    OrderParameters orderParameters, const uint32_t maxHop, const uint32_t maxSettledNodes)
+{
+    const uint32_t neigh = getNumOfAlreadyContractedNeighbours(v, nodes, neighboursTable, starting_order);
+    const uint32_t ss = getSearchSpace(edgesTable, nodes,  nodes[v.id], neighboursTable);
+    const uint32_t ed = getEdgeDifference(edgesTable, nodes[v.id],
+            nodes, shorctcutsTable, neighboursTable, starting_order, maxHop, maxSettledNodes);
+    return (orderParameters.A*ed + orderParameters.B*neigh + orderParameters.C*ss);
 }
 
 static int32_t getVoronaiCombination(EdgesTable& edgesTable, const Node& v, Nodes &nodes,
@@ -189,8 +201,20 @@ int32_t getOrderPoints(OrderCriterium criterium, EdgesTable& edgesTable, const N
         return getSearchSpace(edgesTable, nodes, v, neighboursTable);
         break;
     case OrderCriterium::MyAlgorithm:
-        return getMyAlgorithmPoints(edgesTable, nodes[v.id], nodes, shorctcutsTable,
-                neighboursTable, actualIter, orderParameters, maxHop, maxSettledNodes);
+        switch(orderParameters.D)
+        {
+        case 0 :
+            return getMyAlgorithmPoints(edgesTable, nodes[v.id], nodes, shorctcutsTable,
+                    neighboursTable, actualIter, orderParameters, maxHop, maxSettledNodes);
+        case 1 :
+            return getMyAlgorithmPoints2(edgesTable, nodes[v.id], nodes, shorctcutsTable,
+                    neighboursTable, actualIter, orderParameters, maxHop, maxSettledNodes);
+        case 2:
+            return getGeiserbergPoints(edgesTable, nodes[v.id], nodes, shorctcutsTable,
+                    neighboursTable, actualIter, orderParameters, maxHop, maxSettledNodes);
+
+        }
+        assert(false);
     case OrderCriterium::VoronaiCombination:
         return getVoronaiCombination(edgesTable, nodes[v.id], nodes, shorctcutsTable,
                 neighboursTable, actualIter, orderParameters, maxHop, maxSettledNodes, distanceManager);

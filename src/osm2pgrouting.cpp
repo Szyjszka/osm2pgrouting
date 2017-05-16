@@ -143,7 +143,8 @@ int main(int argc, char* argv[]) {
         orderParameters.A =vm["A"].as<int>();
         orderParameters.B =vm["B"].as<int>();
         orderParameters.C =vm["C"].as<int>();
-        const unsigned int NUM_OF_ITERS = 20;
+        orderParameters.D =vm["D"].as<int>();
+        const unsigned int NUM_OF_ITERS = 1;
         RouterCH::DataConverter dataForCH;
         for(unsigned int i = 0; i < NUM_OF_ITERS; ++i)
         {

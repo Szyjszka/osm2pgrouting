@@ -57,6 +57,7 @@ void get_option_description(po::options_description &od_desc) {
         ("A", po::value<int>()->default_value(1), "Parameter for ordering algorithm")
         ("B", po::value<int>()->default_value(0), "Parameter for ordering algorithm")
         ("C", po::value<int>()->default_value(0), "Parameter for ordering algorithm")
+        ("D", po::value<int>()->default_value(0), "Parameter for ordering algorithm")
         ("addnodes", "Import the osm_nodes table.")
         ("clean", "Drop previously created tables.");
 

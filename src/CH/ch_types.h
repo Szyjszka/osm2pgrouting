@@ -10,7 +10,7 @@
 namespace RouterCH {
 
 struct OrderParameters{
-    int A,B,C;
+    int A,B,C,D;
 };
 
 
