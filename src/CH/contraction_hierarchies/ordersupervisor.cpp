@@ -13,6 +13,8 @@ OrderSupervisor::Strategy OrderSupervisor::getOrderStrategyFromString(const std:
         return OrderSupervisor::Strategy::UpdateEvery50Round;
     if(string == "UpdateEvery100Round")
         return OrderSupervisor::Strategy::UpdateEvery100Round;
+    if(string == "UpdateAtBeggining")
+        return OrderSupervisor::Strategy::UpdateAtBeggining;
     if(string == "LazyUpdate")
         return OrderSupervisor::Strategy::LazyUpdate;
     if(string == "UpdateNeighbours")
@@ -70,6 +72,16 @@ void OrderSupervisor::updateOrder(Nodes &nodes, EdgesTable &edgesTable, Neighbou
     {
         actualNode = orderTable[counter];
         if(strategy == Strategy::UpdateEveryRound)
+        {
+            orderNodes(orderCriterium, nodes, orderTable, edgesTable, counter,
+                       shortcutsTable, neighboursTable, orderParameters, hopLimit, settledNodesLimit, *distanceManager);
+        }
+        else if(strategy == Strategy::UpdateEvery10Round && (!(counter % 10)))
+        {
+            orderNodes(orderCriterium, nodes, orderTable, edgesTable, counter,
+                       shortcutsTable, neighboursTable, orderParameters, hopLimit, settledNodesLimit, *distanceManager);
+        }
+        else if(strategy == Strategy::UpdateEvery100Round && (!(counter % 100)))
         {
             orderNodes(orderCriterium, nodes, orderTable, edgesTable, counter,
                        shortcutsTable, neighboursTable, orderParameters, hopLimit, settledNodesLimit, *distanceManager);

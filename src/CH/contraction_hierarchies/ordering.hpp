@@ -10,6 +10,7 @@ namespace RouterCH
     enum class OrderCriterium
     {
         Ways,
+        Random,
         Shortcuts,
         Ways_Plus_Shortcuts,
         EdgeDifference,

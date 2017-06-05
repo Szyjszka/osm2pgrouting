@@ -10,6 +10,14 @@ static int32_t getNumOfWays(EdgesTable& edgesTable, const Node& v)
     return static_cast<int32_t>(edgesTable[v.id].size());
 }
 
+static int32_t getRandom(const Node& v)
+{
+    //Not so random as it turns out..., buahahahaha
+    //But well... it should be repeatable
+    return static_cast<int32_t>(v.id);
+}
+
+
 static int32_t getSearchSpace(EdgesTable& edgesTable, Nodes &nodes, const Node& v, NeighboursTable& neighboursTable)
 {
     uint32_t searchSpace = 0;
@@ -200,6 +208,9 @@ int32_t getOrderPoints(OrderCriterium criterium, EdgesTable& edgesTable, const N
     case OrderCriterium::SearchSpace:
         return getSearchSpace(edgesTable, nodes, v, neighboursTable);
         break;
+    case OrderCriterium::Random:
+        return getRandom(v);
+        break;
     case OrderCriterium::MyAlgorithm:
         switch(orderParameters.D)
         {
@@ -308,6 +319,8 @@ OrderCriterium getOrderCriteriumFromString(const std::string &string)
         return OrderCriterium::MyAlgorithm;
     if(string == "VoronoiCombination")
         return OrderCriterium::VoronaiCombination;
+    if(string == "Random")
+        return OrderCriterium::Random;
     assert(false);
 }
 

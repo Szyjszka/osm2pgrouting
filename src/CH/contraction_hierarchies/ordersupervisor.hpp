@@ -19,7 +19,8 @@ public:
         UpdateEvery50Round,
         UpdateEvery100Round,
         LazyUpdate,
-        UpdateNeighbours
+        UpdateNeighbours,
+        UpdateAtBeggining
     };
 
     static Strategy getOrderStrategyFromString(const std::string& string);
